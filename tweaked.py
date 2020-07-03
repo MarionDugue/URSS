@@ -14,12 +14,13 @@ class Simulation:
             agent_map[i] = Agent()
         nx.relabel_nodes(self.graph,agent_map,copy=False)
 
-    
+
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
     def tick(self, graph, seed , p):
+        
+        infected = seed
 
-        new_infected = []
-        for b in seed:
+        for b in infected:
             for a in graph.nodes():
                 if a.id == b:
                     n = a.neighbors
@@ -28,8 +29,8 @@ class Simulation:
                         if rand < p:
                             new_infected.append(c.id)
         seed = new_infected
-        print(seed)    
-        
+        print(new_infected)    
+
 
 
 class Agent:
@@ -73,7 +74,7 @@ G = nx.extended_barabasi_albert_graph(population_size, t_m, t_p, t_q)
 #Creating random seedset with k length
 k = 10
 seedset = random.sample(G.nodes,k )
-
+new_infected = []
 p = 0.1 #parameter of system
 s = Simulation(G, seedset,p)
 
@@ -88,5 +89,3 @@ for n in s.graph.nodes():
 # run the simulation for appropriate number of iterations
 for i in range(0,10):
     s.tick(G, seedset, p)
-    
-
