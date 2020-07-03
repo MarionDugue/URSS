@@ -16,20 +16,34 @@ class Simulation:
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
+   
     def tick(self, graph, seed , p):
         
-        infected = seed
+            new_infected = []
+            
+            for b in seed:
+                for a in graph.nodes():
+                    if a.id == b:
+                        n = a.neighbors
+                        for c in n:
+                            rand = random.uniform(0,1)
+                            if rand < p:
+                                switch = 1
+                                for x in seed:
+                                    if x == c.id:
+                                        switch = 0
+                                
+                                if switch == 1:
+                                    new_infected.append(c.id)
+                                    seed.append(c.id)
+    
+            seed = new_infected + seed
+            return len(new_infected)
 
-        for b in infected:
-            for a in graph.nodes():
-                if a.id == b:
-                    n = a.neighbors
-                    for c in n:
-                        rand = random.uniform(0,1)
-                        if rand < p:
-                            new_infected.append(c.id)
-        seed = new_infected
-        print(new_infected)    
+
+#            
+#            
+
 
 
 
@@ -45,7 +59,7 @@ class Agent:
     def __str__(self):
         return 'self.id'
 
-population_size = 100
+population_size = 1000
 
 # Example topologies - see networkX docs for more details
 # Note the parameters below are NOT SENSIBLE VALUES - they are just to illustrate
@@ -69,12 +83,14 @@ t_q = 0.1
 t_m = 3
 G = nx.extended_barabasi_albert_graph(population_size, t_m, t_p, t_q)
 
-#print(nx.info(G))
+print(nx.info(G))
 
 #Creating random seedset with k length
 k = 10
 seedset = random.sample(G.nodes,k )
 new_infected = []
+print(seedset)
+
 p = 0.1 #parameter of system
 s = Simulation(G, seedset,p)
 
@@ -86,6 +102,14 @@ s = Simulation(G, seedset,p)
 for n in s.graph.nodes():
     n.neighbors = [agt for agt in s.graph.neighbors(n)]
 
-# run the simulation for appropriate number of iterations
-for i in range(0,10):
-    s.tick(G, seedset, p)
+# run the simulation for appropriate number of t iterations
+t = 1000
+j = 1
+i = 0
+while j == 1 and  i < t:
+        LNI = s.tick(G, seedset, p)
+        print(LNI)
+        if LNI == 0:
+            print("Number of iterations is:", i)
+            j = 0  
+        i = i +1
