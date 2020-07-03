@@ -27,12 +27,8 @@ class Simulation:
                         rand = random.uniform(0,1)
                         if rand < p:
                             new_infected.append(c.id)
-        seed = new_infected
-        print(seed)
-#            
-#            
+        print(new_infected)      
         
-
 
 
 class Agent:
