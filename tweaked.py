@@ -27,7 +27,8 @@ class Simulation:
                         rand = random.uniform(0,1)
                         if rand < p:
                             new_infected.append(c.id)
-        print(new_infected)      
+        seed = new_infected
+        print(seed)    
         
 
 
