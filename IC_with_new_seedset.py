@@ -20,16 +20,16 @@ class Simulation:
     def tick(self, graph, seed , p):
         new_infected = []
         for s in seed:
-            n = list(graph.neighbors(s))
-            for c in n:
+            neighbors = list(graph.neighbors(s))
+            for n in neighbors:
                 rand = random.uniform(0,1)
                 if rand < p:
-                    for c in seed:
-                            if c not in seed:
-                                new_infected.append(c.id)
-                                seed.append(c.id)
+                    if n not in seed:
+                        new_infected.append(n.id)
+                        seed.append(n.id)
         seed = new_infected + seed
         return len(new_infected)
+
 
 
 
