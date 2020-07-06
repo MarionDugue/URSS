@@ -19,8 +19,8 @@ class Simulation:
 
     def tick(self, graph, seed , p):
         new_infected = []
-        for s in seed:
-            neighbors = list(graph.neighbors(s))
+        for se in seed:
+            neighbors = list(s.graph.neighbors(se))
             for n in neighbors:
                 rand = random.uniform(0,1)
                 if rand < p:
@@ -29,7 +29,6 @@ class Simulation:
                         seed.append(n.id)
         seed = new_infected + seed
         return len(new_infected)
-
 
 
 
@@ -49,7 +48,7 @@ class Agent:
         return "agent_" + str(self.id)
 
 
-population_size = 10
+population_size = 1000
 
 # Example topologies - see networkX docs for more details
 # Note the parameters below are NOT SENSIBLE VALUES - they are just to illustrate
@@ -80,8 +79,7 @@ print(nx.info(G))
 
 #Creating random seedset with k length
 k = 10
-#Creating random seedset with k length
-k = 10
+
 
 # new_seedset = random.sample(s.graph.nodes, k)
 new_infected = []
@@ -110,8 +108,8 @@ j = 1
 i = 0
 while j == 1 and  i < t:
         LNI = s.tick(G, new_seedset, p)
-        #print(LNI)
+        print(LNI)
         if LNI == 0:
-            #print("Number of iterations is:", i)
+            print("Number of iterations is:", i)
             j = 0  
         i = i +1
