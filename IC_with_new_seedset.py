@@ -17,26 +17,21 @@ class Simulation:
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
 
-    def tick(self, graph, seed , p):
+       def tick(self, graph, seed , p):
 
             new_infected = []
             for s in seed:
-                agt = s.id
-                n = list(graph.neighbors(agt))
+                n = list(graph.neighbors(s))
                 for c in n:
                     rand = random.uniform(0,1)
                     if rand < p:
-                        switch = 1
-                        for x in seed:
-                            if x == c.id:
-                                switch = 0
-    
-                        if switch == 1:
-                            new_infected.append(c.id)
-                            seed.append(c.id)
-
+                        for c in seed:
+                                if c not in seed:
+                                    new_infected.append(c.id)
+                                    seed.append(c.id)
             seed = new_infected + seed
             return len(new_infected)
+
 
 
 class Agent:
