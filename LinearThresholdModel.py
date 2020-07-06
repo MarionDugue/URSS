@@ -19,25 +19,33 @@ class Simulation:
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
     def tick(self, graph, seedset , p):
+        
         new_infected = []
-        print("SEEDSET", len(seedset))
         for a in graph.nodes():
+            #Checking the node is not already in the seedset
+
+            #Finding neighbours
             neighbour = list(graph.neighbors(a))
+            #print("NEIGHBOURS", neighbour)
+            #Defining ID of neighbours in a list. Just a way to check the neighbour list makes sense
             IDNeighbours = []
             i = 0
             while i< len(neighbour):
                 IDNeighbours.append(neighbour[i].id)
                 i = i+1
+            #Finding activated neighbours => putting their edge weight in a list
+            ActivatedWeights = []
             for n in neighbour:
-                ActivatedWeights = []
                 if n.id in seedset:
-                    ActivatedWeights.append(G[n][a]['weight']) # weight n->a = a-> n
+                    ActivatedWeights.append(graph[n][a]['weight'])
+                #summing that list
                 SUM = sum(ActivatedWeights)
+                #Checking condition
                 if a.th < SUM :
-                    if a not in seedset:
-                        new_infected.append(a)
-                        seedset.append(a)
-        return len(new_infected)
+                    if a.id not in seedset:
+                        new_infected.append(a.id)
+                        seedset.append(a.id)
+        return len(new_infected), seedset
                     
     
 class Agent:
@@ -87,7 +95,7 @@ print(nx.info(G))
 #-----------------------------------------------------------------------
 
 #Creating random seedset with k length
-k = 100
+k = 10
 seedset = random.sample(G.nodes,k )
 new_infected = []
 
@@ -100,20 +108,39 @@ s = Simulation(G, seedset,p)
 for n in s.graph.nodes():
     n.neighbors = [agt for agt in s.graph.neighbors(n)]
     #print(n.neighbors)
-#
+
+    
+    
+#Assigning weights
+
+
+for u in G.nodes():
+    neighbour = list(G.neighbors(u))
+    IDNeighbours = []
+    i = 0
+    while i< len(neighbour):
+        IDNeighbours.append(neighbour[i].id)
+        i = i+1
+    length = len(IDNeighbours)
+    k = len(list(G.neighbors(u)))
+    p = np.random.dirichlet(np.ones(k), size=1) 
+    p = p[0]
+    i = 0
+    for n in neighbour:
+        G[u][n]['weight'] = p[i]
+        i = i+1
+
+    
+    
+    
+
 # run the simulation for appropriate number of iterations
 #t iterations
-for u,v,a in G.edges(data=True):
-    G[u][v]['weight'] = random.uniform(0,1)
-    #print(G[u][v]['weight'])
-
-
 t = 1000
 j = 1
 i = 0
 while j == 1 and  i < t:
-        LNI = s.tick(G, seedset, p)
-        print(LNI)
+        LNI, seedset = s.tick(G, seedset, p)
         if LNI == 0:
             print("Number of iterations is:", i)
             j = 0  
