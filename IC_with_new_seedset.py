@@ -16,9 +16,7 @@ class Simulation:
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-
     def tick(self, graph, seed , p):
-
             new_infected = []
             for s in seedset:
                 neighbours = list(graph.neighbors(s))
@@ -46,7 +44,7 @@ class Agent:
     def __repr__(self):
         return "agent_" + str(self.id)
 
-
+#----------------------------------------------------------------------------------------------
 population_size = 1000
 
 # Example topologies - see networkX docs for more details
@@ -75,15 +73,11 @@ G = nx.extended_barabasi_albert_graph(population_size, t_m, t_p, t_q)
 
 
 print(nx.info(G))
-
+#----------------------------------------------------------------------
 #Creating random seedset with k length
 k = 100
 new_infected = []
-
-
-
 p = 0.1 #parameter of system
-
 s = Simulation(G, [], p)
 seedset = random.sample(s.graph.nodes, k)
 
