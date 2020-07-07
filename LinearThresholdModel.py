@@ -60,7 +60,10 @@ class Agent:
 
 
     def __str__(self):
-        return 'self.id'
+        return "agent_" + str(self.id)
+
+    def __repr__(self):
+        return "agent_" + str(self.id)
 
 
 
