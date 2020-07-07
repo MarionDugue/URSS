@@ -22,12 +22,10 @@ class Simulation:
         
         new_infected = []
         for a in graph.nodes():
-            #Checking the node is not already in the seedset
-
             #Finding neighbours
             neighbour = list(graph.neighbors(a))
             #print("NEIGHBOURS", neighbour)
-            #Defining ID of neighbours in a list. Just a way to check the neighbour list makes sense
+            #Defining ID of neighbours in a list. Not used: it's a way to check the neighbour list makes sense
             IDNeighbours = []
             i = 0
             while i< len(neighbour):
@@ -38,7 +36,7 @@ class Simulation:
             for n in neighbour:
                 if n.id in seedset:
                     ActivatedWeights.append(graph[n][a]['weight'])
-                #summing that list
+                #Summing that list
                 SUM = sum(ActivatedWeights)
                 #Checking condition
                 if a.th < SUM :
