@@ -18,18 +18,17 @@ class Simulation:
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
 
     def tick(self, graph, seed , p):
-        new_infected = []
-        for se in seed:
-            neighbors = list(s.graph.neighbors(se))
-            for n in neighbors:
-                rand = random.uniform(0,1)
-                if rand < p:
-                    if n not in seed:
-                        new_infected.append(n.id)
-                        seed.append(n.id)
-        seed = new_infected + seed
-        return len(new_infected)
 
+            new_infected = []
+            for s in seedset:
+                neighbours = list(graph.neighbors(s))
+                for n in neighbours:
+                    rand = random.uniform(0,1)
+                    if rand < p:
+                        if n not in seedset:
+                            new_infected.append(n)
+                            seedset.append(n)
+            return len(new_infected), seedset
 
 
 class Agent:
@@ -78,37 +77,29 @@ G = nx.extended_barabasi_albert_graph(population_size, t_m, t_p, t_q)
 print(nx.info(G))
 
 #Creating random seedset with k length
-k = 10
-
-
-# new_seedset = random.sample(s.graph.nodes, k)
+k = 100
 new_infected = []
 
 
-p = 0.1 #parameter of system
-# s = Simulation(G, new_seedset,p)
-s = Simulation(G, [] ,p)
-
-
-new_seedset = random.sample(s.graph.nodes, k)
-
-
 
 p = 0.1 #parameter of system
 
+s = Simulation(G, [], p)
+seedset = random.sample(s.graph.nodes, k)
 
 
 # cache each agent's neighbor list - could looked up each time depending what you are doing
 for n in s.graph.nodes():
     n.neighbors = [agt for agt in s.graph.neighbors(n)]
+    #print(n.neighbors)
 
-# run the simulation for appropriate number of t iterations
+# run the simulation for appropriate number of iterations
+#t iterations
 t = 1000
 j = 1
 i = 0
 while j == 1 and  i < t:
-        LNI = s.tick(G, new_seedset, p)
-        print(LNI)
+        LNI, seedset = s.tick(G, seedset, p)
         if LNI == 0:
             print("Number of iterations is:", i)
             j = 0  
