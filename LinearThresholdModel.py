@@ -18,36 +18,28 @@ class Simulation:
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-    def tick(self, graph, seedset , p):
+    def tick(self, graph, infected_last_iteration , p):
         
         new_infected = []
         for a in graph.nodes():
-            if a not in seedset:
-                #Finding neighbours
+            if a not in infected_last_iteration and not a.infected:
                 neighbour = list(graph.neighbors(a))
-                #Defining ID of neighbours in a list. Not used: it's a way to check the neighbour list makes sense
-                IDNeighbours = []
-                i = 0
-                while i< len(neighbour):
-                    IDNeighbours.append(neighbour[i].id)
-                    i = i+1
-                #Finding activated neighbours => putting their edge weight in a list
                 ActivatedWeights = []
                 for n in neighbour:
-                    if n in seedset:
+                    if n in infected_last_iteration:
                         ActivatedWeights.append(graph[n][a]['weight'])
-                    #Summing that list
-                    SUM = sum(ActivatedWeights)
-                    #Checking condition
-                    if a.th < SUM :
-                        new_infected.append(a)
-                        seedset.append(a)
-        return len(new_infected), seedset
+                SUM = sum(ActivatedWeights)
+                if a.th < SUM :
+                    new_infected.append(a)
+                    a.infected = True
+        return new_infected
                     
     
 class Agent:
     idCounter = 0
     threshold = random.uniform(0,1)
+    infected = False
+
 
     def __init__(self):
         # set id and ensure each agent has unique id
@@ -102,7 +94,7 @@ new_infected = []
 #Parameter of system
 p = 0.1 
 s = Simulation(G, [], p)
-seedset = random.sample(s.graph.nodes, k)
+initial_seedset = random.sample(s.graph.nodes, k)
 
 
 # cache each agent's neighbor list - could looked up each time depending what you are doing
@@ -132,13 +124,10 @@ for u in G.nodes():
 # run the simulation for appropriate number of iterations
 #t iterations
 t = 1000
-j = 1
-i = 0
-while j == 1 and  i < t:
-        LNI, seedset = s.tick(G, seedset, p)
-        if LNI == 0:
-            print("Number of iterations is:", i)
-            j = 0  
-        i = i +1
-        
-#--------------------------------------
+previous_infections = initial_seedset
+for i in range(0,t):
+    new_infections = s.tick(G, previous_infections, p)
+    print("iteration ", i, " number of new infections: ", len(new_infections))
+    if not new_infections:
+        break
+    previous_infections = new_infections
