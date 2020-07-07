@@ -19,7 +19,6 @@ class Simulation:
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
     def tick(self, graph, seedset , p):
-        
         new_infected = []
         for a in graph.nodes():
             if a.id not in seedset:
@@ -99,8 +98,8 @@ k = 10
 seedset = random.sample(G.nodes,k )
 new_infected = []
 
-
-p = 0.1 #parameter of system
+#Parameter of system
+p = 0.1 
 
 s = Simulation(G, seedset,p)
 
@@ -119,7 +118,6 @@ for u in G.nodes():
         #Generating x weights for x neighbours of node n 
         G[u][n]['weight'] = random.uniform(0,10)
         Edge_list.append(G[u][n]['weight'])
-    #Sum edges to get total
     Sum_Edges= sum(Edge_list)
     for n in neighbour: 
         G[u][n]['weight'] = (G[u][n]['weight'])/Sum_Edges
