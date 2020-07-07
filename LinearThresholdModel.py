@@ -22,25 +22,25 @@ class Simulation:
         
         new_infected = []
         for a in graph.nodes():
-            #Finding neighbours
-            neighbour = list(graph.neighbors(a))
-            #print("NEIGHBOURS", neighbour)
-            #Defining ID of neighbours in a list. Not used: it's a way to check the neighbour list makes sense
-            IDNeighbours = []
-            i = 0
-            while i< len(neighbour):
-                IDNeighbours.append(neighbour[i].id)
-                i = i+1
-            #Finding activated neighbours => putting their edge weight in a list
-            ActivatedWeights = []
-            for n in neighbour:
-                if n.id in seedset:
-                    ActivatedWeights.append(graph[n][a]['weight'])
-                #Summing that list
-                SUM = sum(ActivatedWeights)
-                #Checking condition
-                if a.th < SUM :
-                    if a.id not in seedset:
+            if a.id not in seedset:
+                #Finding neighbours
+                neighbour = list(graph.neighbors(a))
+                #print("NEIGHBOURS", neighbour)
+                #Defining ID of neighbours in a list. Not used: it's a way to check the neighbour list makes sense
+                IDNeighbours = []
+                i = 0
+                while i< len(neighbour):
+                    IDNeighbours.append(neighbour[i].id)
+                    i = i+1
+                #Finding activated neighbours => putting their edge weight in a list
+                ActivatedWeights = []
+                for n in neighbour:
+                    if n.id in seedset:
+                        ActivatedWeights.append(graph[n][a]['weight'])
+                    #Summing that list
+                    SUM = sum(ActivatedWeights)
+                    #Checking condition
+                    if a.th < SUM :
                         new_infected.append(a.id)
                         seedset.append(a.id)
         return len(new_infected), seedset
