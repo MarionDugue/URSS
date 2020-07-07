@@ -112,23 +112,17 @@ for n in s.graph.nodes():
     
     
 #Assigning weights
-
-
 for u in G.nodes():
     neighbour = list(G.neighbors(u))
-    IDNeighbours = []
-    i = 0
-    while i< len(neighbour):
-        IDNeighbours.append(neighbour[i].id)
-        i = i+1
-    length = len(IDNeighbours)
-    k = len(list(G.neighbors(u)))
-    p = np.random.dirichlet(np.ones(k), size=1) 
-    p = p[0]
-    i = 0
+    Edge_list = []
     for n in neighbour:
-        G[u][n]['weight'] = p[i]
-        i = i+1
+        #Generating x weights for x neighbours of node n 
+        G[u][n]['weight'] = random.uniform(0,10)
+        Edge_list.append(G[u][n]['weight'])
+    #Sum edges to get total
+    Sum_Edges= sum(Edge_list)
+    for n in neighbour: 
+        G[u][n]['weight'] = (G[u][n]['weight'])/Sum_Edges
 
     
     
