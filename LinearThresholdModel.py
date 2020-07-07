@@ -19,9 +19,10 @@ class Simulation:
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
     def tick(self, graph, seedset , p):
+        
         new_infected = []
         for a in graph.nodes():
-            if a.id not in seedset:
+            if a not in seedset:
                 #Finding neighbours
                 neighbour = list(graph.neighbors(a))
                 #Defining ID of neighbours in a list. Not used: it's a way to check the neighbour list makes sense
@@ -33,14 +34,14 @@ class Simulation:
                 #Finding activated neighbours => putting their edge weight in a list
                 ActivatedWeights = []
                 for n in neighbour:
-                    if n.id in seedset:
+                    if n in seedset:
                         ActivatedWeights.append(graph[n][a]['weight'])
                     #Summing that list
                     SUM = sum(ActivatedWeights)
                     #Checking condition
                     if a.th < SUM :
-                        new_infected.append(a.id)
-                        seedset.append(a.id)
+                        new_infected.append(a)
+                        seedset.append(a)
         return len(new_infected), seedset
                     
     
@@ -95,13 +96,14 @@ print(nx.info(G))
 
 #Creating random seedset with k length
 k = 10
-seedset = random.sample(G.nodes,k )
 new_infected = []
+
 
 #Parameter of system
 p = 0.1 
+s = Simulation(G, [], p)
+seedset = random.sample(s.graph.nodes, k)
 
-s = Simulation(G, seedset,p)
 
 # cache each agent's neighbor list - could looked up each time depending what you are doing
 for n in s.graph.nodes():
@@ -118,6 +120,7 @@ for u in G.nodes():
         #Generating x weights for x neighbours of node n 
         G[u][n]['weight'] = random.uniform(0,10)
         Edge_list.append(G[u][n]['weight'])
+    #Sum edges to get total
     Sum_Edges= sum(Edge_list)
     for n in neighbour: 
         G[u][n]['weight'] = (G[u][n]['weight'])/Sum_Edges
@@ -139,16 +142,3 @@ while j == 1 and  i < t:
         i = i +1
         
 #--------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
