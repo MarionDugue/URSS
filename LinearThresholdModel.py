@@ -25,7 +25,6 @@ class Simulation:
             if a.id not in seedset:
                 #Finding neighbours
                 neighbour = list(graph.neighbors(a))
-                #print("NEIGHBOURS", neighbour)
                 #Defining ID of neighbours in a list. Not used: it's a way to check the neighbour list makes sense
                 IDNeighbours = []
                 i = 0
