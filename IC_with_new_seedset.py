@@ -16,21 +16,25 @@ class Simulation:
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-    def tick(self, graph, seed , p):
-            new_infected = []
-            for s in seedset:
-                neighbours = list(graph.neighbors(s))
-                for n in neighbours:
-                    rand = random.uniform(0,1)
-                    if rand < p:
-                        if n not in seedset:
-                            new_infected.append(n)
-                            seedset.append(n)
-            return len(new_infected), seedset
 
+    def tick(self, infected_last_iteration , p):
+        new_infected = []
+        # for each agent, a, that was infected in the previous round (or the seed set in initial round)
+        for a in infected_last_iteration:
+            neighbors = a.neighbors
+            # for each of a's neighbours
+            for n in neighbors:
+                rand = random.uniform(0,1)
+                if rand < p:
+                    if n not in infected_last_iteration and not n.infected:
+                        new_infected.append(n)
+        for n in new_infected:
+            n.infected = True
+        return new_infected
 
 class Agent:
     idCounter = 0
+    infected = False
     neighbors = None
 
     def __init__(self):
@@ -44,7 +48,7 @@ class Agent:
     def __repr__(self):
         return "agent_" + str(self.id)
 
-#----------------------------------------------------------------------------------------------
+
 population_size = 1000
 
 # Example topologies - see networkX docs for more details
@@ -73,28 +77,41 @@ G = nx.extended_barabasi_albert_graph(population_size, t_m, t_p, t_q)
 
 
 print(nx.info(G))
-#----------------------------------------------------------------------
+
 #Creating random seedset with k length
-k = 100
+k = 10
+
+
+# new_seedset = random.sample(s.graph.nodes, k)
 new_infected = []
+
+
 p = 0.1 #parameter of system
-s = Simulation(G, [], p)
-seedset = random.sample(s.graph.nodes, k)
+# s = Simulation(G, new_seedset,p)
+s = Simulation(G, [] ,p)
+
+
+initial_seedset = random.sample(s.graph.nodes, k)
+
+
+p = 0.1 #parameter of system
+
 
 
 # cache each agent's neighbor list - could looked up each time depending what you are doing
 for n in s.graph.nodes():
     n.neighbors = [agt for agt in s.graph.neighbors(n)]
-    #print(n.neighbors)
 
-# run the simulation for appropriate number of iterations
-#t iterations
+# run the simulation for appropriate number of t iterations
 t = 1000
-j = 1
-i = 0
-while j == 1 and  i < t:
-        LNI, seedset = s.tick(G, seedset, p)
-        if LNI == 0:
-            print("Number of iterations is:", i)
-            j = 0  
-        i = i +1
+
+# in the first iteration use the seedset as the agents infected last round
+previous_infections = initial_seedset
+print("seedset size: ", len(previous_infections))
+for i in range(0,t):
+    new_infections = s.tick(previous_infections, p)
+    print("iteration ", i, " number of new infections: ", len(new_infections))
+    if not new_infections:
+        break
+    previous_infections = new_infections
+    
