@@ -57,13 +57,12 @@ class Agent:
     age = 0
     
 
-    def __init__(self, age):
+    def __init__(self, start_age):
         # set id and ensure each agent has unique id
         self.id = self.idCounter
         type(self).idCounter += 1
         #set age
-        self.age = self.age
-        type(self).age = age
+        self.age = start_age
 
     def __str__(self):
         return "agent_" + str(self.id)
@@ -72,7 +71,7 @@ class Agent:
         return "agent_" + str(self.id)
 
 #--------------------------------------------------------
-population_size = 10
+population_size = 1000
 
 
 #----------------------------------------------------------------
@@ -115,8 +114,7 @@ p = 0.1 #parameter of system
 # s = Simulation(G, new_seedset,p)
 s = Simulation(G, [] ,p)
 
-for a in s.graph.nodes():
-    print(a.age)
+
 
 initial_seedset = random.sample(s.graph.nodes, k)
 
