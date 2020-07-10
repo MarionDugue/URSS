@@ -31,7 +31,7 @@ class Simulation:
                 SUM = sum(ActivatedWeights)
                 if a.th < SUM :
                     new_infected.append(a)
-        for n in new_infected:
+        for a in new_infected:
             a.infected = True
         return new_infected
                     
