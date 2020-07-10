@@ -48,9 +48,27 @@ class Agent:
     def __repr__(self):
         return "agent_" + str(self.id)
 
-
+#--------------------------------------------------------
 population_size = 1000
 
+#Creating Age List
+Count_Age65_plus = round(population_size * 25/88)
+Count_Age18_34 = round(population_size *0.5* 63/88)
+Count_Age35_64 = Count_Age18_34
+AgeList = []
+for i in range(0,Count_Age65_plus):
+    n = random.randint(65,100)
+    AgeList.append(n)
+for i in range(0,Count_Age18_34):
+    n = random.randint(18,34)
+    AgeList.append(n)
+for i in range(0,Count_Age35_64):
+    n = random.randint(35,64)
+    AgeList.append(n)
+#Making the list random:
+Random_AgeList = random.sample(AgeList, len(AgeList))
+
+#----------------------------------------------------------------
 # Example topologies - see networkX docs for more details
 # Note the parameters below are NOT SENSIBLE VALUES - they are just to illustrate
 # https://networkx.github.io/documentation/stable/reference/generators.html
