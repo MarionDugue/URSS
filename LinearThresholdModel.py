@@ -1,6 +1,5 @@
 import networkx as nx
 import random
-import numpy as np, numpy.random
 
 class Simulation:
     
@@ -12,9 +11,13 @@ class Simulation:
         # Create a new agent for each node, by creating an 
         #agent_map and then relabeling the nodes in the graph
         agent_map = {}
+        a = Simulation.ageList(len(graph))
         for i in range(0, self.num_agents):
-            agent_map[i] = Agent()
+            agent_map[i] = Agent(a[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
+
+
+
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
@@ -31,26 +34,46 @@ class Simulation:
                 SUM = sum(ActivatedWeights)
                 if a.th < SUM :
                     new_infected.append(a)
-        for a in new_infected:
+        for a in new_infected:           
             a.infected = True
         return new_infected
                     
+    def ageList(population_size):
+        Count_Age65_plus = round(population_size * 25/88)
+        Count_Age18_34 = round(population_size *0.5* 63/88)
+        Count_Age35_64 = Count_Age18_34
+        AgeList = []
+        for i in range(0,Count_Age65_plus):
+            n = random.randint(65,100)
+            AgeList.append(n)
+        for i in range(0,Count_Age18_34):
+            n = random.randint(18,34)
+            AgeList.append(n)
+        for i in range(0,Count_Age35_64):
+            n = random.randint(35,64)
+            AgeList.append(n)
+        #Making the list random:
+        Random_AgeList = random.sample(AgeList, len(AgeList))
+        return Random_AgeList
     
 class Agent:
     idCounter = 0
     threshold = random.uniform(0,1)
-    infected = False
+    infected = False  
+    age = 0
 
 
-    def __init__(self):
+    def __init__(self, start_age):
         # set id and ensure each agent has unique id
         self.id = self.idCounter
         type(self).idCounter += 1
         # set threshold and ensure each agent has unique threshold
         self.th = self.threshold
         type(self).threshold = random.uniform(0,1)
-
-
+        #set age
+        self.age = start_age
+        
+        
     def __str__(self):
         return "agent_" + str(self.id)
 
@@ -58,33 +81,48 @@ class Agent:
         return "agent_" + str(self.id)
 
 
+        
+#----------------------------Algorithm 2
+#Define the set of attributes descriptors ie standard deviation for each attribute
+'''
+Set of standard deviation for 1 age group say emerging adults 18-34
+List of attributes
+a1 = household size
+a2 = number of friends
+'''
 
+# for n in G.nodes():
+#     for 
+        
 #--------------------------------------------------------------
-population_size = 1000
+population_size = 10
 
-# Example topologies - see networkX docs for more details
-# Note the parameters below are NOT SENSIBLE VALUES - they are just to illustrate
-# https://networkx.github.io/documentation/stable/reference/generators.html
+#
+## Example topologies - see networkX docs for more details
+## Note the parameters below are NOT SENSIBLE VALUES - they are just to illustrate
+## https://networkx.github.io/documentation/stable/reference/generators.html
+#
+## fully connected
+## G = nx.complete_graph(population_size)
+#
+## regular random graph
+## degree = 3
+## G = nx.random_regular_graph(degree, population_size)
+#
+## small-world
+## t_k = 10
+## t_p = 0.3
+## G = nx.connected_watts_strogatz_graph(population_size, t_k, t_p)
 
-# fully connected
-# G = nx.complete_graph(population_size)
-
-# regular random graph
-# degree = 3
-# G = nx.random_regular_graph(degree, population_size)
-
-# small-world
-# t_k = 10
-# t_p = 0.3
-# G = nx.connected_watts_strogatz_graph(population_size, t_k, t_p)
-
-# Barabasi_albert scale-free
+# # Barabasi_albert scale-free
 t_p = 0.1
 t_q = 0.1
 t_m = 3
-G = nx.extended_barabasi_albert_graph(population_size, t_m, t_p, t_q)
+G = nx.generators.random_graphs.extended_barabasi_albert_graph(population_size, t_m, t_p, t_q)
 
-print(nx.info(G))
+# print(nx.info(G))
+#-------------------------------------------------
+
 #-----------------------------------------------------------------------
 
 #Creating random seedset with k length
@@ -102,8 +140,6 @@ initial_seedset = random.sample(s.graph.nodes, k)
 for n in s.graph.nodes():
     n.neighbors = [agt for agt in s.graph.neighbors(n)]
     #print(n.neighbors)
-
-    
     
 #Assigning weights
 for u in G.nodes():
@@ -132,3 +168,4 @@ for i in range(0,t):
     if not new_infections:
         break
     previous_infections = new_infections
+    
