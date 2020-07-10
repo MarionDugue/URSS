@@ -10,13 +10,31 @@ class Simulation:
         # Create a new agent for each node, by creating an 
         #agent_map and then relabeling the nodes in the graph
         agent_map = {}
+        a = Simulation.ageList(len(graph))
         for i in range(0, self.num_agents):
-            agent_map[i] = Agent()
+            agent_map[i] = Agent(a[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
 
-
+    def ageList(population_size):
+        Count_Age65_plus = round(population_size * 25/88)
+        Count_Age18_34 = round(population_size *0.5* 63/88)
+        Count_Age35_64 = Count_Age18_34
+        AgeList = []
+        for i in range(0,Count_Age65_plus):
+            n = random.randint(65,100)
+            AgeList.append(n)
+        for i in range(0,Count_Age18_34):
+            n = random.randint(18,34)
+            AgeList.append(n)
+        for i in range(0,Count_Age35_64):
+            n = random.randint(35,64)
+            AgeList.append(n)
+        #Making the list random:
+        Random_AgeList = random.sample(AgeList, len(AgeList))
+        return Random_AgeList
+    
+    
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-
     def tick(self, infected_last_iteration , p):
         new_infected = []
         # for each agent, a, that was infected in the previous round (or the seed set in initial round)
@@ -36,11 +54,16 @@ class Agent:
     idCounter = 0
     infected = False
     neighbors = None
+    age = 0
+    
 
-    def __init__(self):
+    def __init__(self, age):
         # set id and ensure each agent has unique id
         self.id = self.idCounter
         type(self).idCounter += 1
+        #set age
+        self.age = self.age
+        type(self).age = age
 
     def __str__(self):
         return "agent_" + str(self.id)
@@ -49,24 +72,8 @@ class Agent:
         return "agent_" + str(self.id)
 
 #--------------------------------------------------------
-population_size = 1000
+population_size = 10
 
-#Creating Age List
-Count_Age65_plus = round(population_size * 25/88)
-Count_Age18_34 = round(population_size *0.5* 63/88)
-Count_Age35_64 = Count_Age18_34
-AgeList = []
-for i in range(0,Count_Age65_plus):
-    n = random.randint(65,100)
-    AgeList.append(n)
-for i in range(0,Count_Age18_34):
-    n = random.randint(18,34)
-    AgeList.append(n)
-for i in range(0,Count_Age35_64):
-    n = random.randint(35,64)
-    AgeList.append(n)
-#Making the list random:
-Random_AgeList = random.sample(AgeList, len(AgeList))
 
 #----------------------------------------------------------------
 # Example topologies - see networkX docs for more details
@@ -108,6 +115,8 @@ p = 0.1 #parameter of system
 # s = Simulation(G, new_seedset,p)
 s = Simulation(G, [] ,p)
 
+for a in s.graph.nodes():
+    print(a.age)
 
 initial_seedset = random.sample(s.graph.nodes, k)
 
