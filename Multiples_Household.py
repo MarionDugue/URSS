@@ -24,7 +24,7 @@ for i in range(0,Count_Age65_plus):
     Household_List.append(House64_plus[i])
     
 #------------------------CHECKING WHICH VALUE IS SENSIBLE------------
-#--Transforms the Household_list as a dictionary---------------------
+#--Transforms the Household_list in a dictionary---------------------
 
 Unique_elements = []
 Household_Dict = {}
@@ -67,7 +67,7 @@ SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
 #Take the 1st not snesible key
 print("TO TWEAK", SNot_List)
 Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
-print("SORTED ALL LIST", SHousehold)
+print("SORTED ALL LIST", Sorted_Household)
 Sensible_List = sorted(Sensible)
 print("SENSIBLE DICT", Sensible)
 print("SENSIBKE IS ", Sensible_List)
