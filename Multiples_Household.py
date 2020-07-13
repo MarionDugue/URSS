@@ -24,7 +24,7 @@ for i in range(0,Count_Age65_plus):
     Household_List.append(House64_plus[i])
     
 #------------------------CHECKING WHICH VALUE IS SENSIBLE------------
-#--Transforms the Household_list in a dictionary---------------------
+#--Transforms the Household_list as a dictionary---------------------
 
 Unique_elements = []
 Household_Dict = {}
@@ -61,100 +61,63 @@ for size in Household_Dict:
             else:
                 Not_sensible[size] = Household_Dict[size]
 
-#Sorting values of Not_sensible dictionary              
-Max_value = max(Not_sensible.items(), key=operator.itemgetter(0))[0] 
+#Sorting values of Not_sensible & Sensible dictionary              
 SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
-#Take the 1st not sensible key
-print("TO TWEAK", SNot_List)
 Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
-print("SORTED ALL LIST", Sorted_Household)
 
 
-
-# SNot_List = [(3, 2), (2, 3)]
-# SHousehold = [(0, 4), (1, 2), (2, 3), (3, 2)]
-# print("SORTED ALL LIST", SHousehold)
-# print("TO TWEAK", SNot_List)
 
 credit = 0
 newpairs = []
 i = 1
+
 for pair in SNot_List:
-    
     key = pair[0]
-    value = pair[1]
-    
-    #for the pair with the largest value, deduce value until satisfy divisibility condition
-    #If houselhold size none sensible is 1 then deduce 1 to value and give it to 0's value
+    value = pair[1] + credit
+    credit = 0
     if key == 1:
-        value = value + credit
-
-        if value % 2 != 0:
-
-            print("MY VALUE IS", value)
-            value = value - 1
-            Value_0 = Sorted_Household[0][1] + 1
-            newpairs.append((Sorted_Household[0][0], Value_0))
-            newpairs.append((Sorted_Household[1][0], value))
-
-        else:
-            newpairs.append((key, value))
-
-
+            value = value + credit
+            if value % 2 != 0:
+                value = value - 1
+                Value_0 = Sorted_Household[0][1] + 1
+                newpairs.append((Sorted_Household[0][0], Value_0))
+                newpairs.append((Sorted_Household[1][0], value))
+      
+            else:
+                newpairs.append((key, value))
     else:
-
-        #For maximum value of key, get credit 
-        if pair == SNot_List[0]:
+        if value % key != 0:
+            #for the pair with the largest value, deduce value until satisfy divisibility condition
+            #If houselhold size none sensible is 1 then deduce 1 to value and give it to 0's value
+            #For maximum value of key, get credit 
+            i = 1
             while value % key != 0:
-                if value < key:
-                    value = value-1
-                    print("Value is", value)
-                    credit = key * i
-                    i += 1
-
-            print("THE FIRST PAIR BECOMES", key, value)
+                value = value-1
+                credit = key * i
+                i += 1
             newpairs.append((key, value))
-            print("NEWLIST", newpairs)
-            if credit != 0:
+            if SNot_List[-1] == pair:
                 for pair in Sorted_Household:
                     if pair[0] == 1:
                         value = pair[1] + credit
                         if value % 2 != 0:
-       
-                           
                             value = value - 1
                             Value_0 = Sorted_Household[0][1] + 1
-                            # newpairs.append((SHousehold[0][0], Value_0))
-                            # newpairs.append((SHousehold[1][0], value))
-                         
-                        else:
-                            newpairs.append((Sorted_Household[0][0], Sorted_Household[0][1]))
                             newpairs.append((Sorted_Household[1][0], value))
-                        
-                            
-         
-        else:    
-            #for second value 
-            if key != SNot_List[0][0]:
-                value = value + credit
-                credit = 0
-                while value % key != 0:
-                    if value < key:
-                        value = value-1
-                        credit += 1
-
-                print("THE SECOND PAIR BECOME", key, value)
-                newpairs.append((key, value))
-                print("NEWLIST", newpairs)
-         
+                            newpairs.append((Sorted_Household[0][0], Value_0))
+                        else:
+                            newpairs.append((Sorted_Household[1][0], value))
+                
+        else:
+            newpairs.append((key, value))
+           
+ 
     
 
-print("Sorted Household", Sorted_Household)
-
+#-----------Adding sensible pairs-------------------------------------
 i = 0
 while i < len(Sorted_Household):
     a = Sorted_Household[i][0]
-    print(a)
     j = 0
     for x in newpairs:
         m = x[0]
@@ -166,43 +129,4 @@ while i < len(Sorted_Household):
     
 
             
-print("NEWPAIRS ARE", newpairs)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print("NEWPAIRS ARE", sorted(newpairs))
