@@ -35,7 +35,6 @@ Household_Dict = dict(Counter(Household_List))
 print(Household_Dict)
 
 
-
 #--Checking for multiples--------------------------------------------  
      
 Checking_multiples = []
@@ -66,7 +65,7 @@ SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
 Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
 
 
-#--If pair is not sensible, it's count will be carried out to the next one-----------------
+#--If pair is not sensible, its count will be carried out to the next one-----------------
 credit = 0
 newpairs = []
 
