@@ -124,18 +124,17 @@ while i < len(Sorted_Household):
         newpairs.append(Sorted_Household[i])
     i += 1
 
-    
 #--Removing all pairs with a count = 0-----------------------------------------
 for pair in newpairs:
     if pair[1] == 0:
         newpairs.remove(pair)
 
-  #--Transforming List of pairs into list of integers           
+#--Transforming List of pairs into list of integers---------------------------           
 New_Householdlist = []
 for pair in newpairs:
     i = 0
     while i < pair[1]:
         New_Householdlist.append(pair[0])
         i += 1
+print(newpairs)
 
-print(len(New_Householdlist))
