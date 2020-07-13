@@ -64,7 +64,7 @@ for size in Household_Dict:
 #Sorting values of Not_sensible dictionary              
 Max_value = max(Not_sensible.items(), key=operator.itemgetter(0))[0] 
 SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
-#Take the 1st not snesible key
+#Take the 1st not sensible key
 print("TO TWEAK", SNot_List)
 Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
 print("SORTED ALL LIST", Sorted_Household)
@@ -90,18 +90,18 @@ for pair in SNot_List:
     #If houselhold size none sensible is 1 then deduce 1 to value and give it to 0's value
     if key == 1:
         value = value + credit
-        print("HELLO")
+
         if value % 2 != 0:
-            print("HELLO2")
+
             print("MY VALUE IS", value)
             value = value - 1
             Value_0 = Sorted_Household[0][1] + 1
             newpairs.append((Sorted_Household[0][0], Value_0))
             newpairs.append((Sorted_Household[1][0], value))
-            print("3!",newpairs)
+
         else:
             newpairs.append((key, value))
-            print("!2",newpairs)
+
 
     else:
 
@@ -122,19 +122,19 @@ for pair in SNot_List:
                     if pair[0] == 1:
                         value = pair[1] + credit
                         if value % 2 != 0:
-                            print("HELLO2")
-                            print("MY VALUE IS", value)
+       
+                           
                             value = value - 1
                             Value_0 = Sorted_Household[0][1] + 1
                             # newpairs.append((SHousehold[0][0], Value_0))
                             # newpairs.append((SHousehold[1][0], value))
-                            print("!1",newpairs)
+                         
                         else:
                             newpairs.append((Sorted_Household[0][0], Sorted_Household[0][1]))
                             newpairs.append((Sorted_Household[1][0], value))
-                            print("!",newpairs)
+                        
                             
-            print("FINISH HERE?")
+         
         else:    
             #for second value 
             if key != SNot_List[0][0]:
@@ -148,7 +148,7 @@ for pair in SNot_List:
                 print("THE SECOND PAIR BECOME", key, value)
                 newpairs.append((key, value))
                 print("NEWLIST", newpairs)
-                print("OR HERE?")
+         
     
 
 print("Sorted Household", Sorted_Household)
