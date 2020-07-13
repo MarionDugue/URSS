@@ -68,9 +68,7 @@ SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
 print("TO TWEAK", SNot_List)
 Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
 print("SORTED ALL LIST", Sorted_Household)
-Sensible_List = sorted(Sensible)
-print("SENSIBLE DICT", Sensible)
-print("SENSIBKE IS ", Sensible_List)
+
 
 
 # SNot_List = [(3, 2), (2, 3)]
