@@ -1,7 +1,6 @@
-import networkx as nx
-import random
+
 import scipy.stats as stats
-import operator
+
 #---------------------------------PARAMETERS--------------------
 population_size = 10
 
@@ -61,10 +60,12 @@ for size in Household_Dict:
             else:
                 Not_sensible[size] = Household_Dict[size]
 
-#Sorting values of Not_sensible & Sensible dictionary              
+#Sorting values of Not_sensible dictionary              
 SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
+print("TO TWEAK", SNot_List)
+#Take the 1st not snesible key
 Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
-
+print(Sorted_Household)
 
 
 credit = 0
@@ -73,8 +74,22 @@ i = 1
 
 for pair in SNot_List:
     key = pair[0]
-    value = pair[1] + credit
-    credit = 0
+    remainder = 0
+    if credit != 0:
+        if credit % key != 0:
+            value = pair[1] + credit // key
+            remainder = credit - (credit // key) * key
+            credit = 0
+        else:
+            if key == 1:
+                value = pair[1] + credit
+                credit = 0
+            else:
+                value = pair[1] + credit % key
+                credit = 0
+
+    else:
+        value = pair[1]
     if key == 1:
             value = value + credit
             if value % 2 != 0:
@@ -93,7 +108,7 @@ for pair in SNot_List:
             i = 1
             while value % key != 0:
                 value = value-1
-                credit = key * i
+                credit = key * i + remainder
                 i += 1
             newpairs.append((key, value))
             if SNot_List[-1] == pair:
@@ -113,8 +128,6 @@ for pair in SNot_List:
            
  
     
-
-#-----------Adding sensible pairs-------------------------------------
 i = 0
 while i < len(Sorted_Household):
     a = Sorted_Household[i][0]
@@ -128,5 +141,8 @@ while i < len(Sorted_Household):
     i += 1
     
 
+    
+
             
 print("NEWPAIRS ARE", sorted(newpairs))
+
