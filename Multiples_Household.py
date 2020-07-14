@@ -66,10 +66,6 @@ SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
 #Take the 1st not sensible key
 Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
 
-# SNot_List = [(4, 2), (2, 2), (1, 3)]
-# print("TO TWEAK", SNot_List)
-# Sorted_Household = [(0, 3), (1, 3), (2, 2), (4, 2)]
-# print("SORTED IS ", Sorted_Household)
 
 #--If pair is not sensible, its count will be carried out to the next one-----------------
 credit = 0
