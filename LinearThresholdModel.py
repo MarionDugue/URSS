@@ -62,6 +62,7 @@ class Simulation:
     
     def Household(population_size):
         Household_List = []
+        
         #For 18 to 34 years old, mu = 1.54
         Count_Age18_34 = round(population_size *0.5* (46*63/48)/85)
         House18_to_34 =  stats.poisson.rvs( 1.54, loc = 0, size=Count_Age18_34)
@@ -79,9 +80,10 @@ class Simulation:
             Household_List.append(House64_plus[i])
         
         #Because the values are decimals, we want exactly length of population_size:
-        Household_List = Household_List[:population_size]
-        
-        
+        #The UK population is ageing so we remove values from the 18-34 section
+        Reversed_Household_List = Household_List[::-1]
+        Truncated_Reversed_Household_List = Reversed_Household_List[:population_size]
+        Household_List = Truncated_Reversed_Household_List[::-1]
         
         
         #------------------------CHECKING WHICH VALUE IS SENSIBLE------------
@@ -92,34 +94,24 @@ class Simulation:
         
         #--Checking for multiples--------------------------------------------  
              
-        Checking_multiples = []
         Not_sensible = {}
-        Sensible = {}
         for size in Household_Dict:
-            if size == 0:
-                Sensible[size] = Household_Dict[size]
-            else:
+            if size != 0:
                 if size == 1:
-                    if Household_Dict[size] % 2 == 0:
-                        Checking_multiples.append('1_is_sensible')
-                        Sensible[size] = Household_Dict[size]
-                    else:
+                    if Household_Dict[size] % 2 != 0:
                         Not_sensible[size] = Household_Dict[size]
                 else:
                     if Household_Dict[size] == 1:
                         Not_sensible[size] = Household_Dict[size]
                     else:
-                        if Household_Dict[size] % (size+1) == 0:
-                            b = (size, "is sensible")
-                            Checking_multiples.append(b)
-                            Sensible[size] = Household_Dict[size]
-                        else:
+                        if Household_Dict[size] % (size+1) != 0:
                             Not_sensible[size] = Household_Dict[size]
         
-        #--Sorting values of Not_sensible & Sensible dictionary-------------------------------------            
+        #--Sorting values of Not_sensible & Household dictionary-------------------------------------            
         SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
-        #Take the 1st not sensible key
         Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
+        
+        
         
         #--If pair is not sensible, its count will be carried out to the next one-----------------
         credit = 0
@@ -135,14 +127,13 @@ class Simulation:
             else:
                 value = pair[1]
             if key == 1:
-                    value = value + credit
-                    if value % 2 != 0:
-                        value = value - 1
-                        Value_0 = Sorted_Household[0][1] + 1
-                        newpairs.append((Sorted_Household[0][0], Value_0))
-                        newpairs.append((Sorted_Household[1][0], value))
-                    else:
-                        newpairs.append((key, value))
+                if value % 2 != 0:
+                    value = value - 1
+                    Value_0 = Sorted_Household[0][1] + 1
+                    newpairs.append((Sorted_Household[0][0], Value_0))
+                    newpairs.append((Sorted_Household[1][0], value))
+                else:
+                    newpairs.append((key, value))
             else:
                 if value == 1:
                         value = 0
@@ -152,13 +143,9 @@ class Simulation:
                     newpairs.append((key, value))
                 else:
                     if value % (key+1) != 0:
-                        #for the pair with the largest value, deduce value until satisfy divisibility condition
                         while value % (key+1) != 0:
                             value = value - 1
                             credit += 1
-                        if value == 1:
-                             value = 0
-                             credit += 1
                         newpairs.append((key, value))
                         if SNot_List[-1] == pair:
                             for pair in Sorted_Household:
@@ -174,8 +161,6 @@ class Simulation:
                         
                     else:
                         newpairs.append((key, value))
-        
-        
         
         
         #--Appending sensible pairs to the new list------------------------------------    
@@ -199,6 +184,9 @@ class Simulation:
             if newpairs[n][1] != 0:
                 Cleaned_newpairs.append(newpairs[n])
            
+        
+            
+        
         #--Transforming List of pairs into list of integers---------------------------      
         
         New_Householdlist = []
@@ -252,7 +240,7 @@ class Agent:
 
 
 #--------------------------------------------------------------
-population_size = 10
+population_size = 1000
 
 #-------------------------------------------------
 G = nx.Graph()
@@ -285,7 +273,6 @@ for agt in G.nodes:
                               agt.housefull = True
                           if G.degree(neighbr) == neighbr.housesize:
                               neighbr.housefull = True
-
 #Creation of network for friendships:
 for agt in G.nodes:
     for neighbr in G.nodes:
@@ -304,6 +291,7 @@ weights = [G[u][v]['weight'] for u,v in edges]
 pos = nx.circular_layout(G)
 nx.draw(G,pos,  edges=edges, edge_color=colors, width=weights)                               
 plt.legend(['Agents', 'Household'])
+
 
       
 #----------------------------------------------------------------- 
