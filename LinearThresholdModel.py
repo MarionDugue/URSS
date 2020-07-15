@@ -1,5 +1,7 @@
 import networkx as nx
 import random
+import scipy.stats as stats
+from collections import Counter
 
 class Simulation:
     
@@ -11,9 +13,10 @@ class Simulation:
         # Create a new agent for each node, by creating an 
         #agent_map and then relabeling the nodes in the graph
         agent_map = {}
-        a = Simulation.ageList(len(graph))
+        age = Simulation.ageList(len(graph))
+        house = Simulation.Household(len(graph))
         for i in range(0, self.num_agents):
-            agent_map[i] = Agent(a[i])
+            agent_map[i] = Agent(age[i], house[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
 
 
@@ -39,31 +42,184 @@ class Simulation:
         return new_infected
                     
     def ageList(population_size):
-        Count_Age65_plus = round(population_size * 25/88)
-        Count_Age18_34 = round(population_size *0.5* 63/88)
+        Count_Age65_plus = round(population_size * 25/85)
+        Count_Age18_34 = round(population_size *0.5* (46*63/48)/85)
         Count_Age35_64 = Count_Age18_34
         AgeList = []
-        for i in range(0,Count_Age65_plus):
-            n = random.randint(65,100)
-            AgeList.append(n)
+        
         for i in range(0,Count_Age18_34):
             n = random.randint(18,34)
             AgeList.append(n)
         for i in range(0,Count_Age35_64):
             n = random.randint(35,64)
             AgeList.append(n)
-        #Making the list random:
-        Random_AgeList = random.sample(AgeList, len(AgeList))
-        return Random_AgeList
+        for i in range(0,Count_Age65_plus):
+            n = random.randint(65,100)
+            AgeList.append(n)
+        return AgeList
     
+    def Household(population_size):
+        Household_List = []
+        #For 18 to 34 years old, mu = 1.54
+        Count_Age18_34 = round(population_size *0.5* (46*63/48)/85)
+        House18_to_34 =  stats.poisson.rvs( 1.54, loc = 0, size=Count_Age18_34)
+        for i in range(0,Count_Age18_34):
+            Household_List.append(House18_to_34[i])
+        #For 35 to 64 years old, mu = 1.69
+        Count_Age35_64 = Count_Age18_34
+        House35_to_64 =  stats.poisson.rvs( 1.69, loc = 0, size=Count_Age35_64)
+        for i in range(0,Count_Age35_64):
+            Household_List.append(House35_to_64[i])
+        #For 65+ years old, mu = 0.49
+        Count_Age65_plus = round(population_size * 25/85)
+        House64_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus)
+        for i in range(0,Count_Age65_plus):
+            Household_List.append(House64_plus[i])
+        
+        #Because the values are decimals, we want exactly length of population_size:
+        Household_List = Household_List[:population_size]
+        
+        
+        
+        
+        #------------------------CHECKING WHICH VALUE IS SENSIBLE------------
+        #--Counts each value in Household_List and creates a dictionary---------------------
+        
+        Household_Dict = dict(Counter(Household_List))
+        
+        
+        #--Checking for multiples--------------------------------------------  
+             
+        Checking_multiples = []
+        Not_sensible = {}
+        Sensible = {}
+        for size in Household_Dict:
+            if size == 0:
+                Sensible[size] = Household_Dict[size]
+            else:
+                if size == 1:
+                    if Household_Dict[size] % 2 == 0:
+                        Checking_multiples.append('1_is_sensible')
+                        Sensible[size] = Household_Dict[size]
+                    else:
+                        Not_sensible[size] = Household_Dict[size]
+                else:
+                    if Household_Dict[size] == 1:
+                        Not_sensible[size] = Household_Dict[size]
+                    else:
+                        if Household_Dict[size] % (size+1) == 0:
+                            b = (size, "is sensible")
+                            Checking_multiples.append(b)
+                            Sensible[size] = Household_Dict[size]
+                        else:
+                            Not_sensible[size] = Household_Dict[size]
+        
+        #--Sorting values of Not_sensible & Sensible dictionary-------------------------------------            
+        SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
+        #Take the 1st not sensible key
+        Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
+        
+        #--If pair is not sensible, its count will be carried out to the next one-----------------
+        credit = 0
+        newpairs = []
+        
+        for pair in SNot_List:
+            key = pair[0]
+            
+            if credit != 0:
+                value = pair[1] + credit 
+                credit = 0
+                
+            else:
+                value = pair[1]
+            if key == 1:
+                    value = value + credit
+                    if value % 2 != 0:
+                        value = value - 1
+                        Value_0 = Sorted_Household[0][1] + 1
+                        newpairs.append((Sorted_Household[0][0], Value_0))
+                        newpairs.append((Sorted_Household[1][0], value))
+                    else:
+                        newpairs.append((key, value))
+            else:
+                if value == 1:
+                        value = 0
+                        credit += 1
+                        newpairs.append((key, value))
+                if value == 0:
+                    newpairs.append((key, value))
+                else:
+                    if value % (key+1) != 0:
+                        #for the pair with the largest value, deduce value until satisfy divisibility condition
+                        while value % (key+1) != 0:
+                            value = value - 1
+                            credit += 1
+                        if value == 1:
+                             value = 0
+                             credit += 1
+                        newpairs.append((key, value))
+                        if SNot_List[-1] == pair:
+                            for pair in Sorted_Household:
+                                if pair[0] == 1:
+                                    value = pair[1] + credit
+                                    if value % 2 != 0:
+                                        value = value - 1
+                                        Value_0 = Sorted_Household[0][1] + 1
+                                        newpairs.append((Sorted_Household[1][0], value))
+                                        newpairs.append((Sorted_Household[0][0], Value_0))
+                                    else:
+                                        newpairs.append((Sorted_Household[1][0], value))
+                        
+                    else:
+                        newpairs.append((key, value))
+        
+        
+        
+        
+        #--Appending sensible pairs to the new list------------------------------------    
+        
+        i = 0
+        while i < len(Sorted_Household):
+            a = Sorted_Household[i][0]
+            j = 0
+            for x in newpairs:
+                m = x[0]
+                if a == m :
+                    j = 1
+            if j == 0:
+                newpairs.append(Sorted_Household[i])
+            i += 1
+        
+        #--Removing all pairs with a count = 0-----------------------------------------
+            
+        Cleaned_newpairs=[]
+        for n in range(0,len(newpairs)):
+            if newpairs[n][1] != 0:
+                Cleaned_newpairs.append(newpairs[n])
+           
+        #--Transforming List of pairs into list of integers---------------------------      
+        
+        New_Householdlist = []
+        for pair in Cleaned_newpairs:
+            i = 0
+            while i < pair[1]:
+                New_Householdlist.append(pair[0])
+                i += 1
+        print(Cleaned_newpairs)
+        return New_Householdlist
+
+        
+            
 class Agent:
     idCounter = 0
     threshold = random.uniform(0,1)
     infected = False  
     age = 0
+    housesize = 0
+    housefull = False
 
 
-    def __init__(self, start_age):
+    def __init__(self, start_age, start_household):
         # set id and ensure each agent has unique id
         self.id = self.idCounter
         type(self).idCounter += 1
@@ -72,8 +228,12 @@ class Agent:
         type(self).threshold = random.uniform(0,1)
         #set age
         self.age = start_age
+        #set houselhold size
+        self.housesize = start_household
         
         
+        
+
     def __str__(self):
         return "agent_" + str(self.id)
 
@@ -81,47 +241,14 @@ class Agent:
         return "agent_" + str(self.id)
 
 
-        
-#----------------------------Algorithm 2
-#Define the set of attributes descriptors ie standard deviation for each attribute
-'''
-Set of standard deviation for 1 age group say emerging adults 18-34
-List of attributes
-a1 = household size
-a2 = number of friends
-'''
 
-# for n in G.nodes():
-#     for 
-        
 #--------------------------------------------------------------
 population_size = 10
 
-#
-## Example topologies - see networkX docs for more details
-## Note the parameters below are NOT SENSIBLE VALUES - they are just to illustrate
-## https://networkx.github.io/documentation/stable/reference/generators.html
-#
-## fully connected
-## G = nx.complete_graph(population_size)
-#
-## regular random graph
-## degree = 3
-## G = nx.random_regular_graph(degree, population_size)
-#
-## small-world
-## t_k = 10
-## t_p = 0.3
-## G = nx.connected_watts_strogatz_graph(population_size, t_k, t_p)
-
-# # Barabasi_albert scale-free
-t_p = 0.1
-t_q = 0.1
-t_m = 3
-G = nx.generators.random_graphs.extended_barabasi_albert_graph(population_size, t_m, t_p, t_q)
-
-# print(nx.info(G))
 #-------------------------------------------------
+G = nx.Graph()
+for i in range(0,population_size):
+    G.add_node(i)
 
 #-----------------------------------------------------------------------
 
@@ -134,8 +261,27 @@ new_infected = []
 p = 0.1 
 s = Simulation(G, [], p)
 initial_seedset = random.sample(s.graph.nodes, k)
+#-----------------------------------------------------------
+#Creation of network
+for main in G.nodes:
+    if main.housesize != 0:
+        for others in G.nodes:
+            if main.id != others.id:
+                 if main.housesize == others.housesize:
+                     if main.housefull == False and others.housefull == False:
+                         G.add_edge(main,others, weight=0.9)
+                         if G.degree(main) == main.housesize:
+                             main.housefull = True
+                         if G.degree(others) == others.housesize:
+                             others.housefull = True
+
+                                
+nx.draw_shell(G,with_labels=True, node_size=100,font_size=10)
 
 
+
+
+#----------------------------------------------------------------- 
 # cache each agent's neighbor list - could looked up each time depending what you are doing
 for n in s.graph.nodes():
     n.neighbors = [agt for agt in s.graph.neighbors(n)]
@@ -152,11 +298,7 @@ for u in G.nodes():
     #Sum edges to get total
     Sum_Edges= sum(Edge_list)
     for n in neighbour: 
-        G[u][n]['weight'] = (G[u][n]['weight'])/Sum_Edges
-
-    
-    
-    
+        G[u][n]['weight'] = (G[u][n]['weight'])/Sum_Edges   
 
 # run the simulation for appropriate number of iterations
 #t iterations
@@ -168,4 +310,3 @@ for i in range(0,t):
     if not new_infections:
         break
     previous_infections = new_infections
-    
