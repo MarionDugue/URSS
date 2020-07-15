@@ -2,6 +2,7 @@ import networkx as nx
 import random
 import scipy.stats as stats
 from collections import Counter
+import matplotlib.pyplot as plt
 
 class Simulation:
     
@@ -15,8 +16,9 @@ class Simulation:
         agent_map = {}
         age = Simulation.ageList(len(graph))
         house = Simulation.Household(len(graph))
+        friend = Simulation.Friendships(len(graph))
         for i in range(0, self.num_agents):
-            agent_map[i] = Agent(age[i], house[i])
+            agent_map[i] = Agent(age[i], house[i], friend[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
 
 
@@ -208,7 +210,13 @@ class Simulation:
         print(Cleaned_newpairs)
         return New_Householdlist
 
-        
+    def Friendships(population_size):
+        Friends_List = []
+        #(we assume at first) that everyone has 0 to 20 friends with an average at 3-5
+        Friends_List =  stats.poisson.rvs( 4, loc = 0, size=population_size)
+        Friends_Dict = dict(Counter(Friends_List))
+        print(Friends_Dict)
+        return Friends_List
             
 class Agent:
     idCounter = 0
@@ -217,9 +225,11 @@ class Agent:
     age = 0
     housesize = 0
     housefull = False
+    friends = 0
+    friendshipfull = False
 
 
-    def __init__(self, start_age, start_household):
+    def __init__(self, start_age, start_household, start_friends):
         # set id and ensure each agent has unique id
         self.id = self.idCounter
         type(self).idCounter += 1
@@ -230,9 +240,8 @@ class Agent:
         self.age = start_age
         #set houselhold size
         self.housesize = start_household
-        
-        
-        
+        #set number of friends
+        self.friends = start_friends
 
     def __str__(self):
         return "agent_" + str(self.id)
@@ -261,26 +270,42 @@ new_infected = []
 p = 0.1 
 s = Simulation(G, [], p)
 initial_seedset = random.sample(s.graph.nodes, k)
+
 #-----------------------------------------------------------
-#Creation of network
-for main in G.nodes:
-    if main.housesize != 0:
-        for others in G.nodes:
-            if main.id != others.id:
-                 if main.housesize == others.housesize:
-                     if main.housefull == False and others.housefull == False:
-                         G.add_edge(main,others, weight=0.9)
-                         if G.degree(main) == main.housesize:
-                             main.housefull = True
-                         if G.degree(others) == others.housesize:
-                             others.housefull = True
+#Creation of network for households
 
-                                
-nx.draw_shell(G,with_labels=True, node_size=100,font_size=10)
+for agt in G.nodes:
+    if agt.housesize != 0:
+        for neighbr in G.nodes:
+            if agt.id != neighbr.id:
+                  if agt.housesize == neighbr.housesize:
+                      if agt.housefull == False and neighbr.housefull == False:
+                          G.add_edge(agt,neighbr,color='b', weight=3)
+                          if G.degree(agt, weight=3) == agt.housesize:
+                              agt.housefull = True
+                          if G.degree(neighbr) == neighbr.housesize:
+                              neighbr.housefull = True
 
+#Creation of network for friendships:
+for agt in G.nodes:
+    for neighbr in G.nodes:
+            if agt.id != neighbr.id:
+                if agt.friendshipfull == False and neighbr.friendshipfull == False:
+                    if G.has_edge(agt, neighbr) == False:
+                          G.add_edge(agt,neighbr,color='r', weight=1)
+                          if G.degree(agt, weight=1) == agt.friends:
+                              agt.friendshipfull = True
+                          if G.degree(neighbr) == neighbr.friends:
+                              neighbr.friendshipfull = True
+ 
+edges = G.edges()
+colors = [G[u][v]['color'] for u,v in edges]
+weights = [G[u][v]['weight'] for u,v in edges]
+pos = nx.circular_layout(G)
+nx.draw(G,pos,  edges=edges, edge_color=colors, width=weights)                               
+plt.legend(['Agents', 'Household'])
 
-
-
+      
 #----------------------------------------------------------------- 
 # cache each agent's neighbor list - could looked up each time depending what you are doing
 for n in s.graph.nodes():
@@ -310,3 +335,5 @@ for i in range(0,t):
     if not new_infections:
         break
     previous_infections = new_infections
+
+#---------------------------
