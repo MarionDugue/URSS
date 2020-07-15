@@ -15,11 +15,8 @@ class Simulation:
         #agent_map and then relabeling the nodes in the graph
         agent_map = {}
         age = Simulation.ageList(len(graph))
-        print("AGE", len(age))
         house = Simulation.HouseholdList(len(graph))
-        print("house", len(house))
         friend = Simulation.Friendships(len(graph))
-        print("friend", len(friend))
         for i in range(0, self.num_agents):
             agent_map[i] = Agent(age[i], house[i], friend[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
