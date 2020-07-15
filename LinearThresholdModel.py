@@ -209,7 +209,6 @@ class Simulation:
             while i < pair[1]:
                 New_Householdlist.append(pair[0])
                 i += 1
-        print(Cleaned_newpairs)
         return New_Householdlist
     
     def Friendships(population_size):
