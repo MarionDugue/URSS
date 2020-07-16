@@ -1,9 +1,11 @@
-
+import matplotlib.pyplot as plt
 import scipy.stats as stats
 from collections import Counter
+import numpy as np
 
 #---------------------------------PARAMETERS--------------------
-population_size = 10
+
+
 
 #--------------------------------DEFINING INITIAL HOUSEHOLD LIST----
 def HouseholdList(population_size):
@@ -23,20 +25,26 @@ def HouseholdList(population_size):
             Household_List_34_to_64.append(House35_to_64[i])
         #For 65+ years old, mu = 0.49
         Count_Age65_plus = round(population_size * 25/85)
-        House64_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus)
+        House65_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus)
         for i in range(0,Count_Age65_plus):
-            Household_List_65_plus.append(House64_plus[i])
+            Household_List_65_plus.append(House65_plus[i])
+        Distribution_List = Household_List_18_to_34  + Household_List_34_to_64 + Household_List_65_plus
         Sensible_18_to_34 = SensibleHouseholds(Household_List_18_to_34)
         Sensible_34_to_64 = SensibleHouseholds(Household_List_34_to_64)
         Sensible_65_plus = SensibleHouseholds(Household_List_65_plus)
         Household_List = Sensible_18_to_34 + Sensible_34_to_64 + Sensible_65_plus
-        
         #Because the values are decimals, we want exactly length of population_size:
         #The UK population is ageing so we remove values from the 18-34 section
         Reversed_Household_List = Household_List[::-1]
         Truncated_Reversed_Household_List = Reversed_Household_List[:population_size]
         Household_List = Truncated_Reversed_Household_List[::-1]
-        return Household_List
+        #Defining Averages to be compared:
+        Average_18_to_34 = sum(Sensible_18_to_34)/len(Sensible_18_to_34)
+        Average_35_to_64 = sum(Sensible_34_to_64)/len(Sensible_34_to_64)
+        Average_65_plus = sum(Sensible_65_plus)/len(Sensible_65_plus)
+        # plt.hist(Distribution_List, bins = 20)
+        # plt.hist(Household_List, bins = 20)
+        return Average_18_to_34, Average_35_to_64, Average_65_plus
         
 
 def SensibleHouseholds(Household_List_depending_on_age):
@@ -151,4 +159,32 @@ def SensibleHouseholds(Household_List_depending_on_age):
             i += 1
     return New_Householdlist
 
-print(HouseholdList(population_size))
+#--Difference between the averages of each age bin and the theoretical one as a function of iterations
+population_size_List = [100,1000,10000, 100000]
+Diff_18_to_34_List = []
+Diff_34_to_64_List = []
+Diff_65_plus_List = []
+for population_size in population_size_List:
+    Average_18_to_34, Average_35_to_64, Average_65_plus = HouseholdList(population_size)
+    Diff_18_to_34_List.append(abs(1.54 - Average_18_to_34))
+    Diff_34_to_64_List.append(abs(1.69 - Average_35_to_64))
+    Diff_65_plus_List.append(abs(0.49 - Average_65_plus))
+plt.plot(population_size_List, Diff_18_to_34_List)
+plt.plot(population_size_List, Diff_34_to_64_List)
+plt.plot(population_size_List, Diff_65_plus_List)
+plt.yscale("log")
+plt.xscale("log")
+plt.legend(['Diff_18_to_34', 'Diff_34_to_64', 'Diff_65_plus'], loc='best')
+plt.xlabel('Population size')
+plt.ylabel('Difference')
+plt.title('Difference between the averages of each age bin and the theoretical one as a function of population size')
+plt.show()
+
+#--Trends of Poisson distribution and Edited Household_List:
+#--Need to un-comment lines45 and 46
+# population_size = 10000
+# HouseholdList(population_size)
+# plt.legend(['Poisson distribution', 'Adjusted Household'], loc='best')
+# plt.xlabel('Household size')
+# plt.ylabel('Count')
+# plt.title('Comparaison of the Poisson distribution and the adjusted household list')
