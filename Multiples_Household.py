@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from collections import Counter
-import numpy as np
 
 #---------------------------------PARAMETERS--------------------
 
@@ -14,17 +13,17 @@ def HouseholdList(population_size):
         Household_List_34_to_64 = []
         Household_List_65_plus = []
         #For 18 to 34 years old, mu = 1.54
-        Count_Age18_34 = round(population_size *0.5* (46*63/48)/85)
+        Count_Age18_34 = round(population_size *0.26)
         House18_to_34 =  stats.poisson.rvs( 1.54, loc = 0, size=Count_Age18_34)
         for i in range(0,Count_Age18_34):
             Household_List_18_to_34.append(House18_to_34[i])
         #For 35 to 64 years old, mu = 1.69
-        Count_Age35_64 = Count_Age18_34
+        Count_Age35_64 = round(population_size *0.49)
         House35_to_64 =  stats.poisson.rvs( 1.69, loc = 0, size=Count_Age35_64)
         for i in range(0,Count_Age35_64):
             Household_List_34_to_64.append(House35_to_64[i])
         #For 65+ years old, mu = 0.49
-        Count_Age65_plus = round(population_size * 25/85)
+        Count_Age65_plus = round(population_size * 0.25)
         House65_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus)
         for i in range(0,Count_Age65_plus):
             Household_List_65_plus.append(House65_plus[i])
@@ -85,9 +84,9 @@ def SensibleHouseholds(Household_List_depending_on_age):
         if credit != 0:
             value = pair[1] + credit 
             credit = 0
-            
         else:
             value = pair[1]
+            
         if key == 1:
             if value % 2 != 0:
                 value = value - 1
