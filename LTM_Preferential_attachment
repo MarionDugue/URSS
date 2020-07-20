@@ -305,7 +305,6 @@ G.add_edge(Node1, Node2)
 
 def Modified_Barabasi(G):
     Full_Friends = {}
-    print("FULL FRIEND",Full_Friends )
     for nodeID in Sorted_FFriends:
         for node in G.nodes():
             if node.id == nodeID:
@@ -314,8 +313,6 @@ def Modified_Barabasi(G):
                         Full_Friends[node.id] = node.friendshipfull
                     continue
                 else:
-                    print("FULL FRIEND",Full_Friends )
-
                     print("THIS IS FOR NODE", node.id)
                     print("DEGREE now", G.degree(node))
                     print("Friendship ", node.friends )
@@ -324,11 +321,8 @@ def Modified_Barabasi(G):
                     
                     #Maitain a dictionary of proabilities
                     node_probabilities = {}
-                    
-                    
                     for each in G.nodes():
                         node_probabilities[each] = (float)(degrees[each])/sum(dict(G.degree()).values())
-                    print("PROBAB IS",node_probabilities)
                     
                     node_probabilities_cum = []
                     prev = 0
@@ -337,15 +331,16 @@ def Modified_Barabasi(G):
                         temp = [n, prev + p]
                         node_probabilities_cum.append(temp)
                         prev = prev + p
+                        
+                    node_probabilities = list(node_probabilities.items())
+                    Sorted_probabilities = sorted(node_probabilities, key=itemgetter(1))
+                    print("SORTED PROBA ARE", Sorted_probabilities)
                     
                     new_edges = []
                     num_edges_added = 0
                     target_nodes = []
                     # for each in G.nodes():
                   
-                    node_probabilities = list(node_probabilities.items())
-                    Sorted_probabilities = sorted(node_probabilities, key=itemgetter(1))
-                    print("SORTED PROBA ARE", Sorted_probabilities)
                     
                     #Mainting lists of list of cumulative node probabilities
                     node_probabilities_cum = []
@@ -358,7 +353,6 @@ def Modified_Barabasi(G):
                     for pair in node_probabilities_cum:
                         if pair[1] != 0:
                             Filtered_Cum_List.append(pair)
-                    print("CUM IS", Filtered_Cum_List)    
                     #adding edges
                     new_edges = []
                     num_edges_added = 0
@@ -366,17 +360,12 @@ def Modified_Barabasi(G):
                     while(num_edges_added < node.friends):
                         prev_cum = 0
                         r = random.random()
-                        print("R IS", r)
                         k = 0
                         MAX = len(Filtered_Cum_List)
-                        print("MAX IS", Filtered_Cum_List[MAX-1][1])
                         if r > Filtered_Cum_List[MAX-1][1]:
                             r = random.random()
-                        print("R IS NOW", r)
                         while (not(r > prev_cum and r <= Filtered_Cum_List[k][1])):
                             prev_cum = Filtered_Cum_List[k][1]
-                            print("PREV CUM",prev_cum )
-                            print("k", k)
                             k += 1
                           
                         
@@ -387,27 +376,21 @@ def Modified_Barabasi(G):
                         i = 1
                         if target_node.friendshipfull == True:
                             target_node =  Filtered_Cum_List[k-i][0]
-                            print("NEW VALUE IS", Filtered_Cum_List[k-i][0] )
                             i += 1
                             if i == k:
                                 continue
-                        print("I is", i)
                       
                         print("TARGET",target_node )
-                        print("Target", target_nodes)
                         if target_node in target_nodes:
                             print("LOOP BACK")
                             
                         else:
-                            print("PLS")
                             target_nodes.append(target_node)
                         if target_node.friendshipfull == False:
                             G.add_edge(node, target_node, key ='Friends')
                             num_edges_added += 1 #stops loop
                             new_edges.append((node, target_node))
                             print("EDGE HAS BEEN ADDED")
-                        print("DEGREE NEIGHBR IS ", G.degree(target_node))
-                        print("FRIEND FULL NEIGHBOUR IS", target_node.friends )
                         if G.degree(target_node) == target_node.friends:
                             target_node.friendshipfull = True
                         if G.degree(node) == node.friends:
@@ -418,7 +401,6 @@ def Modified_Barabasi(G):
                         continue
 
                     print(num_edges_added, 'edges added')
-    print("FINAL LIST",Full_Friends )
     nx.draw(G)
     return G
 
