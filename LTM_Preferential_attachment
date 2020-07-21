@@ -46,9 +46,9 @@ class Simulation:
         return new_infected
                     
     def ageList(population_size):
-        Count_Age65_plus = round(population_size * 25/85)
-        Count_Age18_34 = round(population_size *0.5* (46*63/48)/85)
-        Count_Age35_64 = Count_Age18_34
+        Count_Age65_plus = round(population_size * 0.25)
+        Count_Age18_34 = round(population_size *0.26)
+        Count_Age35_64 = round(population_size *0.49)
         AgeList = []
         
         for i in range(0,Count_Age18_34):
@@ -71,17 +71,17 @@ class Simulation:
         Household_List_34_to_64 = []
         Household_List_65_plus = []
         #For 18 to 34 years old, mu = 1.54
-        Count_Age18_34 = round(population_size *0.5* (46*63/48)/85)
+        Count_Age18_34 = round(population_size *0.26)
         House18_to_34 =  stats.poisson.rvs( 1.54, loc = 0, size=Count_Age18_34)
         for i in range(0,Count_Age18_34):
             Household_List_18_to_34.append(House18_to_34[i])
         #For 35 to 64 years old, mu = 1.69
-        Count_Age35_64 = Count_Age18_34
+        Count_Age35_64 = round(population_size *0.49)
         House35_to_64 =  stats.poisson.rvs( 1.69, loc = 0, size=Count_Age35_64)
         for i in range(0,Count_Age35_64):
             Household_List_34_to_64.append(House35_to_64[i])
         #For 65+ years old, mu = 0.49
-        Count_Age65_plus = round(population_size * 25/85)
+        Count_Age65_plus = round(population_size * 0.25)
         House64_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus)
         for i in range(0,Count_Age65_plus):
             Household_List_65_plus.append(House64_plus[i])
