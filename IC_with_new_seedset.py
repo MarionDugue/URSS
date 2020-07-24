@@ -15,10 +15,11 @@ class Simulation:
         #agent_map and then relabeling the nodes in the graph
         agent_map = {}
         age = Simulation.ageList(len(graph))
-        house = Simulation.Household(len(graph))
+        house = Simulation.HouseholdList(len(graph))
         friend = Simulation.Friendships(len(graph))
+        sex = Simulation.Sex(len(graph))
         for i in range(0, self.num_agents):
-            agent_map[i] = Agent(age[i], house[i], friend[i])
+            agent_map[i] = Agent(age[i], house[i], friend[i], sex[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
 
 
@@ -55,38 +56,48 @@ class Simulation:
             AgeList.append(n)
         return AgeList
     
-    def Household(population_size):
-         
+    def HouseholdList(population_size):
         Household_List = []
-        
+        Household_List_18_to_34 = []
+        Household_List_34_to_64 = []
+        Household_List_65_plus = []
         #For 18 to 34 years old, mu = 1.54
         Count_Age18_34 = round(population_size *0.26)
         House18_to_34 =  stats.poisson.rvs( 1.54, loc = 0, size=Count_Age18_34)
         for i in range(0,Count_Age18_34):
-            Household_List.append(House18_to_34[i])
+            Household_List_18_to_34.append(House18_to_34[i])
         #For 35 to 64 years old, mu = 1.69
         Count_Age35_64 = round(population_size *0.49)
         House35_to_64 =  stats.poisson.rvs( 1.69, loc = 0, size=Count_Age35_64)
         for i in range(0,Count_Age35_64):
-            Household_List.append(House35_to_64[i])
+            Household_List_34_to_64.append(House35_to_64[i])
         #For 65+ years old, mu = 0.49
         Count_Age65_plus = round(population_size * 0.25)
         House64_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus)
         for i in range(0,Count_Age65_plus):
-            Household_List.append(House64_plus[i])
-        
+            Household_List_65_plus.append(House64_plus[i])
+        Sensible_18_to_34 = Simulation.SensibleHouseholds(Household_List_18_to_34)
+        #print("18 to 34", Sensible_18_to_34)
+        Sensible_34_to_64 = Simulation.SensibleHouseholds(Household_List_34_to_64)
+        #print("34 to 64", Sensible_34_to_64)
+        Sensible_65_plus = Simulation.SensibleHouseholds(Household_List_65_plus)
+        #print("65 plus", Sensible_65_plus)
+        Household_List = Sensible_18_to_34 + Sensible_34_to_64 + Sensible_65_plus
+        #print("ORIGINAL  HOUSE LIST", Household_List )
         #Because the values are decimals, we want exactly length of population_size:
         #The UK population is ageing so we remove values from the 18-34 section
         Reversed_Household_List = Household_List[::-1]
         Truncated_Reversed_Household_List = Reversed_Household_List[:population_size]
         Household_List = Truncated_Reversed_Household_List[::-1]
+        #print("HOUSE LIST IS", Household_List)
+        return Household_List
         
-        
+
+    def SensibleHouseholds(Household_List_depending_on_age):
         #------------------------CHECKING WHICH VALUE IS SENSIBLE------------
         #--Counts each value in Household_List and creates a dictionary---------------------
         
-        Household_Dict = dict(Counter(Household_List))
-        
+        Household_Dict = dict(Counter(Household_List_depending_on_age))
         
         #--Checking for multiples--------------------------------------------  
              
@@ -191,16 +202,26 @@ class Simulation:
             while i < pair[1]:
                 New_Householdlist.append(pair[0])
                 i += 1
-        print(Cleaned_newpairs)
         return New_Householdlist
 
     def Friendships(population_size):
         Friends_List = []
         #(we assume at first) that everyone has 0 to 20 friends with an average at 3-5
         Friends_List =  stats.poisson.rvs( 4, loc = 0, size=population_size)
-        Friends_Dict = dict(Counter(Friends_List))
-        print(Friends_Dict)
+        if sum(Friends_List) % 2 != 0:
+            Friends_List[0] = Friends_List[0] + 1 
         return Friends_List
+    
+    def Sex(population_size):
+        Sex_List = []
+        #In the UK about 51% are women and 49% men
+        for i in range(0, population_size):
+            r = random.random()
+            if r>= 0.51:
+                Sex_List.append('Female')
+            else:
+                Sex_List.append('Male')
+        return Sex_List
 
 class Agent:
     idCounter = 0
@@ -210,8 +231,9 @@ class Agent:
     housefull = False
     friends = 0
     friendshipfull = False
+    sex = 0
 
-    def __init__(self, start_age, start_household, start_friends):
+    def __init__(self, start_age, start_household, start_friends, start_sex):
         # set id and ensure each agent has unique id
         self.id = self.idCounter
         type(self).idCounter += 1
@@ -221,6 +243,8 @@ class Agent:
         self.housesize = start_household
         #set number of friends
         self.friends = start_friends
+        #set sex for each agent
+        self.sex = start_sex
 
     def __str__(self):
         return "agent_" + str(self.id)
@@ -264,6 +288,7 @@ for agt in G.nodes:
                               agt.housefull = True
                           if G.degree(neighbr) == neighbr.housesize:
                               neighbr.housefull = True
+                              
 #Creation of network for friendships:
 for agt in G.nodes:
     for neighbr in G.nodes:
@@ -302,4 +327,3 @@ for i in range(0,t):
     if not new_infections:
         break
     previous_infections = new_infections
-
