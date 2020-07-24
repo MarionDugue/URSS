@@ -17,8 +17,9 @@ class Simulation:
         age = Simulation.ageList(len(graph))
         house = Simulation.HouseholdList(len(graph))
         friend = Simulation.Friendships(len(graph))
+        sex = Simulation.Sex(len(graph))
         for i in range(0, self.num_agents):
-            agent_map[i] = Agent(age[i], house[i], friend[i])
+            agent_map[i] = Agent(age[i], house[i], friend[i], sex[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
 
 
@@ -219,6 +220,17 @@ class Simulation:
         if sum(Friends_List) % 2 != 0:
             Friends_List[0] = Friends_List[0] + 1 
         return Friends_List
+    
+    def Sex(population_size):
+        Sex_List = []
+        #In the UK about 51% are women and 49% men
+        for i in range(0, population_size):
+            r = random.random()
+            if r>= 0.51:
+                Sex_List.append('Female')
+            else:
+                Sex_List.append('Male')
+        return Sex_List
             
 class Agent:
     idCounter = 0
@@ -229,9 +241,10 @@ class Agent:
     housefull = False
     friends = 0
     friendshipfull = False
+    sex = 0
 
 
-    def __init__(self, start_age, start_household, start_friends):
+    def __init__(self, start_age, start_household, start_friends, start_sex):
         # set id and ensure each agent has unique id
         self.id = self.idCounter
         type(self).idCounter += 1
@@ -244,6 +257,8 @@ class Agent:
         self.housesize = start_household
         #set number of friends
         self.friends = start_friends
+        #set sex for each agent
+        self.sex = start_sex
 
     def __str__(self):
         return "agent_" + str(self.id)
@@ -254,7 +269,7 @@ class Agent:
 
 
 #--------------------------------------------------------------
-population_size = 1000
+population_size = 100
 
 #-------------------------------------------------
 G = nx.Graph()
@@ -277,15 +292,34 @@ initial_seedset = random.sample(s.graph.nodes, k)
 
 for agt in G.nodes:
     if agt.housesize != 0:
-        for neighbr in G.nodes:
-            if agt.id != neighbr.id:
-                  if agt.housesize == neighbr.housesize:
-                      if agt.housefull == False and neighbr.housefull == False:
+            if agt.housesize == 1:
+                r = random.random()
+                if r>= 0.012:
+                    for neighbr in G.nodes:
+                        if agt.housefull == False and neighbr.housefull == False:
+                            if neighbr.housesize == 1:
+                                if agt.sex != neighbr.sex:
+                                    G.add_edge(agt,neighbr,color='b', weight=5)
+                                    agt.housefull = True
+                                    neighbr.housefull = True
+                else:
+                    for neighbr in G.nodes:
+                        if agt.housefull == False and neighbr.housefull == False:
+                            if neighbr.housesize == 1:
+                                if agt.sex == neighbr.sex:
+                                    G.add_edge(agt,neighbr,color='b', weight=5)
+                                    agt.housefull = True
+                                    neighbr.housefull = True
+            for neighbr in G.nodes:
+                if agt.id != neighbr.id:
+                    if agt.housefull == False and neighbr.housefull == False:
+                        if agt.housesize == neighbr.housesize:
                           G.add_edge(agt,neighbr,color='b', weight=5)
                           if G.degree(agt, weight=3) == agt.housesize:
                               agt.housefull = True
                           if G.degree(neighbr) == neighbr.housesize:
                               neighbr.housefull = True
+
 
 for agt in G.nodes:
     if agt.friends == 0:
