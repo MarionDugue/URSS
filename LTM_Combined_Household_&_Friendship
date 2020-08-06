@@ -586,12 +586,12 @@ for agt in G.nodes:
                               if (G.degree(neighbr) - neighbr.housesize) == neighbr.friends:
                                   neighbr.friendshipfull = True
           
-i = 0
-for node in G.nodes:
-    if G.degree(node) != (node.housesize + node.friends):
-        print("NODE IS", node.id, "HOUSE", node.housesize, "FRIENDS", node.friends, "FULL OR NOT", node.friendshipfull, "DEGREE", G.degree(node))
-        i += 1
-print("TOTAL MISFITS", i)
+#i = 0
+#for node in G.nodes:
+#    if G.degree(node) != (node.housesize + node.friends):
+#        print("NODE IS", node.id, "HOUSE", node.housesize, "FRIENDS", node.friends, "FULL OR NOT", node.friendshipfull, "DEGREE", G.degree(node))
+#        i += 1
+#print("TOTAL MISFITS", i)
                               
 
 
