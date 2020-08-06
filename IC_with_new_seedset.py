@@ -225,7 +225,6 @@ class Simulation:
 
 class Agent:
     idCounter = 0
-    threshold = random.uniform(0,1)
     infected = False  
     age = 0
     housesize = 0
@@ -251,9 +250,6 @@ class Agent:
         # set id and ensure each agent has unique id
         self.id = self.idCounter
         type(self).idCounter += 1
-        # set threshold and ensure each agent has unique threshold
-        self.th = self.threshold
-        type(self).threshold = random.uniform(0,1)
         #set age
         self.age = start_age
         #set houselhold size
