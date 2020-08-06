@@ -232,6 +232,11 @@ class Agent:
     friends = 0
     friendshipfull = False
     sex = 0
+    BasicRisk = 0
+    Level_smoking = 0
+    Level_alcohol = 0
+    Level_diet = 0
+    Level_exercise = 0
 
     def __init__(self, start_age, start_household, start_friends, start_sex):
         # set id and ensure each agent has unique id
@@ -245,6 +250,183 @@ class Agent:
         self.friends = start_friends
         #set sex for each agent
         self.sex = start_sex
+        #setting the basic risk dependent solely on age and sex
+        if self.age<= 34:
+           self.BasicRisk = 0.001
+        if self.age>34 and self.age<=64:
+            if self.sex == 'Female':
+                self.BasicRisk = 0.02
+            else:
+                self.BasicRisk = 0.044
+        if self.age>64:
+            if self.sex == 'Female':
+                self.BasicRisk = 0.184
+            else:
+                self.BasicRisk = 0.223
+        #Setting level of smoking
+        rand_smoker = random.random()
+        if self.sex == 'Male':
+            if self.age < 35:
+                if rand_smoker <= 0.64:
+                    self.Level_smoking = 0
+                if (rand_smoker > 0.64) and (rand_smoker <= 0.755):
+                    self.Level_smoking = 1
+                if rand_smoker >0.755:
+                    self.Level_smoking = 2
+            if (self.age>=35) and (self.age<65):
+                if rand_smoker <= 0.527:
+                    self.Level_smoking = 0
+                if (rand_smoker > 0.527) and(rand_smoker <= 0.807):
+                    self.Level_smoking = 1
+                if rand_smoker >0.807:
+                    self.Level_smoking = 2
+            if self.age>= 65:
+                if rand_smoker <= 0.435:
+                    self.Level_smoking = 0
+                if (rand_smoker > 0.435) and (rand_smoker <= 0.935):
+                    self.Level_smoking = 1
+                if rand_smoker > 0.935:
+                    self.Level_smoking = 2        
+        else:
+            if self.age < 35:
+                if rand_smoker <= 0.695:
+                    self.Level_smoking = 0
+                if (rand_smoker > 0.695) and (rand_smoker <= 0.815):
+                    self.Level_smoking = 1
+                if rand_smoker >0.815:
+                    self.Level_smoking = 2
+            if (self.age>=35) and (self.age<65):
+                if rand_smoker <= 0.597:
+                    self.Level_smoking = 0
+                if (rand_smoker > 0.597) and(rand_smoker <= 0.837):
+                    self.Level_smoking = 1
+                if rand_smoker >0.837:
+                    self.Level_smoking = 2
+            if self.age>= 65:
+                if rand_smoker <= 0.59:
+                    self.Level_smoking = 0
+                if (rand_smoker > 0.59) and (rand_smoker <= 0.92):
+                    self.Level_smoking = 1
+                if rand_smoker > 0.92:
+                    self.Level_smoking = 2   
+        
+        #Setting level of alcohol consumption
+        rand_alcohol = random.random()
+        if self.sex == 'Male':
+            if self.age < 35:
+                if rand_alcohol <= 0.776:
+                    self.Level_alcohol = 0
+                if (rand_alcohol > 0.776) and (rand_alcohol <= 0.917):
+                    self.Level_alcohol = 1
+                if rand_alcohol >0.917:
+                    self.Level_alcohol = 2
+            if (self.age>=35) and (self.age<65):
+                if rand_alcohol <= 0.691:
+                    self.Level_alcohol = 0
+                if (rand_alcohol > 0.691) and(rand_alcohol <= 0.877):
+                    self.Level_alcohol = 1
+                if rand_alcohol >0.877:
+                    self.Level_alcohol = 2
+            if self.age>= 65:
+                if rand_alcohol <= 0.738:
+                    self.Level_alcohol = 0
+                if (rand_alcohol > 0.738) and (rand_alcohol <= 0.936):
+                    self.Level_alcohol = 1
+                if rand_alcohol > 0.936:
+                    self.Level_alcohol = 2        
+        else:
+            if self.age < 35:
+                if rand_alcohol <= 0.901:
+                    self.Level_alcohol = 0
+                if (rand_alcohol > 0.901) and (rand_alcohol <= 0.969):
+                    self.Level_alcohol = 1
+                if rand_alcohol >0.969:
+                    self.Level_alcohol = 2
+            if (self.age>=35) and (self.age<65):
+                if rand_alcohol <= 0.85:
+                    self.Level_alcohol = 0
+                if (rand_alcohol > 0.85) and(rand_alcohol <= 0.952):
+                    self.Level_alcohol = 1
+                if rand_alcohol >0.952:
+                    self.Level_alcohol = 2
+            if self.age>= 65:
+                if rand_alcohol <= 0.894:
+                    self.Level_alcohol = 0
+                if (rand_alcohol > 0.894) and (rand_alcohol <= 0.98):
+                    self.Level_alcohol = 1
+                if rand_alcohol > 0.98:
+                    self.Level_alcohol = 2
+        
+        #Setting level of fruit and vegetable consumption:
+        rand_diet = random.random()
+        if self.sex == 'Male':
+            if self.age < 35:
+                if rand_diet <= 0.435:
+                    self.Level_diet = 0
+                if (rand_diet > 0.435) and (rand_diet <= 0.725):
+                    self.Level_diet = 1
+                if rand_diet >0.725:
+                    self.Level_diet = 2
+            if (self.age>=35) and (self.age<65):
+                if rand_diet <= 0.526:
+                    self.Level_diet = 0
+                if (rand_diet > 0.526) and(rand_diet <= 0.823):
+                    self.Level_diet = 1
+                if rand_diet >0.823:
+                    self.Level_diet = 2
+            if self.age>= 65:
+                if rand_diet <= 0.52:
+                    self.Level_diet = 0
+                if (rand_diet > 0.52) and (rand_diet <= 0.85):
+                    self.Level_diet = 1
+                if rand_diet > 0.85:
+                    self.Level_diet = 2        
+        else:
+            if self.age < 35:
+                if rand_diet <= 0.529:
+                    self.Level_diet = 0
+                if (rand_diet > 0.529) and (rand_diet <= 0.808):
+                    self.Level_diet = 1
+                if rand_diet >0.808:
+                    self.Level_diet = 2
+            if (self.age>=35) and (self.age<65):
+                if rand_diet <= 0.596:
+                    self.Level_diet = 0
+                if (rand_diet > 0.596) and(rand_diet <= 0.865):
+                    self.Level_diet = 1
+                if rand_diet >0.865:
+                    self.Level_diet = 2
+            if self.age>= 65:
+                if rand_diet <= 0.534:
+                    self.Level_diet = 0
+                if (rand_diet > 0.534) and (rand_diet <= 0.864):
+                    self.Level_diet = 1
+                if rand_diet > 0.864:
+                    self.Level_diet = 2
+        
+        #Setting level of physical activity (same for men and women)
+        rand_exercise = random.random()
+        if self.age < 35:
+            if rand_exercise <= 0.702:
+                self.Level_exercise = 0
+            if (rand_exercise > 0.702) and (rand_exercise <= 0.81):
+                self.Level_exercise = 1
+            if rand_exercise >0.81:
+                self.Level_exercise = 2
+        if (self.age>=35) and (self.age<65):
+            if rand_exercise <= 0.644:
+                self.Level_exercise = 0
+            if (rand_exercise > 0.644) and(rand_exercise <= 0.771):
+                self.Level_exercise = 1
+            if rand_exercise >0.771:
+                self.Level_exercise = 2
+        if self.age>= 65:
+            if rand_exercise <= 0.503:
+                self.Level_exercise = 0
+            if (rand_exercise > 0.503) and (rand_exercise <= 0.633):
+                self.Level_exercise = 1
+            if rand_exercise > 0.633:
+                self.Level_exercise = 2            
 
     def __str__(self):
         return "agent_" + str(self.id)
