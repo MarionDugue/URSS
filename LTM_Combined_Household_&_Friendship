@@ -242,6 +242,7 @@ class Agent:
     Level_smoking = 0
     Level_alcohol = 0
     Level_diet = 0
+    Level_exercise = 0
     
 
  
@@ -414,6 +415,30 @@ class Agent:
                     self.Level_diet = 1
                 if rand_diet > 0.864:
                     self.Level_diet = 2
+        
+        #Setting level of physical activity (same for men and women)
+        rand_exercise = random.random()
+        if self.age < 35:
+            if rand_exercise <= 0.702:
+                self.Level_exercise = 0
+            if (rand_exercise > 0.702) and (rand_exercise <= 0.81):
+                self.Level_exercise = 1
+            if rand_exercise >0.81:
+                self.Level_exercise = 2
+        if (self.age>=35) and (self.age<65):
+            if rand_exercise <= 0.644:
+                self.Level_exercise = 0
+            if (rand_exercise > 0.644) and(rand_exercise <= 0.771):
+                self.Level_exercise = 1
+            if rand_exercise >0.771:
+                self.Level_exercise = 2
+        if self.age>= 65:
+            if rand_exercise <= 0.503:
+                self.Level_exercise = 0
+            if (rand_exercise > 0.503) and (rand_exercise <= 0.633):
+                self.Level_exercise = 1
+            if rand_exercise > 0.633:
+                self.Level_exercise = 2               
     
     def __str__(self):
         return "agent_" + str(self.id)
