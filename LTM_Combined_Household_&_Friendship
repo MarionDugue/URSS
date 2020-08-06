@@ -586,13 +586,7 @@ for agt in G.nodes:
                               if (G.degree(neighbr) - neighbr.housesize) == neighbr.friends:
                                   neighbr.friendshipfull = True
           
-#i = 0
-#for node in G.nodes:
-#    if G.degree(node) != (node.housesize + node.friends):
-#        print("NODE IS", node.id, "HOUSE", node.housesize, "FRIENDS", node.friends, "FULL OR NOT", node.friendshipfull, "DEGREE", G.degree(node))
-#        i += 1
-#print("TOTAL MISFITS", i)
-                              
+                          
 
 
 
@@ -609,18 +603,6 @@ for n in s.graph.nodes():
     n.neighbors = [agt for agt in s.graph.neighbors(n)]
     #print(n.neighbors)
     
-#Assigning weights
-for u in G.nodes():
-    neighbour = list(G.neighbors(u))
-    Edge_list = []
-    for n in neighbour:
-        #Generating x weights for x neighbours of node n 
-        G[u][n]['weight'] = random.uniform(0,10)
-        Edge_list.append(G[u][n]['weight'])
-    #Sum edges to get total
-    Sum_Edges= sum(Edge_list)
-    for n in neighbour: 
-        G[u][n]['weight'] = (G[u][n]['weight'])/Sum_Edges   
 
 # run the simulation for appropriate number of iterations
 #t iterations
