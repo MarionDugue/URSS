@@ -601,7 +601,7 @@ for agt in G.nodes:
 # nx.draw(G,pos,  edges=edges, edge_color=colors, width=weights)                               
 # plt.legend(['Agents', 'Household'])
  
-#--Inital levels of smoking----------------------------------------------------
+#--Inital levels of alcohol consumption----------------------------------------------------
                                   
 levelalcohol_initial = []   
 for agt in G.nodes():
