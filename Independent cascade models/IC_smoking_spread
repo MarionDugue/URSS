@@ -32,8 +32,6 @@ class Simulation:
             # for each of a's neighbours
             for n in neighbors:
                 rand = random.uniform(0,1)
-                if n.Level_smoking > 2:
-                    print("LEVEL IS", n.Level_smoking)
                 if rand < p:
                     if (n not in infected_last_iteration) and (a.Level_smoking < 2):
                         new_infected.append(n)
