@@ -568,9 +568,9 @@ for agt in G.nodes:
 
 
 #--Inital levels---------------------------------------------------------------
-levelsmoking_initial = []   
+levelalcohol_initial = []   
 for agt in G.nodes():
-    levelsmoking_initial.append(agt.Level_smoking)
+    levelalcohol_initial.append(agt.Level_alcohol)
 
 #------------------------------------------------------------------------------
 
@@ -600,7 +600,7 @@ data = np.array(levelalcohol)
 d = np.diff(np.unique(data)).min()
 left_of_first_bin = data.min() - float(d)/2
 right_of_last_bin = data.max() + float(d)/2
-plt.hist([levelsmoking_initial, data], np.arange(left_of_first_bin, right_of_last_bin + d, d), label = ['Before spread', 'After spread'])
+plt.hist([levelalcohol_initial, data], np.arange(left_of_first_bin, right_of_last_bin + d, d), label = ['Before spread', 'After spread'])
 plt.xlabel('Levels of alcohol consumption');
 plt.ylabel('Count of agents');
 plt.title('Spread of alcohol consumption with the independent cascade model');
