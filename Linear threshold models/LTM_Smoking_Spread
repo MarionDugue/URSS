@@ -3,6 +3,7 @@ import random
 import scipy.stats as stats
 from collections import Counter
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Simulation:
     
@@ -590,14 +591,20 @@ for agt in G.nodes:
                           
 
 
-
-edges = G.edges()
-colors = [G[u][v]['color'] for u,v in edges]
-weights = [G[u][v]['weight'] for u,v in edges]
-pos = nx.circular_layout(G)
-#nx.draw(G,pos,  edges=edges, edge_color=colors, width=weights)                               
-plt.legend(['Agents', 'Household'])
+#--Plotting the network--------------------------------------------------------
+# edges = G.edges()
+# colors = [G[u][v]['color'] for u,v in edges]
+# weights = [G[u][v]['weight'] for u,v in edges]
+# pos = nx.circular_layout(G)
+# nx.draw(G,pos,  edges=edges, edge_color=colors, width=weights)                               
+# plt.legend(['Agents', 'Household'])
  
+#--Inital levels of smoking----------------------------------------------------
+levelsmoking_initial = []   
+for agt in G.nodes():
+    levelsmoking_initial.append(agt.Level_smoking)
+
+
 #----------------------------------------------------------------- 
 # cache each agent's neighbor list - could looked up each time depending what you are doing
 for n in s.graph.nodes():
@@ -616,15 +623,19 @@ for i in range(0,t):
         break
     previous_infections = new_infections
 
-#---------------------------
-# 
+#---Plotting-------------------------------------------------------------------
+    
 levelsmoking = []   
 for agt in G.nodes():
     levelsmoking.append(agt.Level_smoking)
-plt.hist(levelsmoking, bins = 3)
+data = np.array(levelsmoking)
+d = np.diff(np.unique(data)).min()
+left_of_first_bin = data.min() - float(d)/2
+right_of_last_bin = data.max() + float(d)/2
+plt.hist([levelsmoking_initial, data], np.arange(left_of_first_bin, right_of_last_bin + d, d), label = ['Before spread', 'After spread'])
+plt.xlabel('Levels of smoking');
+plt.ylabel('Count of agents');
+plt.title('Spread of smoking with the linear threshold model');
+plt.legend()
 plt.show()
-        
-        
-        
-        
         
