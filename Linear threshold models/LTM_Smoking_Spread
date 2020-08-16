@@ -540,8 +540,8 @@ for i in range(0,population_size):
 #-----------------------------------------------------------------------
 
 #Creating random seedset with k length
-k_Level1 = int(0.155 * population_size)
-k_Level2 = int(0.264 * population_size)
+k_Level1 = int(0.264 * population_size)
+k_Level2 = int(0.155 * population_size)
 new_infected = []
 
 
@@ -628,14 +628,16 @@ for n in s.graph.nodes():
 # run the simulation for appropriate number of iterations
 #t iterations
 t = 1000
-initial_seedset
+previous_infections_Level1 = initial_seedset_Level1
+previous_infections_Level2 = initial_seedset_Level2
 for i in range(0,t):
     new_infections = s.tick(G, previous_infections_Level1, previous_infections_Level2,  p)
     print("iteration ", i, " number of new infections: ", len(new_infections))
     if not new_infections:
         break
-    previous_infections = new_infections
-
+    previous_infections_Level1 = new_infections
+    previous_infections_Level2 = new_infections
+    
 #---Plotting-------------------------------------------------------------------
     
 levelsmoking = []   
