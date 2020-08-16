@@ -24,17 +24,24 @@ class Simulation:
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-    def tick(self, infected_last_iteration , p):
+    def tick(self, infected_last_iteration_Level1 ,infected_last_iteration_Level2,  p):
         new_infected = []
         # for each agent, a, that was infected in the previous round (or the seed set in initial round)
-        for a in infected_last_iteration:
+        for a in infected_last_iteration_Level1:
             neighbors = a.neighbors
-            # for each of a's neighbours
             for n in neighbors:
                 rand = random.uniform(0,1)
                 if rand < p:
-                    if (n not in infected_last_iteration) and (a.Level_diet < 2):
+                    if (n not in infected_last_iteration_Level1) and (a.Level_diet == 0):
                         new_infected.append(n)
+        for a in infected_last_iteration_Level2:
+            neighbors = a.neighbors
+            for n in neighbors:
+                rand = random.uniform(0,1)
+                if rand < p:
+                    if (n not in infected_last_iteration_Level2) and (a.Level_diet == 1):
+                        if n not in new_infected:
+                            new_infected.append(n)
         for n in new_infected:
             if n.Level_diet <2:
                 n.Level_diet += 1
@@ -516,18 +523,16 @@ for i in range(0,population_size):
     G.add_node(i)
 
 #Creating random seedset with k length
-k = 10
-
-
-# new_seedset = random.sample(s.graph.nodes, k)
+k_Level1 = int(0.299* population_size)
+k_Level2 = int(0.178 * population_size)
 new_infected = []
 
 
-p = 0.1 #parameter of system
-# s = Simulation(G, new_seedset,p)
-s = Simulation(G, [] ,p)
+p = 0.1 
+s = Simulation(G, [], p)
+initial_seedset_Level1 = random.sample(s.graph.nodes, k_Level1)
+initial_seedset_Level2 = random.sample(s.graph.nodes, k_Level2)
 
-initial_seedset = random.sample(s.graph.nodes, k)
 
 
 #--------------------------------------------------------------------------
@@ -583,14 +588,16 @@ for n in s.graph.nodes():
 t = 1000
 
 # in the first iteration use the seedset as the agents infected last round
-previous_infections = initial_seedset
-print("seedset size: ", len(previous_infections))
+previous_infections_Level1 = initial_seedset_Level1
+previous_infections_Level2 = initial_seedset_Level2
+
 for i in range(0,t):
-    new_infections = s.tick(previous_infections, p)
+    new_infections = s.tick(previous_infections_Level1,previous_infections_Level2 , p)
     print("iteration ", i, " number of new infections: ", len(new_infections))
     if not new_infections:
         break
-    previous_infections = new_infections
+    previous_infections_Level1 = new_infections
+    previous_infections_Level2 = new_infections
 
 #---Plotting-------------------------------------------------------------------
 
