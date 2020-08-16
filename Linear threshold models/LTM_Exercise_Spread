@@ -540,8 +540,8 @@ for i in range(0,population_size):
 #-----------------------------------------------------------------------
 
 #Creating random seedset with k length
-k_Level1 = int(0.262 * population_size)
-k_Level2 = int(0.122 * population_size)
+k_Level1 = int(0.122 * population_size)
+k_Level2 = int(0.262 * population_size)
 new_infected = []
 
 
