@@ -523,8 +523,8 @@ for i in range(0,population_size):
     G.add_node(i)
 
 #Creating random seedset with k length
-k_Level1 = int(0.264 * population_size)
-k_Level2 = int(0.155 * population_size)
+k_Level1 = int(0.13 * population_size)
+k_Level2 = int(0.062 * population_size)
 new_infected = []
 
 
