@@ -41,11 +41,12 @@ class Simulation:
                 SUM = sum(ActivatedWeights)
                 if a.th < SUM :
                     new_infected.append(a)
+        for a in graph.nodes():
             if (a not in infected_last_iteration_Level1) and  (a.Level_smoking == 1):
                 neighbour = list(graph.neighbors(a))
                 ActivatedWeights = []
                 for n in neighbour:
-                    if n in infected_last_iteration_Level1:
+                    if n in infected_last_iteration_Level2:
                         ActivatedWeights.append(graph[n][a]['weight'])
                 SUM = sum(ActivatedWeights)
                 if a.th < SUM :
@@ -539,8 +540,8 @@ for i in range(0,population_size):
 #-----------------------------------------------------------------------
 
 #Creating random seedset with k length
-k_Level1 = int(0.298 * population_size)
-k_Level2 = int(0.168 * population_size)
+k_Level1 = int(0.155 * population_size)
+k_Level2 = int(0.264 * population_size)
 new_infected = []
 
 
@@ -627,8 +628,7 @@ for n in s.graph.nodes():
 # run the simulation for appropriate number of iterations
 #t iterations
 t = 1000
-previous_infections_Level1 = initial_seedset_Level1
-previous_infections_Level2 = initial_seedset_Level2
+initial_seedset
 for i in range(0,t):
     new_infections = s.tick(G, previous_infections_Level1, previous_infections_Level2,  p)
     print("iteration ", i, " number of new infections: ", len(new_infections))
