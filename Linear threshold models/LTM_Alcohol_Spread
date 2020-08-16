@@ -28,15 +28,25 @@ class Simulation:
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-    def tick(self, graph, infected_last_iteration , p):
+    def tick(self, graph, infected_last_iteration_Level1, infected_last_iteration_Level2  , p):
         
         new_infected = []
         for a in graph.nodes():
-            if (a not in infected_last_iteration) and (a.Level_alcohol != 2):
+            if (a not in infected_last_iteration_Level1) and  (a.Level_alcohol == 0):
                 neighbour = list(graph.neighbors(a))
                 ActivatedWeights = []
                 for n in neighbour:
-                    if n in infected_last_iteration:
+                    if n in infected_last_iteration_Level1:
+                        ActivatedWeights.append(graph[n][a]['weight'])
+                SUM = sum(ActivatedWeights)
+                if a.th < SUM :
+                    new_infected.append(a)
+        for a in graph.nodes():
+            if (a not in infected_last_iteration_Level1) and  (a.Level_alcohol == 1):
+                neighbour = list(graph.neighbors(a))
+                ActivatedWeights = []
+                for n in neighbour:
+                    if n in infected_last_iteration_Level2:
                         ActivatedWeights.append(graph[n][a]['weight'])
                 SUM = sum(ActivatedWeights)
                 if a.th < SUM :
@@ -44,7 +54,7 @@ class Simulation:
         for a in new_infected:           
             a.Level_alcohol += 1
         return new_infected
-                    
+    
     def ageList(population_size):
         Count_Age65_plus = round(population_size * 0.25)
         Count_Age18_34 = round(population_size *0.26)        
@@ -530,15 +540,16 @@ for i in range(0,population_size):
 #-----------------------------------------------------------------------
 
 #Creating random seedset with k length
-k = 100
+k_Level1 = int(0.062 * population_size)
+k_Level2 = int(0.13 * population_size)
 new_infected = []
 
 
 #Parameter of system
 p = 0.1 
 s = Simulation(G, [], p)
-initial_seedset = random.sample(s.graph.nodes, k)
-
+initial_seedset_Level1 = random.sample(s.graph.nodes, k_Level1)
+initial_seedset_Level2 = random.sample(s.graph.nodes, k_Level2)
 
 #-----------------------------------------------------------
 
@@ -601,7 +612,7 @@ for agt in G.nodes:
 # nx.draw(G,pos,  edges=edges, edge_color=colors, width=weights)                               
 # plt.legend(['Agents', 'Household'])
  
-#--Inital levels of alcohol consumption----------------------------------------------------
+#--Inital levels of smoking----------------------------------------------------
                                   
 levelalcohol_initial = []   
 for agt in G.nodes():
@@ -618,13 +629,15 @@ for n in s.graph.nodes():
 # run the simulation for appropriate number of iterations
 #t iterations
 t = 1000
-previous_infections = initial_seedset
+previous_infections_Level1 = initial_seedset_Level1
+previous_infections_Level2 = initial_seedset_Level2
 for i in range(0,t):
-    new_infections = s.tick(G, previous_infections, p)
+    new_infections = s.tick(G, previous_infections_Level1, previous_infections_Level2,  p)
     print("iteration ", i, " number of new infections: ", len(new_infections))
     if not new_infections:
         break
-    previous_infections = new_infections
+    previous_infections_Level1 = new_infections
+    previous_infections_Level2 = new_infections
 
 
 #---Plotting-------------------------------------------------------------------
