@@ -1,3 +1,5 @@
+
+
 import networkx as nx
 import random
 import scipy.stats as stats
@@ -143,17 +145,13 @@ class Simulation:
             if sum_L1 == 0:
                 Proba_L1 = 0
             else:
-                Proba_L1 = sum_L1/Total
-            if sum_L2 == 0:
-                Proba_L2 = 0
-            else:
-                Proba_L2 = sum_L2/Total
+                Proba_L1 = sum_L1/Total        
             
             if a.th <= Proba_L0:
                 new_level = 0
-            if (a.th > Proba_L0) and (a.th <= (Proba_L1+Proba_L2)):
+            elif (a.th > Proba_L0) and (a.th <= (Proba_L0+Proba_L1)):
                 new_level = 1
-            if a.th > (Proba_L1+Proba_L2):
+            elif a.th > (Proba_L0+Proba_L1):
                 new_level = 2
             
             #Updating the information
