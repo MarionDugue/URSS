@@ -105,7 +105,7 @@ class Simulation:
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-    def tick(self, graph, infected_last_iteration_Level1, infected_last_iteration_Level2 , p):
+    def tick(self, graph):
         
         new_infected = []
         for a in graph.nodes():
@@ -811,7 +811,7 @@ t = 1000
 previous_infections_Level1 = initial_seedset_Level1
 previous_infections_Level2 = initial_seedset_Level2
 for i in range(0,t):
-    new_infections = s.tick(G, previous_infections_Level1, previous_infections_Level2,  p)
+    new_infections = s.tick(G)
     print("iteration ", i, " number of new infections: ", len(new_infections))
     if not new_infections:
         break
