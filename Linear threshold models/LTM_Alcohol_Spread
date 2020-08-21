@@ -23,36 +23,145 @@ class Simulation:
             agent_map[i] = Agent(age[i], house[i], friend[i], sex[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
 
+    def UpdateWeights(a, graph, old_level, new_level):
+        weight_list = ['weight_L0', 'weight_L1', 'weight_L2']
+        neighbour = list(graph.neighbors(a))
 
+        
+        for n in neighbour: 
 
+            if new_level == 0:
+                for key in list(G[a][n].keys()):
+    
+                    if key == 'agt_is_husband':
+                        del G[a][n]['agt_is_husband'][weight_list[old_level]]
+                        G[a][n]['agt_is_husband']['weight_L0'] = 1.44
+        
+                    if key == 'agt_is_wife':
+                        del G[a][n]['agt_is_wife'][weight_list[old_level]]
+                        G[a][n]['agt_is_wife']['weight_L0'] = 1.42
+        
+                    if key == 'agt_is_spouse': 
+                        del G[a][n]['agt_is_spouse'][weight_list[old_level]]
+                        G[a][n]['agt_is_spouse']['weight_L0'] = 1.43
+                        
+                    if key == 'agt_is_housemate':
+                        del G[a][n]['agt_is_housemate'][weight_list[old_level]]
+                        G[a][n]['agt_is_housemate']['weight_L0'] = 1.43
+              
+                    if key == 'Friend' :
+                        del G[a][n]['Friend'][weight_list[old_level]]
+                        G[a][n]['Friend']['weight_L0'] = 1.29
+       
+           
+            if new_level == 1:
+                for key in list(G[a][n].keys()):
+                    if key == 'agt_is_husband':
+                        del G[a][n]['agt_is_husband'][weight_list[old_level]]
+                        G[a][n]['agt_is_husband']['weight_L1'] = 1.1
+                    
+                    if key == 'agt_is_wife':
+                        del G[a][n]['agt_is_wife'][weight_list[old_level]]
+                        G[a][n]['agt_is_wife']['weight_L1'] = 1.1
+                      
+                    if key == 'agt_is_spouse': 
+                        del G[a][n]['agt_is_spouse'][weight_list[old_level]]
+                        G[a][n]['agt_is_spouse']['weight_L1'] = 1.1
+                        
+                    if key == 'agt_is_housemate':
+                        del G[a][n]['agt_is_housemate'][weight_list[old_level]]
+                        G[a][n]['agt_is_housemate']['weight_L1'] = 1.1
+                     
+                    if key == 'Friend' :
+                        del G[a][n]['Friend'][weight_list[old_level]]
+                        G[a][n]['Friend']['weight_L1'] = 1
+                     
+                 
+            if new_level == 2:
+                for key in list(G[a][n].keys()):
+
+                    if key == 'agt_is_husband':
+                        del G[a][n]['agt_is_husband'][weight_list[old_level]]
+                        G[a][n]['agt_is_husband']['weight_L2'] = 2.26
+                        
+                    if key == 'agt_is_wife':
+                        del G[a][n]['agt_is_wife'][weight_list[old_level]]
+                        G[a][n]['agt_is_wife']['weight_L2'] = 2.96
+                        
+                    if key == 'agt_is_spouse': 
+                        del G[a][n]['agt_is_spouse'][weight_list[old_level]]
+                        G[a][n]['agt_is_spouse']['weight_L2'] = 2.61
+                        
+                    if key == 'agt_is_housemate':
+                        del G[a][n]['agt_is_housemate'][weight_list[old_level]]
+                        G[a][n]['agt_is_housemate']['weight_L2'] = 2.61
+                        
+                    if key == 'Friend' :
+                        del G[a][n]['Friend'][weight_list[old_level]]
+                        G[a][n]['Friend']['weight_L2'] = 2.61
+
+        return a
+                
 
 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-    def tick(self, graph, infected_last_iteration_Level1, infected_last_iteration_Level2  , p):
+    def tick(self, graph, infected_last_iteration_Level1, infected_last_iteration_Level2 , p):
         
         new_infected = []
         for a in graph.nodes():
-            if (a not in infected_last_iteration_Level1) and  (a.Level_alcohol == 0):
-                neighbour = list(graph.neighbors(a))
-                ActivatedWeights = []
-                for n in neighbour:
-                    if n in infected_last_iteration_Level1:
-                        ActivatedWeights.append(graph[n][a]['weight'])
-                SUM = sum(ActivatedWeights)
-                if a.th < SUM :
-                    new_infected.append(a)
-        for a in graph.nodes():
-            if (a not in infected_last_iteration_Level1) and  (a.Level_alcohol == 1):
-                neighbour = list(graph.neighbors(a))
-                ActivatedWeights = []
-                for n in neighbour:
-                    if n in infected_last_iteration_Level2:
-                        ActivatedWeights.append(graph[n][a]['weight'])
-                SUM = sum(ActivatedWeights)
-                if a.th < SUM :
-                    new_infected.append(a)
-        for a in new_infected:           
-            a.Level_alcohol += 1
+            #Calculating sum of weights of neighbors influencing Level 0
+            List_sum_L0 = []
+            List_sum_L1 = []
+            List_sum_L2 = []
+            neighbour = list(graph.neighbors(a))
+            #-------TEEEEEST-------------------------------
+            for n in neighbour:
+                Main_Dict = graph[a][n] #Represents a dictionary with keys the relationships and values dictionaries of attributes and values
+                #print("MAIN IS", Main_Dict)
+                for key, value in Main_Dict.items():
+                    NewDict = Main_Dict[key]
+                    #print("NEW IS", NewDict)
+                    for Weight, value in NewDict.items():
+                        #print("WEIGHT *IS", Weight)
+                        if Weight == 'weight_L0':
+                            List_sum_L0.append(value)
+                        if Weight == 'weight_L1':
+                            List_sum_L1.append(value)
+                        if Weight == 'weight_L2':
+                            List_sum_L2.append(value)
+            sum_L0 = sum(List_sum_L0)
+            #Calculating sum of weights of neighbors influencing Level 1
+            sum_L1 = sum(List_sum_L1)
+            #Calculating sum of weights of neighbors influencing Level 2
+            sum_L2 = sum(List_sum_L2)
+            #Normalise the sums of the 3 levels to values between 0 and 1
+            Total = sum_L0 + sum_L1 + sum_L2
+            if sum_L0 == 0:
+                Proba_L0 = 0
+            else:
+                Proba_L0 = sum_L0/Total
+            if sum_L1 == 0:
+                Proba_L1 = 0
+            else:
+                Proba_L1 = sum_L1/Total
+            if sum_L2 == 0:
+                Proba_L2 = 0
+            else:
+                Proba_L2 = sum_L2/Total
+            
+            if a.th <= Proba_L0:
+                new_level = 0
+            if (a.th > Proba_L0) and (a.th <= (Proba_L1+Proba_L2)):
+                new_level = 1
+            if a.th > (Proba_L1+Proba_L2):
+                new_level = 2
+            
+            #Updating the information
+            old_level = a.Level_alcohol
+            if new_level != a.Level_alcohol:
+                a.Level_alcohol = new_level
+                Simulation.UpdateWeights(a, graph, old_level, new_level)
+                new_infected.append(a)
         return new_infected
     
     def ageList(population_size):
@@ -533,7 +642,7 @@ class Agent:
 population_size = 1000
 
 #-------------------------------------------------
-G = nx.Graph()
+G = nx.MultiDiGraph()
 for i in range(0,population_size):
     G.add_node(i)
 
@@ -551,54 +660,124 @@ s = Simulation(G, [], p)
 initial_seedset_Level1 = random.sample(s.graph.nodes, k_Level1)
 initial_seedset_Level2 = random.sample(s.graph.nodes, k_Level2)
 
-#-----------------------------------------------------------
-
+#---Creation of network--------------------------------------------------------
+#Creation of network for households
+#We create the directed nodes such that tyhe agent influences his connections
 for agt in G.nodes:
     if agt.housesize != 0:
             if agt.housesize == 1:
+                #For couples
                 r = random.random()
                 if r>= 0.012:
+                    #For different sex couples 
                     for neighbr in G.nodes:
                         if agt.housefull == False and neighbr.housefull == False:
                             if neighbr.housesize == 1:
                                 if agt.sex != neighbr.sex:
-                                    G.add_edge(agt,neighbr,color='b', weight=1.13)
-                                    agt.housefull = True
-                                    neighbr.housefull = True
+                                    #If the agent is the wife and spouse is the husband
+                                    if (neighbr.sex == 'Male') and (agt.Level_alcohol == 0):
+                                        G.add_edge(agt,neighbr, key = 'agt_is_wife', color='b', weight_L0=1.42)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
+                                    if (neighbr.sex == 'Male') and (agt.Level_alcohol == 2):
+                                        G.add_edge(agt,neighbr, key = 'agt_is_wife',  color='b', weight_L2=2.26)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
+                                    #No data for influence of spouse Level_1 so assumed to be the reference == 1.1
+                                    if (neighbr.sex == 'Male') and (agt.Level_alcohol == 1):
+                                        G.add_edge(agt,neighbr, key = 'agt_is_wife',  color='b', weight_L1=1.1)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
+                                    #If agent is the husband and spouse is the wife
+                                    if (neighbr.sex == 'Female') and (agt.Level_alcohol == 0):
+                                        G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L0 = 1.44)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
+                                    if (neighbr.sex == 'Female') and (agt.Level_alcohol == 2):
+                                        G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L2 = 2.96)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
+                                    #No data for influence of spouse Level_1 so assumed to be the reference == 1.1
+                                    if (neighbr.sex == 'Female') and (agt.Level_alcohol == 1):
+                                        G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L1 = 1.1)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
                 else:
+                    #For same-sex couples, average of data from hetero-couples
                     for neighbr in G.nodes:
                         if agt.housefull == False and neighbr.housefull == False:
                             if neighbr.housesize == 1:
                                 if agt.sex == neighbr.sex:
-                                    G.add_edge(agt,neighbr,color='b', weight=1.13)
-                                    agt.housefull = True
-                                    neighbr.housefull = True
+                                    if agt.Level_alcohol == 0:
+                                        G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L0 = 1.43)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
+                                    if agt.Level_alcohol == 2:
+                                        G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L2 = 2.61)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
+                                    if agt.Level_alcohol == 1:
+                                        G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L1 = 1.1)
+                                        agt.housefull = True
+                                        neighbr.housefull = True
+                                        
             for neighbr in G.nodes:
+                #For households greater than 1, assumed same influence (average) as couples
+                #Status for same sex couples and mltiple housemates are different but they share the same quantitative values (as no data available on it)
                 if agt.id != neighbr.id:
                     if agt.housefull == False and neighbr.housefull == False:
                         if agt.housesize == neighbr.housesize:
-                          G.add_edge(agt,neighbr,color='b', weight=1.13)
-                          if G.degree(agt, weight=3) == agt.housesize:
-                              agt.housefull = True
-                          if G.degree(neighbr) == neighbr.housesize:
-                              neighbr.housefull = True
+                          if agt.Level_alcohol == 0:
+                            G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L0 = 1.43)
+                            agt.housefull = True
+                            neighbr.housefull = True
+                        if agt.Level_alcohol == 2:
+                            G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L2 = 2.61)
+                            agt.housefull = True
+                            neighbr.housefull = True
+                        if agt.Level_alcohol == 1:
+                            G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L1 = 1)
+                            agt.housefull = True
+                            neighbr.housefull = True
 
 
+                          
+#Creation of network for friendships:
+                              
+def FriendCount(Graph, agent):
+    '''calculates number of friends of an agent at a given time'''
+    All_neighbrs = list(nx.all_neighbors(Graph, agent))
+    Levels_neighbrs = []
+    for neighbr in All_neighbrs:
+        Levels_neighbrs.append(neighbr.Level_alcohol)
+    Dict_levels = Counter(Levels_neighbrs)
+    List_Connected_Agents = list(Dict_levels.values())
+    Nb_Friends = sum(List_Connected_Agents) - agent.housesize
+    return Nb_Friends
+    
 for agt in G.nodes:
-    if agt.friends == 0:
-        agt.friendshipfull = True
-    else:
-        for neighbr in G.nodes:
-            if neighbr.friends != 0:
-                if agt.id != neighbr.id:
-                    if agt.friendshipfull == False and neighbr.friendshipfull == False:
-                        if G.has_edge(agt, neighbr) == False:
-                              G.add_edge(agt,neighbr,color='r', weight=1)
-                              if (G.degree(agt) - agt.housesize) == agt.friends:
-                                  agt.friendshipfull = True
-                              if (G.degree(neighbr) - neighbr.housesize) == neighbr.friends:
-                                  neighbr.friendshipfull = True
-          
+    for neighbr in G.nodes:
+            if agt.id != neighbr.id:
+                if agt.friendshipfull == False and neighbr.friendshipfull == False:
+                    if (G.has_edge(agt, neighbr) == False) and (agt.Level_alcohol == 0):
+                          G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L0 = 1.29)
+                          if FriendCount(G, agt) == agt.friends:
+                              agt.friendshipfull = True
+                          if FriendCount(G, neighbr) == neighbr.friends:
+                              neighbr.friendshipfull = True
+                    #If friend is Level_1 of alcohol consumption, no data for this so weight == 1
+                    if (G.has_edge(agt, neighbr) == False) and (agt.Level_alcohol == 1):
+                          G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L1 = 1)
+                          if FriendCount(G, agt) == agt.friends:
+                              agt.friendshipfull = True
+                          if FriendCount(G, neighbr) == neighbr.friends:
+                              neighbr.friendshipfull = True
+                    if (G.has_edge(agt, neighbr) == False) and (agt.Level_alcohol == 2):
+                          G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L2 = 2.54)        
+                          if FriendCount(G, agt) == agt.friends:
+                              agt.friendshipfull = True
+                          if FriendCount(G, neighbr) == neighbr.friends:
+                              neighbr.friendshipfull = True
                           
 
 
@@ -619,7 +798,7 @@ for agt in G.nodes():
     levelalcohol_initial.append(agt.Level_alcohol)
 
 
-#----------------------------------------------------------------- 
+#------------------------------------------------------------------------------
 # cache each agent's neighbor list - could looked up each time depending what you are doing
 for n in s.graph.nodes():
     n.neighbors = [agt for agt in s.graph.neighbors(n)]
@@ -646,18 +825,18 @@ levelalcohol = []
 for agt in G.nodes():
     levelalcohol.append(agt.Level_alcohol)
 data = np.array(levelalcohol)
-d = np.diff(np.unique(data)).min()
-left_of_first_bin = data.min() - float(d)/2
-right_of_last_bin = data.max() + float(d)/2
-plt.hist([levelalcohol_initial, levelalcohol], np.arange(left_of_first_bin, right_of_last_bin + d, d), label = ['Before spread', 'After spread'])
+left_of_first_bin = 0 - float(1)/2
+right_of_last_bin = 2 + float(1)/2
+plt.hist([levelalcohol_initial, levelalcohol], np.arange(left_of_first_bin, right_of_last_bin + 1, 1), label = ['Before spread', 'After spread'])
 plt.xlabel('Levels of alcohol consumption');
 plt.ylabel('Count of agents');
 plt.title('Spread of alcohol consumption with the linear threshold model');
 plt.legend()
 plt.show()
         
-        
-        
+#------------------------------------------------------------------------------       
+Count = Counter(data)        
+print("Count is", Count)
         
         
         
