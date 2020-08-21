@@ -116,7 +116,7 @@ class Simulation:
             List_sum_L1 = []
             List_sum_L2 = []
             neighbour = list(graph.neighbors(a))
-            #-------TEEEEEST-------------------------------
+            
             for n in neighbour:
                 Main_Dict = graph[a][n] #Represents a dictionary with keys the relationships and values dictionaries of attributes and values
                 #print("MAIN IS", Main_Dict)
