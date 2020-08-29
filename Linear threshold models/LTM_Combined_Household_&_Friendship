@@ -659,6 +659,7 @@ population_size = 1000
 #We create the directed nodes such that the agent influences his connections
 
 def InitialiseNetwork(G):
+    #Creation of household network
     for agt in G.nodes:
         if agt.housesize != 0:
                 if agt.housesize == 1:
@@ -716,26 +717,26 @@ def InitialiseNetwork(G):
                                             G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L1 = 1.1)
                                             agt.housefull = True
                                             neighbr.housefull = True
-                                            
-                for neighbr in G.nodes:
-                    #For households greater than 1, assumed same influence (average) as couples
-                    #Status for same sex couples and mltiple housemates are different but they share the same quantitative values (as no data available on it)
-                    if agt.id != neighbr.id:
-                        if agt.housefull == False and neighbr.housefull == False:
-                            if agt.housesize == neighbr.housesize:
-                              if agt.Level_alcohol == 0:
-                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L0 = 1.65)
-                                agt.housefull = True
-                                neighbr.housefull = True
-                            if agt.Level_alcohol == 2:
-                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L2 = 2.61)
-                                agt.housefull = True
-                                neighbr.housefull = True
-                            if agt.Level_alcohol == 1:
-                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L1 = 1)
-                                agt.housefull = True
-                                neighbr.housefull = True
-    return G
+                if agt.housesize != 1:                           
+                    for neighbr in G.nodes:
+                        #For households greater than 1, assumed same influence (average) as couples
+                        #Status for same sex couples and mltiple housemates are different but they share the same quantitative values (as no data available on it)
+                        if agt.id != neighbr.id:
+                            if agt.housefull == False and neighbr.housefull == False:
+                                if agt.housesize == neighbr.housesize:
+                                  if agt.Level_alcohol == 0:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L0 = 1.65)
+                                    agt.housefull = True
+                                    neighbr.housefull = True
+                                if agt.Level_alcohol == 2:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L2 = 2.61)
+                                    agt.housefull = True
+                                    neighbr.housefull = True
+                                if agt.Level_alcohol == 1:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L1 = 1)
+                                    agt.housefull = True
+                                    neighbr.housefull = True
+        
     
                               
     #Creation of network for friendships:
@@ -788,7 +789,7 @@ def InitialiseNetwork(G):
                                   agt.friendshipfull = True
                               if FriendCount(G, neighbr) == neighbr.friends:
                                   neighbr.friendshipfull = True
-                              
+    return G                       
 
 #--Plotting the network for  small population_size--------------------------------------------------------
                                   
