@@ -4,6 +4,7 @@ import scipy.stats as stats
 from collections import Counter
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 class Simulation:
 
@@ -22,30 +23,97 @@ class Simulation:
             agent_map[i] = Agent(age[i], house[i], friend[i], sex[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
 
-
+    def UpdateWeights(a, G, old_level, new_level):
+            weight_list = ['weight_L0', 'weight_L1', 'weight_L2']
+            neighbour = list(G.neighbors(a))
+    
+            
+            for n in neighbour: 
+                if new_level == 0:
+                    for key in list(G[a][n].keys()):
+        
+                        if key == 'agt_is_husband':
+                            del G[a][n]['agt_is_husband'][weight_list[old_level]]
+                            G[a][n]['agt_is_husband']['weight_L0'] = 1.56
+            
+                        if key == 'agt_is_wife':
+                            del G[a][n]['agt_is_wife'][weight_list[old_level]]
+                            G[a][n]['agt_is_wife']['weight_L0'] = 1.74
+            
+                        if key == 'agt_is_spouse': 
+                            del G[a][n]['agt_is_spouse'][weight_list[old_level]]
+                            G[a][n]['agt_is_spouse']['weight_L0'] = 1.65
+                            
+                        if key == 'agt_is_housemate':
+                            del G[a][n]['agt_is_housemate'][weight_list[old_level]]
+                            G[a][n]['agt_is_housemate']['weight_L0'] = 1.65
+                  
+                        if key == 'Friend' :
+                            del G[a][n]['Friend'][weight_list[old_level]]
+                            G[a][n]['Friend']['weight_L0'] = 1.43
+           
+               
+                if new_level == 1:
+                    for key in list(G[a][n].keys()):
+                        if key == 'agt_is_husband':
+                            del G[a][n]['agt_is_husband'][weight_list[old_level]]
+                            G[a][n]['agt_is_husband']['weight_L1'] = 1.1
+                        
+                        if key == 'agt_is_wife':
+                            del G[a][n]['agt_is_wife'][weight_list[old_level]]
+                            G[a][n]['agt_is_wife']['weight_L1'] = 1.1
+                          
+                        if key == 'agt_is_spouse': 
+                            del G[a][n]['agt_is_spouse'][weight_list[old_level]]
+                            G[a][n]['agt_is_spouse']['weight_L1'] = 1.1
+                            
+                        if key == 'agt_is_housemate':
+                            del G[a][n]['agt_is_housemate'][weight_list[old_level]]
+                            G[a][n]['agt_is_housemate']['weight_L1'] = 1.1
+                         
+                        if key == 'Friend' :
+                            del G[a][n]['Friend'][weight_list[old_level]]
+                            G[a][n]['Friend']['weight_L1'] = 1
+                         
+                     
+                if new_level == 2:
+                    for key in list(G[a][n].keys()):
+    
+                        if key == 'agt_is_husband':
+                            del G[a][n]['agt_is_husband'][weight_list[old_level]]
+                            G[a][n]['agt_is_husband']['weight_L2'] = 2.26
+                            
+                        if key == 'agt_is_wife':
+                            del G[a][n]['agt_is_wife'][weight_list[old_level]]
+                            G[a][n]['agt_is_wife']['weight_L2'] = 2.96
+                            
+                        if key == 'agt_is_spouse': 
+                            del G[a][n]['agt_is_spouse'][weight_list[old_level]]
+                            G[a][n]['agt_is_spouse']['weight_L2'] = 2.61
+                            
+                        if key == 'agt_is_housemate':
+                            del G[a][n]['agt_is_housemate'][weight_list[old_level]]
+                            G[a][n]['agt_is_housemate']['weight_L2'] = 2.61
+                            
+                        if key == 'Friend' :
+                            del G[a][n]['Friend'][weight_list[old_level]]
+                            G[a][n]['Friend']['weight_L2'] = 2.61
+    
+            return 
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-    def tick(self, infected_last_iteration_Level1 ,infected_last_iteration_Level2,  p):
-        new_infected = []
-        # for each agent, a, that was infected in the previous round (or the seed set in initial round)
-        for a in infected_last_iteration_Level1:
-            neighbors = a.neighbors
-            for n in neighbors:
-                rand = random.uniform(0,1)
-                if rand < p:
-                    if (n not in infected_last_iteration_Level1) and (a.Level_alcohol == 0):
-                        new_infected.append(n)
-        for a in infected_last_iteration_Level2:
-            neighbors = a.neighbors
-            for n in neighbors:
-                rand = random.uniform(0,1)
-                if rand < p:
-                    if (n not in infected_last_iteration_Level2) and (a.Level_alcohol == 1):
-                        if n not in new_infected:
-                            new_infected.append(n)
-        for n in new_infected:
-            if n.Level_alcohol <2:
-                n.Level_alcohol += 1
-        return new_infected
+    def tick(self, graph,  p):
+        for a in graph.nodes():
+            new_level = a.Level_alcohol
+            neighbour = list(G.neighbors(a))
+            for n in neighbour: 
+               old_level = n.Level_alcohol
+               rand = random.uniform(0,1)
+               if rand < p:
+                   n.Level_alcohol = a.Level_alcohol
+                   if old_level != new_level:
+                       Simulation.UpdateWeights(n, graph, old_level, new_level)
+        
+        return 
 
     def ageList(population_size):
         Count_Age65_plus = round(population_size * 0.25)
@@ -515,54 +583,149 @@ class Agent:
     def __repr__(self):
         return "agent_" + str(self.id)
 
-#---------------------------------------------------------------------
+#---Data-----------------------------------------------------------
 population_size = 1000
 
-G = nx.Graph()
-for i in range(0,population_size):
-    G.add_node(i)
 
-#Creating random seedset with k length
-k_Level1 = int(0.13 * population_size)
-k_Level2 = int(0.062 * population_size)
-new_infected = []
-
-
-p = 0.1 
-s = Simulation(G, [], p)
-initial_seedset_Level1 = random.sample(s.graph.nodes, k_Level1)
-initial_seedset_Level2 = random.sample(s.graph.nodes, k_Level2)
-
-
-#--------------------------------------------------------------------------
+#---Initialising network--------------------------------------------------------
 #Creation of network for households
+#We create the directed nodes such that the agent influences his connections
 
-for agt in G.nodes:
-    if agt.housesize != 0:
+def InitialiseNetwork(G):
+    #Creation of household network
+    for agt in G.nodes:
+        if agt.housesize != 0:
+                if agt.housesize == 1:
+                    #For couples
+                    r = random.random()
+                    if r>= 0.012:
+                        #For different sex couples 
+                        for neighbr in G.nodes:
+                            if agt.housefull == False and neighbr.housefull == False:
+                                if neighbr.housesize == 1:
+                                    if agt.sex != neighbr.sex:
+                                        #If the agent is the wife and spouse is the husband
+                                        if (neighbr.sex == 'Male') and (agt.Level_alcohol == 0):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife', color='b', weight_L0 = 1.74)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        if (neighbr.sex == 'Male') and (agt.Level_alcohol == 2):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife',  color='b', weight_L2 = 2.96)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        #No data for influence of spouse Level_1 so assumed to be the reference == 1.1
+                                        if (neighbr.sex == 'Male') and (agt.Level_alcohol == 1):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife',  color='b', weight_L1 = 1.1)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        #If agent is the husband and spouse is the wife
+                                        if (neighbr.sex == 'Female') and (agt.Level_alcohol == 0):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L0 = 1.56)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        if (neighbr.sex == 'Female') and (agt.Level_alcohol == 2):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L2 = 2.26)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        #No data for influence of spouse Level_1 so assumed to be the reference == 1.1
+                                        if (neighbr.sex == 'Female') and (agt.Level_alcohol == 1):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L1 = 1.1)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                    else:
+                        #For same-sex couples, average of data from hetero-couples
+                        for neighbr in G.nodes:
+                            if agt.housefull == False and neighbr.housefull == False:
+                                if neighbr.housesize == 1:
+                                    if agt.sex == neighbr.sex:
+                                        if agt.Level_alcohol == 0:
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L0 = 1.65)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        if agt.Level_alcohol == 2:
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L2 = 2.61)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        if agt.Level_alcohol == 1:
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L1 = 1.1)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                if agt.housesize != 1:                           
+                    for neighbr in G.nodes:
+                        #For households greater than 1, assumed same influence (average) as couples
+                        #Status for same sex couples and mltiple housemates are different but they share the same quantitative values (as no data available on it)
+                        if agt.id != neighbr.id:
+                            if agt.housefull == False and neighbr.housefull == False:
+                                if agt.housesize == neighbr.housesize:
+                                  if agt.Level_alcohol == 0:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L0 = 1.65)
+                                    agt.housefull = True
+                                    neighbr.housefull = True
+                                if agt.Level_alcohol == 2:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L2 = 2.61)
+                                    agt.housefull = True
+                                    neighbr.housefull = True
+                                if agt.Level_alcohol == 1:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L1 = 1.1)
+                                    agt.housefull = True
+                                    neighbr.housefull = True
+        
+    
+                              
+    #Creation of network for friendships:
+                                  
+    def FriendCount(Graph, agent):
+        '''calculates number of friends of an agent at a given time'''
+        All_neighbrs = list(nx.all_neighbors(Graph, agent))
+        Levels_neighbrs = []
+        for neighbr in All_neighbrs:
+            Levels_neighbrs.append(neighbr.Level_alcohol)
+        Dict_levels = Counter(Levels_neighbrs)
+        List_Connected_Agents = list(Dict_levels.values())
+        Nb_Friends = sum(List_Connected_Agents) - agent.housesize
+        return Nb_Friends
+    
+    #Checking if agent a has an outcoming edge to neighbour n 
+    def OutEdge(a,n, G):
+        List_Out_Edges = G.out_edges(a)
+        for principal, neighbour in List_Out_Edges:
+            if neighbour == n:
+                return True
+        return False
+    
+    for agt in G.nodes:
         for neighbr in G.nodes:
-            if agt.id != neighbr.id:
-                  if agt.housesize == neighbr.housesize:
-                      if agt.housefull == False and neighbr.housefull == False:
-                          G.add_edge(agt,neighbr,color='b', weight=3)
-                          if G.degree(agt, weight=3) == agt.housesize:
-                              agt.housefull = True
-                          if G.degree(neighbr) == neighbr.housesize:
-                              neighbr.housefull = True
-                              
-#Creation of network for friendships:
-for agt in G.nodes:
-    for neighbr in G.nodes:
-            if agt.id != neighbr.id:
-                if agt.friendshipfull == False and neighbr.friendshipfull == False:
-                    if G.has_edge(agt, neighbr) == False:
-                          G.add_edge(agt,neighbr,color='r', weight=1)
-                          if G.degree(agt, weight=1) == agt.friends:
-                              agt.friendshipfull = True
-                          if G.degree(neighbr) == neighbr.friends:
-                              neighbr.friendshipfull = True
- 
-#--Plotting network------------------------------------------------------------
-                              
+                if agt.id != neighbr.id:
+                    if agt.friendshipfull == False and neighbr.friendshipfull == False:
+                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0) and (agt.sex == 'Female'):
+                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L0 = 1.44)
+                              if FriendCount(G, agt) == agt.friends:
+                                  agt.friendshipfull = True
+                              if FriendCount(G, neighbr) == neighbr.friends:
+                                  neighbr.friendshipfull = True
+                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0) and (agt.sex == 'Male'):
+                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L0 = 1.42)
+                              if FriendCount(G, agt) == agt.friends:
+                                  agt.friendshipfull = True
+                              if FriendCount(G, neighbr) == neighbr.friends:
+                                  neighbr.friendshipfull = True
+                        #If friend is Level_1 of alcohol consumption, no data for this so weight == 1
+                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 1):
+                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L1 = 1)
+                              if FriendCount(G, agt) == agt.friends:
+                                  agt.friendshipfull = True
+                              if FriendCount(G, neighbr) == neighbr.friends:
+                                  neighbr.friendshipfull = True
+                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 2):
+                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L2 = 2.54)        
+                              if FriendCount(G, agt) == agt.friends:
+                                  agt.friendshipfull = True
+                              if FriendCount(G, neighbr) == neighbr.friends:
+                                  neighbr.friendshipfull = True
+    return G                       
+
+#--Plotting the network for  small population_size--------------------------------------------------------
+                                  
 # edges = G.edges()
 # colors = [G[u][v]['color'] for u,v in edges]
 # weights = [G[u][v]['weight'] for u,v in edges]
@@ -570,45 +733,348 @@ for agt in G.nodes:
 # nx.draw(G,pos,  edges=edges, edge_color=colors, width=weights)                               
 # plt.legend(['Agents', 'Household'])
 
+#------PARAMETER OF GRAPH-----------------------------------------------------------
+p = 0.1
 
-#--Inital levels---------------------------------------------------------------
-levelalcohol_initial = []   
-for agt in G.nodes():
-    levelalcohol_initial.append(agt.Level_alcohol)
+#--BEFORE SPREAD: Finding mean and standard deviation of level for each age group-------------------------------
 
-#------------------------------------------------------------------------------
+Level18to34_Level0 = []
+Level18to34_Level1 = []
+Level18to34_Level2 = []
 
-# cache each agent's neighbor list - could looked up each time depending what you are doing
-for n in s.graph.nodes():
-    n.neighbors = [agt for agt in s.graph.neighbors(n)]
+Level35to64_Level0 = []
+Level35to64_Level1 = []
+Level35to64_Level2 = []
 
-# run the simulation for appropriate number of t iterations
-t = 1000
+Level65plus_Level0 = []
+Level65plus_Level1 = []
+Level65plus_Level2 = []
+                              
+for r in range(0,100):
 
-# in the first iteration use the seedset as the agents infected last round
-previous_infections_Level1 = initial_seedset_Level1
-previous_infections_Level2 = initial_seedset_Level2
-
-for i in range(0,t):
-    new_infections = s.tick(previous_infections_Level1,previous_infections_Level2 , p)
-    print("iteration ", i, " number of new infections: ", len(new_infections))
-    if not new_infections:
-        break
-    previous_infections_Level1 = new_infections
-    previous_infections_Level2 = new_infections
     
-#---Plotting-------------------------------------------------------------------
+    Level18to34 = []  
+    Level35to64 = []
+    Level64plus = []
+    #-------------------------------------------------
+    G = nx.MultiDiGraph()
+    for i in range(0,population_size):
+        G.add_node(i)
+    
+    #-----------------------------------------------------------------------
+    
+    #Creating random seedset with k length
+    k_Level1 = int(0.13 * population_size)
+    k_Level2 = int(0.062 * population_size)
+    new_infected = []
+    
+    
+    #--Parameter of system
+    p = 0.1 
+    try:
+        s = Simulation(G, [], p)
+    except IndexError:
+        break
+    
+    initial_seedset_Level1 = random.sample(s.graph.nodes, k_Level1)
+    initial_seedset_Level2 = random.sample(s.graph.nodes, k_Level2)
+        
+    for agt in G.nodes():
+        if agt.age>18 and agt.age<35:
+            if agt.sex == 'Female':
+                Level18to34.append(agt.Level_alcohol)
+        if agt.age>34 and agt.age<65:
+            if agt.sex == 'Female':
+                Level35to64.append(agt.Level_alcohol)
+        if agt.age>64:
+            if agt.sex == 'Female':
+                Level64plus.append(agt.Level_alcohol)
+    
+    Count_18to34 = Counter(Level18to34)
+    #print("COUNTER IS",Count_18to34 )
+    Count_35to64 = Counter(Level35to64)
+    Count_65plus = Counter(Level64plus)
+    
+    #--Appending the count of the level as a function of the age group in the relevant list
+    
+    Level18to34_Level0.append(Count_18to34[0])
+    Level18to34_Level1.append(Count_18to34[1])
+    Level18to34_Level2.append(Count_18to34[2])
+    
+    Level35to64_Level0.append(Count_35to64[0])
+    Level35to64_Level1.append(Count_35to64[1])
+    Level35to64_Level2.append(Count_35to64[2])
+    
+    Level65plus_Level0.append(Count_65plus[0])
+    Level65plus_Level1.append(Count_65plus[1])
+    Level65plus_Level2.append(Count_65plus[2])
 
-levelalcohol = []   
-for agt in G.nodes():
-    levelalcohol.append(agt.Level_alcohol)
-data = np.array(levelalcohol)
-d = np.diff(np.unique(data)).min()
-left_of_first_bin = data.min() - float(d)/2
-right_of_last_bin = data.max() + float(d)/2
-plt.hist([levelalcohol_initial, data], np.arange(left_of_first_bin, right_of_last_bin + d, d), label = ['Before spread', 'After spread'])
-plt.xlabel('Levels of alcohol consumption');
-plt.ylabel('Count of agents');
-plt.title('Spread of alcohol consumption with the independent cascade model');
-plt.legend()
-plt.show()
+#--BEFORE SPREAD: Calculating mean and standard deviation of each of the 6 lists (depending on age and variable)
+    
+#For 18 to 34 years old:
+Mean_18to34_L0_before = round(np.mean(Level18to34_Level0), 2)
+Mean_18to34_L1_before = round(np.mean(Level18to34_Level1), 2)
+Mean_18to34_L2_before = round(np.mean(Level18to34_Level2), 2)
+
+Std_18to34_L0_before = round(np.std(Level18to34_Level0), 2)
+Std_18to34_L1_before = round(np.std(Level18to34_Level1), 2)
+Std_18to34_L2_before = round(np.std(Level18to34_Level2), 2)
+
+#--For 35 to 64 years old:
+
+Mean_35to64_L0_before = round(np.mean(Level35to64_Level0), 2)
+Mean_35to64_L1_before = round(np.mean(Level35to64_Level1), 2)
+Mean_35to64_L2_before = round(np.mean(Level35to64_Level2), 2)
+
+Std_35to64_L0_before = round(np.std(Level35to64_Level0), 2)
+Std_35to64_L1_before = round(np.std(Level35to64_Level1), 2)
+Std_35to64_L2_before = round(np.std(Level35to64_Level2), 2)
+
+#--For 65+ years old:
+
+Mean_65plus_L0_before = round(np.mean(Level65plus_Level0), 2)
+Mean_65plus_L1_before = round(np.mean(Level65plus_Level1), 2)
+Mean_65plus_L2_before = round(np.mean(Level65plus_Level2), 2)
+
+Std_65plus_L0_before = round(np.std(Level65plus_Level0), 2)
+Std_65plus_L1_before = round(np.std(Level65plus_Level1), 2)
+Std_65plus_L2_before = round(np.std(Level65plus_Level2), 2)
+
+#--AFTER SPREAD: Finding mean and standard deviation of level for each age group-------------------------------
+
+Level18to34_Level0 = []
+Level18to34_Level1 = []
+Level18to34_Level2 = []
+
+Level35to64_Level0 = []
+Level35to64_Level1 = []
+Level35to64_Level2 = []
+
+Level65plus_Level0 = []
+Level65plus_Level1 = []
+Level65plus_Level2 = []
+
+for r in range(0,100):
+
+    
+    Level18to34 = []  
+    Level35to64 = []
+    Level64plus = []
+    
+    #-------------------------------------------------
+    G = nx.MultiDiGraph()
+    for i in range(0,population_size):
+        G.add_node(i)
+    
+    #-----------------------------------------------------------------------
+    
+    #Creating random seedset with k length
+    k_Level1 = int(0.13 * population_size)
+    k_Level2 = int(0.062 * population_size)
+    new_infected = []
+    
+    
+    #Parameter of system
+    p = 0.1 
+    try:
+        s = Simulation(G, [], p)
+    except IndexError:
+        break
+    initial_seedset_Level1 = random.sample(s.graph.nodes, k_Level1)
+    initial_seedset_Level2 = random.sample(s.graph.nodes, k_Level2)
+    G = InitialiseNetwork(G)
+    t = 5
+    for i in range(0,t):
+        s.tick(G, p)
+        levelalcohol = []   
+        for agt in G.nodes():
+            levelalcohol.append(agt.Level_alcohol)
+        
+    for agt in G.nodes():
+        if agt.age>18 and agt.age<35:
+            if agt.sex == 'Female':
+                Level18to34.append(agt.Level_alcohol)
+        if agt.age>34 and agt.age<65:
+            if agt.sex == 'Female':
+                Level35to64.append(agt.Level_alcohol)
+        if agt.age>64:
+            if agt.sex == 'Female':
+                Level64plus.append(agt.Level_alcohol)
+        
+    Count_18to34 = Counter(Level18to34)
+    Count_35to64 = Counter(Level35to64)
+    Count_65plus = Counter(Level64plus)
+    
+    
+
+    
+    #--Appending the count of the level as a function of the age group in the relevant list
+    
+    Level18to34_Level0.append(Count_18to34[0])
+    Level18to34_Level1.append(Count_18to34[1])
+    Level18to34_Level2.append(Count_18to34[2])
+    
+    Level35to64_Level0.append(Count_35to64[0])
+    Level35to64_Level1.append(Count_35to64[1])
+    Level35to64_Level2.append(Count_35to64[2])
+    
+    Level65plus_Level0.append(Count_65plus[0])
+    Level65plus_Level1.append(Count_65plus[1])
+    Level65plus_Level2.append(Count_65plus[2])
+    
+#--AFTER SPREAD: Calculating mean and standard deviation of each of the 6 lists (depending on age and variable)
+    
+#For 18 to 34 years old:
+Mean_18to34_L0_after = round(np.mean(Level18to34_Level0), 2)
+Mean_18to34_L1_after = round(np.mean(Level18to34_Level1), 2)
+Mean_18to34_L2_after = round(np.mean(Level18to34_Level2), 2)
+
+Std_18to34_L0_after = round(np.std(Level18to34_Level0), 2)
+Std_18to34_L1_after = round(np.std(Level18to34_Level1), 2)
+Std_18to34_L2_after = round(np.std(Level18to34_Level2), 2)
+
+
+#--For 35 to 64 years old:
+
+Mean_35to64_L0_after = round(np.mean(Level35to64_Level0), 2)
+Mean_35to64_L1_after = round(np.mean(Level35to64_Level1), 2)
+Mean_35to64_L2_after = round(np.mean(Level35to64_Level2), 2)
+
+Std_35to64_L0_after = round(np.std(Level35to64_Level0), 2)
+Std_35to64_L1_after = round(np.std(Level35to64_Level1), 2)
+Std_35to64_L2_after = round(np.std(Level35to64_Level2), 2)
+
+
+#--For 65+ years old:
+
+Mean_65plus_L0_after = round(np.mean(Level65plus_Level0), 2)
+Mean_65plus_L1_after = round(np.mean(Level65plus_Level1), 2)
+Mean_65plus_L2_after = round(np.mean(Level65plus_Level2), 2)
+
+Std_65plus_L0_after = round(np.std(Level65plus_Level0), 2)
+Std_65plus_L1_after = round(np.std(Level65plus_Level1), 2)
+Std_65plus_L2_after = round(np.std(Level65plus_Level2), 2)
+    
+    
+#--Plotting : Spread of alcohol consumption as a function of age with the linear threshold model-------
+    
+
+        
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+#--the data---------------------------------------------------------------------------------
+N = 3
+
+Means_Before_18to34 = [Mean_18to34_L0_before,Mean_18to34_L1_before, Mean_18to34_L2_before ]
+Std_Before_18to34 = [Std_18to34_L0_before, Std_18to34_L1_before, Std_18to34_L2_before ]
+
+Means_After_18to34 = [Mean_18to34_L0_after,Mean_18to34_L1_after, Mean_18to34_L2_after ]
+Std_After_18to34 = [Std_18to34_L0_after, Std_18to34_L1_after, Std_18to34_L2_after ]
+
+Means_Before_35to64 = [Mean_35to64_L0_before,Mean_35to64_L1_before, Mean_35to64_L2_before ]
+Std_Before_35to64 = [Std_35to64_L0_before, Std_35to64_L1_before, Std_35to64_L2_before ]
+
+Means_After_35to64 = [Mean_35to64_L0_after,Mean_35to64_L1_after, Mean_35to64_L2_after ]
+Std_After_35to64 = [Std_35to64_L0_after, Std_35to64_L1_after, Std_35to64_L2_after ]
+
+Means_Before_65plus = [Mean_65plus_L0_before, Mean_65plus_L1_before, Mean_65plus_L2_before ]
+Std_Before_65plus = [Std_65plus_L0_before, Std_65plus_L1_before, Std_65plus_L2_before ]
+
+Means_After_65plus = [ Mean_65plus_L0_after, Mean_65plus_L1_after, Mean_65plus_L2_after ]
+Std_After_65plus = [Std_65plus_L0_after, Std_65plus_L1_after, Std_65plus_L2_after ]
+
+
+#--necessary variables----------------------------------------------------------
+ind = np.arange(N)                # the x locations for the groups
+width = 0.07                      # the width of the bars
+
+
+
+#--Before/After 18 to 34 years old-----------------------------------------------
+rects1 = ax.bar(ind, Means_Before_18to34, width,
+                color='deepskyblue',
+                yerr=Std_Before_18to34,
+                error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+rects2 = ax.bar(ind+width, Means_After_18to34, width,
+                    color='paleturquoise',
+                    yerr=Std_After_18to34,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+#--Before/After 35 to 64 years old-----------------------------------------------
+
+rects3 = ax.bar(ind+width*2+0.1, Means_Before_35to64, width,
+                    color='mediumpurple',
+                    yerr=Std_Before_35to64,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+rects4 = ax.bar(ind+width*3+0.1, Means_After_35to64, width,
+                    color='thistle',
+                    yerr=Std_After_35to64,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+#--Before/After 65 + years old---------------------------------------------------
+
+
+rects5 = ax.bar(ind+width*4+0.2, Means_Before_65plus, width,
+                    color='orange',
+                    yerr=Std_Before_65plus,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+rects6 = ax.bar(ind+width*5+0.2, Means_After_65plus, width,
+                    color='navajowhite',
+                    yerr=Std_After_65plus,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+#--axes and labels----------------------------------------------------------------------------
+ax.set_xlim(-width,len(ind)+width)
+ax.set_ylabel('Count')
+ax.set_title('Spread of alcohol consumption with the independent cascade model')
+xTickMarks = ['Level '+str(i) for i in range(0,3)]
+ax.set_xticks(ind+width*3+0.05)
+xtickNames = ax.set_xticklabels(xTickMarks)
+plt.setp(xtickNames, rotation=45, fontsize=10)
+
+#--legend--------------------------------------------------------------------------------------
+label = ('Before: 18 to 34 years old', 'After: 18 to 34 years old', 'Before: 35 to 64 years old', 'After: 35 to 64 years old', 'Before: 65+ years old' , 'After: 65+ years old')
+plt.legend((rects1[0], rects2[0], rects3[0], rects4[0], rects5[0], rects6[0]), (label), loc='lower left', frameon=False, bbox_to_anchor=(0, -0.75))
+plt.show()       
+
+
+#--Printing expectated mean and standard deviation: -------------------------------------------
+
+print("Means_Before_18to34",  Means_Before_18to34)
+print("Std_Before_18to34",  Std_Before_18to34)
+
+print("Means_After_18to34",  Means_After_18to34)
+print("Std_After_18to34", Std_After_18to34)
+
+print("Means_Before_35to64",  Means_Before_35to64)
+print("Std_Before_35to64",  Std_Before_35to64)
+
+print("Means_After_35to64",  Means_After_35to64)
+print("Std_After_35to64",  Std_After_35to64)
+
+print("Means_Before_65plus",  Means_Before_65plus)
+print("Std_Before_65plus", Std_Before_65plus)
+
+
+print("Means_After_65plus",  Means_After_65plus)
+print("Std_After_65plus", Std_After_65plus)
+
+        
+
+#-- For Data analysis---------------------------------------------------------------
+variables = {'Entity': ['Means_Before_18to34','Std_Before_18to34','Means_After_18to34','Std_After_18to34', 'Means_Before_35to64', 'Std_Before_35to64', 'Means_After_35to64', 'Std_After_35to64', 'Means_Before_65plus', 'Std_Before_65plus', 'Means_After_65plus', 'Std_After_65plus'],
+        'Level 0': [Means_Before_18to34[0], Std_Before_18to34[0], Means_After_18to34[0], Std_After_18to34[0], Means_Before_35to64[0], Std_Before_35to64[0], Means_After_35to64[0], Std_After_35to64[0], Means_Before_65plus[0], Std_Before_65plus[0], Means_After_65plus[0], Std_After_65plus[0]],
+        'Level 1': [Means_Before_18to34[1], Std_Before_18to34[1], Means_After_18to34[1], Std_After_18to34[1], Means_Before_35to64[1], Std_Before_35to64[1], Means_After_35to64[1], Std_After_35to64[1], Means_Before_65plus[1], Std_Before_65plus[1], Means_After_65plus[1], Std_After_65plus[1]],
+        'Level 2': [Means_Before_18to34[2], Std_Before_18to34[2], Means_After_18to34[2], Std_After_18to34[2], Means_Before_35to64[2], Std_Before_35to64[2], Means_After_35to64[2], Std_After_35to64[2], Means_Before_65plus[2], Std_Before_65plus[2], Means_After_65plus[2], Std_After_65plus[2]]
+        }
+
+df = pd.DataFrame(variables, columns = ['Entity', 'Level 0', 'Level 1','Level 2' ])
+
+        
+        
+        
+        
