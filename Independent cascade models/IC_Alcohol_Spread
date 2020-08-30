@@ -100,6 +100,8 @@ class Simulation:
                             G[a][n]['Friend']['weight_L2'] = 2.61
     
             return 
+            
+            
     # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
     def tick(self, graph,  p):
         for a in graph.nodes():
@@ -112,7 +114,6 @@ class Simulation:
                    n.Level_alcohol = a.Level_alcohol
                    if old_level != new_level:
                        Simulation.UpdateWeights(n, graph, old_level, new_level)
-        
         return 
 
     def ageList(population_size):
