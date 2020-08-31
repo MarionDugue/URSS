@@ -38,46 +38,46 @@ class Simulation:
     
                     if key == 'agt_is_husband':
                         del G[a][n]['agt_is_husband'][weight_list[old_level]]
-                        G[a][n]['agt_is_husband']['weight_L0'] = 1.56
+                        G[a][n]['agt_is_husband']['weight_L0'] = 0.56
         
                     if key == 'agt_is_wife':
                         del G[a][n]['agt_is_wife'][weight_list[old_level]]
-                        G[a][n]['agt_is_wife']['weight_L0'] = 1.74
+                        G[a][n]['agt_is_wife']['weight_L0'] = 0.74
         
                     if key == 'agt_is_spouse': 
                         del G[a][n]['agt_is_spouse'][weight_list[old_level]]
-                        G[a][n]['agt_is_spouse']['weight_L0'] = 1.65
+                        G[a][n]['agt_is_spouse']['weight_L0'] = 0.65
                         
                     if key == 'agt_is_housemate':
                         del G[a][n]['agt_is_housemate'][weight_list[old_level]]
-                        G[a][n]['agt_is_housemate']['weight_L0'] = 1.65
+                        G[a][n]['agt_is_housemate']['weight_L0'] = 0.65
               
                     if key == 'Friend' :
                         del G[a][n]['Friend'][weight_list[old_level]]
-                        G[a][n]['Friend']['weight_L0'] = 1.29
+                        G[a][n]['Friend']['weight_L0'] = 0.29
        
            
             if new_level == 1:
                 for key in list(G[a][n].keys()):
                     if key == 'agt_is_husband':
                         del G[a][n]['agt_is_husband'][weight_list[old_level]]
-                        G[a][n]['agt_is_husband']['weight_L1'] = 1.1
+                        G[a][n]['agt_is_husband']['weight_L1'] = 0.2
                     
                     if key == 'agt_is_wife':
                         del G[a][n]['agt_is_wife'][weight_list[old_level]]
-                        G[a][n]['agt_is_wife']['weight_L1'] = 1.1
+                        G[a][n]['agt_is_wife']['weight_L1'] = 0.2
                       
                     if key == 'agt_is_spouse': 
                         del G[a][n]['agt_is_spouse'][weight_list[old_level]]
-                        G[a][n]['agt_is_spouse']['weight_L1'] = 1.1
+                        G[a][n]['agt_is_spouse']['weight_L1'] = 0.2
                         
                     if key == 'agt_is_housemate':
                         del G[a][n]['agt_is_housemate'][weight_list[old_level]]
-                        G[a][n]['agt_is_housemate']['weight_L1'] = 1.1
+                        G[a][n]['agt_is_housemate']['weight_L1'] = 0.2
                      
                     if key == 'Friend' :
                         del G[a][n]['Friend'][weight_list[old_level]]
-                        G[a][n]['Friend']['weight_L1'] = 1
+                        G[a][n]['Friend']['weight_L1'] = 0.1
                      
                  
             if new_level == 2:
@@ -85,23 +85,23 @@ class Simulation:
 
                     if key == 'agt_is_husband':
                         del G[a][n]['agt_is_husband'][weight_list[old_level]]
-                        G[a][n]['agt_is_husband']['weight_L2'] = 2.26
+                        G[a][n]['agt_is_husband']['weight_L2'] = 1.26
                         
                     if key == 'agt_is_wife':
                         del G[a][n]['agt_is_wife'][weight_list[old_level]]
-                        G[a][n]['agt_is_wife']['weight_L2'] = 2.96
+                        G[a][n]['agt_is_wife']['weight_L2'] = 1.26
                         
                     if key == 'agt_is_spouse': 
                         del G[a][n]['agt_is_spouse'][weight_list[old_level]]
-                        G[a][n]['agt_is_spouse']['weight_L2'] = 2.61
+                        G[a][n]['agt_is_spouse']['weight_L2'] = 1.61
                         
                     if key == 'agt_is_housemate':
                         del G[a][n]['agt_is_housemate'][weight_list[old_level]]
-                        G[a][n]['agt_is_housemate']['weight_L2'] = 2.61
+                        G[a][n]['agt_is_housemate']['weight_L2'] = 1.61
                         
                     if key == 'Friend' :
                         del G[a][n]['Friend'][weight_list[old_level]]
-                        G[a][n]['Friend']['weight_L2'] = 2.61
+                        G[a][n]['Friend']['weight_L2'] = 1.54
 
         return 
                 
@@ -672,30 +672,30 @@ def InitialiseNetwork(G):
                                     if agt.sex != neighbr.sex:
                                         #If the agent is the wife and spouse is the husband
                                         if (neighbr.sex == 'Male') and (agt.Level_alcohol == 0):
-                                            G.add_edge(agt,neighbr, key = 'agt_is_wife', color='b', weight_L0=1.74)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife', color='b', weight_L0 = 0.74)
                                             agt.housefull = True
                                             neighbr.housefull = True
                                         if (neighbr.sex == 'Male') and (agt.Level_alcohol == 2):
-                                            G.add_edge(agt,neighbr, key = 'agt_is_wife',  color='b', weight_L2=2.26)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife',  color='b', weight_L2 = 0.26)
                                             agt.housefull = True
                                             neighbr.housefull = True
-                                        #No data for influence of spouse Level_1 so assumed to be the reference == 1.1
+                                       
                                         if (neighbr.sex == 'Male') and (agt.Level_alcohol == 1):
-                                            G.add_edge(agt,neighbr, key = 'agt_is_wife',  color='b', weight_L1=1.1)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife',  color='b', weight_L1 = 0.2)
                                             agt.housefull = True
                                             neighbr.housefull = True
                                         #If agent is the husband and spouse is the wife
                                         if (neighbr.sex == 'Female') and (agt.Level_alcohol == 0):
-                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L0 = 1.56)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L0 = 0.56)
                                             agt.housefull = True
                                             neighbr.housefull = True
                                         if (neighbr.sex == 'Female') and (agt.Level_alcohol == 2):
-                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L2 = 2.96)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L2 = 1.96)
                                             agt.housefull = True
                                             neighbr.housefull = True
                                         #No data for influence of spouse Level_1 so assumed to be the reference == 1.1
                                         if (neighbr.sex == 'Female') and (agt.Level_alcohol == 1):
-                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L1 = 1.1)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', color='b', weight_L1 = 0.2)
                                             agt.housefull = True
                                             neighbr.housefull = True
                     else:
@@ -705,15 +705,15 @@ def InitialiseNetwork(G):
                                 if neighbr.housesize == 1:
                                     if agt.sex == neighbr.sex:
                                         if agt.Level_alcohol == 0:
-                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L0 = 1.65)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L0 = 0.65)
                                             agt.housefull = True
                                             neighbr.housefull = True
                                         if agt.Level_alcohol == 2:
-                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L2 = 2.61)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L2 = 1.61)
                                             agt.housefull = True
                                             neighbr.housefull = True
                                         if agt.Level_alcohol == 1:
-                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L1 = 1.1)
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', color='b', weight_L1 = 0.2)
                                             agt.housefull = True
                                             neighbr.housefull = True
                                             
@@ -724,15 +724,15 @@ def InitialiseNetwork(G):
                         if agt.housefull == False and neighbr.housefull == False:
                             if agt.housesize == neighbr.housesize:
                               if agt.Level_alcohol == 0:
-                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L0 = 1.65)
+                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L0 = 0.65)
                                 agt.housefull = True
                                 neighbr.housefull = True
                             if agt.Level_alcohol == 2:
-                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L2 = 2.61)
+                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L2 = 1.61)
                                 agt.housefull = True
                                 neighbr.housefull = True
                             if agt.Level_alcohol == 1:
-                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L1 = 1)
+                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', color='b', weight_L1 = 0.2)
                                 agt.housefull = True
                                 neighbr.housefull = True
     return G
@@ -764,26 +764,26 @@ def InitialiseNetwork(G):
                 if agt.id != neighbr.id:
                     if agt.friendshipfull == False and neighbr.friendshipfull == False:
                         if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0) and (agt.sex == 'Female'):
-                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L0 = 1.44)
+                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L0 = 0.44)
                               if FriendCount(G, agt) == agt.friends:
                                   agt.friendshipfull = True
                               if FriendCount(G, neighbr) == neighbr.friends:
                                   neighbr.friendshipfull = True
                         if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0) and (agt.sex == 'Male'):
-                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L0 = 1.42)
+                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L0 = 0.42)
                               if FriendCount(G, agt) == agt.friends:
                                   agt.friendshipfull = True
                               if FriendCount(G, neighbr) == neighbr.friends:
                                   neighbr.friendshipfull = True
                         #If friend is Level_1 of alcohol consumption, no data for this so weight == 1
                         if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 1):
-                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L1 = 1)
+                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L1 = 0.1)
                               if FriendCount(G, agt) == agt.friends:
                                   agt.friendshipfull = True
                               if FriendCount(G, neighbr) == neighbr.friends:
                                   neighbr.friendshipfull = True
                         if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 2):
-                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L2 = 2.54)        
+                              G.add_edge(agt,neighbr, key = 'Friend', color='r', weight_L2 = 1.54)        
                               if FriendCount(G, agt) == agt.friends:
                                   agt.friendshipfull = True
                               if FriendCount(G, neighbr) == neighbr.friends:
