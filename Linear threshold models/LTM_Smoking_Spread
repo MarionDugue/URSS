@@ -606,9 +606,9 @@ S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.2, 'weight_L2' : -0.67}
 S_spread_L2 = {'color' : 'r', 'weight_L2' : 0.2}
 
 #Weights for friends
-F_spread_L0 = {'color' : 'r', 'weight_L0' : 0.1}
-F_spread_L1 = {'color' : 'r', 'weight_L1' : 0.1, 'weight_L2' : -0.36}
-F_spread_L2 = {'color' : 'r', 'weight_L2' : 0.1}
+F_spread_L0 = {'color' : 'b', 'weight_L0' : 0.1}
+F_spread_L1 = {'color' : 'b', 'weight_L1' : 0.1, 'weight_L2' : -0.36}
+F_spread_L2 = {'color' : 'b', 'weight_L2' : 0.1}
 
 #Spread list for spouse and housemate:
 S_spread_list = [S_spread_L0, S_spread_L1, S_spread_L2]
