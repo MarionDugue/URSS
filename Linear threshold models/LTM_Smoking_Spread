@@ -31,16 +31,16 @@ class Simulation:
                
         neighbour = list(G.neighbors(a))
         for n in neighbour: 
-            if new_level == 0:
-                for key in list(G[a][n].keys()):
-                    if key == 'agt_is_spouse':
-                        del G[a][n]['agt_is_spouse']['Spread_Level']
-                        G[a][n]['agt_is_spouse']['Spread_Level'] = S_spread_list[new_level]
-        
-                     
-                    if key == 'Friend' :
-                        del G[a][n]['Friend']['Spread_Level']
-                        G[a][n]['Friend']['Spread_Level'] = F_spread_list[new_level]
+
+            for key in list(G[a][n].keys()):
+                if key == 'agt_is_spouse':
+                    del G[a][n]['agt_is_spouse']['Spread_Level']
+                    G[a][n]['agt_is_spouse']['Spread_Level'] = S_spread_list[new_level]
+    
+                 
+                if key == 'Friend' :
+                    del G[a][n]['Friend']['Spread_Level']
+                    G[a][n]['Friend']['Spread_Level'] = F_spread_list[new_level]
                      
         return 
                 
@@ -88,6 +88,7 @@ class Simulation:
                 #Normalise the sums of the 3 levels to values between 0 and 1
                 
                 Total = sum_L0 + sum_L1 + sum_L2
+                print(Total)
                 
                 if sum_L0 == 0:
                     Proba_L0 = 0
@@ -1017,6 +1018,7 @@ print("Std_After_35to64",  Std_After_35to64)
 
 print("Means_Before_65plus",  Means_Before_65plus)
 print("Std_Before_65plus", Std_Before_65plus)
+
 
 print("Means_After_65plus",  Means_After_65plus)
 print("Std_After_65plus", Std_After_65plus)
