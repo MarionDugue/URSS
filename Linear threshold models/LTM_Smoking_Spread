@@ -88,7 +88,6 @@ class Simulation:
                 #Normalise the sums of the 3 levels to values between 0 and 1
                 
                 Total = sum_L0 + sum_L1 + sum_L2
-                print(Total)
                 
                 if sum_L0 == 0:
                     Proba_L0 = 0
@@ -106,12 +105,15 @@ class Simulation:
                 elif a.th > (Proba_L0+Proba_L1):
                     new_level = 2
                 
-                
                
                 #Updating the information
                 if new_level != a.Level_smoking:
-                    a.Level_smoking = new_level
-                    Simulation.UpdateWeights(a, graph, old_level, new_level)
+                    if new_level == 0:
+                        a.Level_smoking = 1
+                        Simulation.UpdateWeights(a, graph, old_level, new_level)
+                    else:
+                        a.Level_smoking = new_level
+                        Simulation.UpdateWeights(a, graph, old_level, new_level)
                     
                 
 
@@ -606,9 +608,9 @@ S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.2, 'weight_L2' : -0.67}
 S_spread_L2 = {'color' : 'r', 'weight_L2' : 0.2}
 
 #Weights for friends
-F_spread_L0 = {'color' : 'b', 'weight_L0' : 0.1}
-F_spread_L1 = {'color' : 'b', 'weight_L1' : 0.1, 'weight_L2' : -0.36}
-F_spread_L2 = {'color' : 'b', 'weight_L2' : 0.1}
+F_spread_L0 = {'color' : 'r', 'weight_L0' : 0.1}
+F_spread_L1 = {'color' : 'r', 'weight_L1' : 0.1, 'weight_L2' : -0.36}
+F_spread_L2 = {'color' : 'r', 'weight_L2' : 0.1}
 
 #Spread list for spouse and housemate:
 S_spread_list = [S_spread_L0, S_spread_L1, S_spread_L2]
@@ -994,7 +996,7 @@ ax.set_title('Spread of cigarette consumption with the threshold model')
 xTickMarks = ['Level '+str(i) for i in range(0,3)]
 ax.set_xticks(ind+width*3+0.05)
 xtickNames = ax.set_xticklabels(xTickMarks)
-plt.setp(xtickNames, rotation=45, fontsize=10)
+plt.setp(xtickNames, fontsize=10)
 
 #--legend--------------------------------------------------------------------------------------
 label = ('Before: 18 to 34 years old', 'After: 18 to 34 years old', 'Before: 35 to 64 years old', 'After: 35 to 64 years old', 'Before: 65+ years old' , 'After: 65+ years old')
