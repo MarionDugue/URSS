@@ -953,7 +953,7 @@ for r in range(0,100):
         break
 
     InitialiseNetwork(G)
-    t = 5
+    t = 10
     for i in range(0,t):
         s.Spread(G)
         levelsmoking = []   
