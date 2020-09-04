@@ -6,61 +6,60 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Simulation:
-    
+    '''Simulates the spread of the behaviour'''
 
-    def __init__(self, graph, seedset, p):
-        self.seedset = seedset
+    def __init__(self, graph):
+        '''initialising agents'''
         self.graph = graph
         self.num_agents = graph.number_of_nodes()
         # Create a new agent for each node, by creating an 
         #agent_map and then relabeling the nodes in the graph
         agent_map = {}
-        age = Simulation.ageList(len(graph))
+        age = Simulation.Age(len(graph))
         house = Simulation.HouseholdList(len(graph))
         friend = Simulation.Friendships(len(graph))
         sex = Simulation.Sex(len(graph))
         for i in range(0, self.num_agents):
             agent_map[i] = Agent(age[i], house[i], friend[i], sex[i])
         nx.relabel_nodes(self.graph,agent_map,copy=False)
-
-
-
-
-
-    # placeholder to represent a single iteration of the simulation, i.e. each agent selects a neighbour at random
-    def tick(self, graph, infected_last_iteration_Level1, infected_last_iteration_Level2  , p):
+    
+    def Sex(population_size):
+        '''outputs a list of sexes used to assign one to each agent'''
         
-        new_infected = []
-        for a in graph.nodes():
-            if (a not in infected_last_iteration_Level1) and  (a.Level_exercise == 0):
-                neighbour = list(graph.neighbors(a))
-                ActivatedWeights = []
-                for n in neighbour:
-                    if n in infected_last_iteration_Level1:
-                        ActivatedWeights.append(graph[n][a]['weight'])
-                SUM = sum(ActivatedWeights)
-                if a.th < SUM :
-                    new_infected.append(a)
-        for a in graph.nodes():
-            if (a not in infected_last_iteration_Level1) and  (a.Level_exercise == 1):
-                neighbour = list(graph.neighbors(a))
-                ActivatedWeights = []
-                for n in neighbour:
-                    if n in infected_last_iteration_Level2:
-                        ActivatedWeights.append(graph[n][a]['weight'])
-                SUM = sum(ActivatedWeights)
-                if a.th < SUM :
-                    new_infected.append(a)
-        for a in new_infected:           
-            a.Level_exercise += 1
-        return new_infected
-                    
-    def ageList(population_size):
-        Count_Age65_plus = round(population_size * 0.25)
-        Count_Age18_34 = round(population_size *0.26)        
-        Count_Age35_64 = round(population_size *0.49)
+        Sex_List = []
+        for i in range(0, population_size):
+            r = random.random()
+            if r>= 0.51:            #In the UK about 51% are women and 49% men
+                Sex_List.append('Female')
+            else:
+                Sex_List.append('Male')
+                
+        #Returns a list of sex: 'Male', 'Female',  with length the size of the population     
+        return Sex_List
+    
+    def Friendships(population_size):
+        '''outputs a list of friend group sizes used when assigning that attribute to each agent'''
+        Friends_List = []
+        #From expert, each agent has 0 to 20 friends with an average at 4
+        #No upper bound for the poisson distribution as probablity will be very low to get over 20
+        Friends_List =  stats.poisson.rvs( 4, loc = 0, size=population_size)
+        if sum(Friends_List) % 2 != 0:
+            Friends_List[0] = Friends_List[0] + 1 
+        
+        #Returns a list of friend-group sizes with length the size of the population
+        return Friends_List
+
+    def Age(population_size):
+        '''Outputs a list of ages depending on data to be used when assigning an age to each agent'''
+        
+        #Counting proportion of population being in one of the 3 age groups:
+        Count_Age18_34 = round(population_size *0.26)#From data, 26% of population if 18 to 34 years old
+        Count_Age35_64 = round(population_size *0.49)#From data, 49% of population if 35 to 64 years old
+        Count_Age65_plus = round(population_size * 0.25) #From data, 25% of population if 65+ years old
+        
         AgeList = []
         
+        #Assign random integer within the respective age group (min: 18 years old, max: 100 years old)
         for i in range(0,Count_Age18_34):
             n = random.randint(18,34)
             AgeList.append(n)
@@ -70,110 +69,146 @@ class Simulation:
         for i in range(0,Count_Age65_plus):
             n = random.randint(65,100)
             AgeList.append(n)
+        
+        #Because its based on probabilities, the initial length of the the age list might be different from the actual population size
+        #Truncate the age list to the population size. UK population is ging so we truncate in the 18 to 34 age group
         Reversed_AgeList = AgeList[::-1]
         Truncated_Reversed_AgeList = Reversed_AgeList[:population_size]
         AgeList = Truncated_Reversed_AgeList[::-1]
+        
+        #Returns a list of ages with length the size of the population
         return AgeList
     
     def HouseholdList(population_size):
+        '''Outputs a list of household sizes to be used when assigning household size to each agent'''
+        
         Household_List = []
         Household_List_18_to_34 = []
         Household_List_34_to_64 = []
         Household_List_65_plus = []
-        #For 18 to 34 years old, mu = 1.54
-        Count_Age18_34 = round(population_size *0.26)
-        House18_to_34 =  stats.poisson.rvs( 1.54, loc = 0, size=Count_Age18_34)
-        for i in range(0,Count_Age18_34):
+        
+        #Creating list for household size for 18 to 34 years old 
+        Count_Age18_34 = round(population_size * 0.26)
+        House18_to_34 =  stats.poisson.rvs( 1.54, loc = 0, size=Count_Age18_34) #For 18 to 34 years old, average household in UK is 1.54
+        for i in range(0, Count_Age18_34):
             Household_List_18_to_34.append(House18_to_34[i])
-        #For 35 to 64 years old, mu = 1.69
+        
+        #Creating list for household size for 35 to 64 years old 
         Count_Age35_64 = round(population_size *0.49)
-        House35_to_64 =  stats.poisson.rvs( 1.69, loc = 0, size=Count_Age35_64)
+        House35_to_64 =  stats.poisson.rvs( 1.69, loc = 0, size=Count_Age35_64) #For 35 to 64 years old, average household in UK is 1.69
         for i in range(0,Count_Age35_64):
             Household_List_34_to_64.append(House35_to_64[i])
-        #For 65+ years old, mu = 0.49
+        
+        #Creating list for household size for 65+ years old 
         Count_Age65_plus = round(population_size * 0.25)
-        House64_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus)
+        House64_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus) #For 65+ years old, average household in UK is 0.49
         for i in range(0,Count_Age65_plus):
             Household_List_65_plus.append(House64_plus[i])
+        
+        #Adjusting each household list such that it's sensible (see section)
         Sensible_18_to_34 = Simulation.SensibleHouseholds(Household_List_18_to_34)
         Sensible_34_to_64 = Simulation.SensibleHouseholds(Household_List_34_to_64)
         Sensible_65_plus = Simulation.SensibleHouseholds(Household_List_65_plus)
+        
+        #Combining the 3 lists
         Household_List = Sensible_18_to_34 + Sensible_34_to_64 + Sensible_65_plus
+        
         #Because the values are decimals, we want exactly length of population_size:
-        #The UK population is ageing so we remove values from the 18-34 section
+        #The UK population is ageing so we remove values from the 18-34 section if needed
         Reversed_Household_List = Household_List[::-1]
         Truncated_Reversed_Household_List = Reversed_Household_List[:population_size]
         Household_List = Truncated_Reversed_Household_List[::-1]
-        return Household_List
         
+        #Returns the lists of households in order of younger age group to older
+        return Household_List
 
     def SensibleHouseholds(Household_List_depending_on_age):
-        #------------------------CHECKING WHICH VALUE IS SENSIBLE------------
-        #--Counts each value in Household_List and creates a dictionary---------------------
+        '''ensures the household list fits real life observations ie it's sensisble (see section)'''
+
+        #--Counts each value in Household_List and creates a dictionary-------
         
         Household_Dict = dict(Counter(Household_List_depending_on_age))
         
         
-        #--Checking for multiples--------------------------------------------  
-             
+        #--Creating the list of values that are not sensible-------------------
+        
+        #A value is sensible if the number of times it appears  [multiple of (value + 1)] times
+        #We add all the non-sensible values to the 'Not_sensible' list
         Not_sensible = {}
         for size in Household_Dict:
             if size != 0:
                 if size == 1:
+                    #The count of size 1 needs to be pair, if not, we add it to the Not_sensible list
                     if Household_Dict[size] % 2 != 0:
                         Not_sensible[size] = Household_Dict[size]
+                        
                 else:
+                    #If the size is greater than 1
                     if Household_Dict[size] == 1:
+                        #If the count is 1, because the size is not 0 (which would be the only size where count == 1 is ok), this can't be sensible
                         Not_sensible[size] = Household_Dict[size]
+                        
                     else:
+                        #If size is not 1 and the value is different from 1, then the count is sensible only is it's equal to [multiple of (value + 1)]
                         if Household_Dict[size] % (size+1) != 0:
                             Not_sensible[size] = Household_Dict[size]
         
+        
         #--Sorting values of Not_sensible & Household dictionary-------------------------------------            
-        SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True)
-        Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0])
+        
+        SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True) #List of sorted Not_sensible values
+        Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0]) #List of all of the household values sorted ie the first pair will (0, count of 0) followed by (1, count of 1) etc. 
         
         
         
-        #--If pair is not sensible, its count will be carried out to the next one-----------------
-        credit = 0
-        newpairs = []
+        #--If pair is not sensible, its count will be carried out to the next one until all pairs make sense-----------------
         
-        for pair in SNot_List:
-            key = pair[0]
+        credit = 0 #The leftovers of counts so that they make sense are added up in the 'credit'. By the end of the method, the credit will be totally use 
+        newpairs = [] #List of pairs that have been adjusted to make sense in a household context
+        
+        for pair in SNot_List: #For pairs where the count does not make sense
+            key = pair[0] #The key is the housheold size
             
-            if credit != 0:
+            if credit != 0: #If the credit is different to 0 (possible after a pair, that initially didn't make sense, was adjusted), we add the leftover credit to the pair's count
                 value = pair[1] + credit 
                 credit = 0
                 
             else:
+                #If the credit is 0 after going through a pair, the value is assigned to be the count
                 value = pair[1]
+                
             if key == 1:
                 if value % 2 != 0:
+                    #Household size of 1 makes sense if its count is pair
                     value = value - 1
-                    Value_0 = Sorted_Household[0][1] + 1
+                    Value_0 = Sorted_Household[0][1] + 1 #We substract 1 from the pair with size 1 and add it to the one with size 0 (which has no conditions) (This assumes a large population where there will be households of 0)
                     newpairs.append((Sorted_Household[0][0], Value_0))
                     newpairs.append((Sorted_Household[1][0], value))
                 else:
+                    #If count of pair with size 1 is now pair (because of leftover credit), then we add it to the newpairs list
                     newpairs.append((key, value))
-            else:
+                    
+            else: #If key different to 1
                 if value == 1:
                         value = 0
                         credit += 1
-                        newpairs.append((key, value))
+                        newpairs.append((key, value)) #Pair added to the new list is (key, 0)
+                        
                 if value == 0:
                     newpairs.append((key, value))
-                else:
+                    
+                else: #If value different to 0 and 1
                     if value % (key+1) != 0:
-                        while value % (key+1) != 0:
+                        while value % (key+1) != 0: #While the count is not (multiple of (size + 1)), we take away the necessary credit 
                             value = value - 1
                             credit += 1
                         newpairs.append((key, value))
-                        if SNot_List[-1] == pair:
+                        
+                        if SNot_List[-1] == pair: #If the pair we are looking at is the last one in the list of pairs that do not make sense, we add the leftover credit to the pair with size 1. 
                             for pair in Sorted_Household:
                                 if pair[0] == 1:
                                     value = pair[1] + credit
-                                    if value % 2 != 0:
+                                    if value % 2 != 0: #If count is not pair, we disocunt 1 to the count and add it to the count of the pair with size 0 
                                         value = value - 1
                                         Value_0 = Sorted_Household[0][1] + 1
                                         newpairs.append((Sorted_Household[1][0], value))
@@ -184,6 +219,7 @@ class Simulation:
                     else:
                         newpairs.append((key, value))
         
+        #At this point, all adjusted pairs have been added to the newpairs list
         
         #--Appending sensible pairs to the new list------------------------------------    
         
@@ -199,7 +235,7 @@ class Simulation:
                 newpairs.append(Sorted_Household[i])
             i += 1
         
-        #--Removing all pairs with a count = 0-----------------------------------------
+        #--Removing all pairs with a count of 0--------------------------------
             
         Cleaned_newpairs=[]
         for n in range(0,len(newpairs)):
@@ -209,7 +245,7 @@ class Simulation:
         
             
         
-        #--Transforming List of pairs into list of integers---------------------------      
+        #--Transforming list of pairs into list of integers--------------------     
         
         New_Householdlist = []
         for pair in Cleaned_newpairs:
@@ -217,26 +253,103 @@ class Simulation:
             while i < pair[1]:
                 New_Householdlist.append(pair[0])
                 i += 1
+        
+        #At this stage, we have created a way to adjust an initial Poisson distribution into a distribution 
+        #that makes sense in a household context.
+        #For sanity check, look at section 
         return New_Householdlist
     
-    def Friendships(population_size):
-        Friends_List = []
-        #(we assume at first) that everyone has 0 to 20 friends with an average at 3-5
-        Friends_List =  stats.poisson.rvs( 4, loc = 0, size=population_size)
-        if sum(Friends_List) % 2 != 0:
-            Friends_List[0] = Friends_List[0] + 1 
-        return Friends_List
+    def Spread(self, graph):
+        '''the spread method representing a single iteration of the simulation  '''
+        
+        for a in graph.nodes():
+            old_level = a.Level_smoking
+            List_sum_L0 = []
+            List_sum_L1 = []
+            List_sum_L2 = []
+            sum_L0 = 0 
+            sum_L1 = 0 
+            sum_L2 = 0 
+            Proba_L0 = 0
+            Proba_L1 = 0
+          
+            predecessors = list(graph.predecessors(a)) #List of nodes having an influence on the agent
+            
+            if len(predecessors) != 0:
+                for p in predecessors:
+                    Main_Dict = graph[p][a] #Dictionary with keys: the key of the edge (e.j. agt_is_husband) ; values: the dictionary with key the 'Spread_level'
+                    for key, value1 in Main_Dict.items():
+                        NewDict = Main_Dict[key] #Dictionary with key: the 'Spread_Level' ; values: dictionary with keys the attributes (color, weights)
+                        for spread, value2 in NewDict.items():
+                            if spread == 'Spread_Level':
+                                NewDict2 = NewDict[spread] #Dictionary with key: the attributes, values: assigned color/quantity
+                                
+                                #For the relevant key, add its quantitiative weight to the relevant list (ej weight_L0 to list_L0)
+                                for Weight, value in NewDict2.items():
+                                    if Weight == 'weight_L0':
+                                        List_sum_L0.append(value)
+                                    if Weight == 'weight_L1':
+                                        List_sum_L1.append(value)
+                                    if Weight == 'weight_L2':
+                                        List_sum_L2.append(value)
+                                        
+                #Calculating sum of weights of neighbors influencing Level 0
+                sum_L0 = sum(List_sum_L0)
+                
+                #Calculating sum of weights of neighbors influencing Level 1
+                sum_L1 = sum(List_sum_L1)
+                
+                #Calculating sum of weights of neighbors influencing Level 2
+                sum_L2 = sum(List_sum_L2)
+                
+                #Normalise the sums of the 3 levels to values between 0 and 1 + ensuring there's no divison by 0
+                Total = sum_L0 + sum_L1 + sum_L2
+                
+                if sum_L0 == 0:
+                    Proba_L0 = 0
+                else:
+                    Proba_L0 = sum_L0/Total
+                if sum_L1 == 0:
+                    Proba_L1 = 0
+                else:
+                    Proba_L1 = sum_L1/Total  
+                
+                #Creation of checkpoints. The new level is corresponds to the bracket the threshold falls into
+                if a.th <= Proba_L0:
+                    new_level = 0
+                elif (a.th > Proba_L0) and (a.th <= (Proba_L0 + Proba_L1)):
+                    new_level = 1
+                elif a.th > (Proba_L0 + Proba_L1):
+                    new_level = 2
+                
+                if new_level != a.Level_exercise:
+                #Updating the outward influence of the agent after changing level
+                        a.Level_exercise = new_level
+                        Simulation.UpdateWeights(a, graph, old_level, new_level)
+                        
+        #Graph is being updated all along this method so no return needed
+        return 
     
-    def Sex(population_size):
-        Sex_List = []
-        #In the UK about 51% are women and 49% men
-        for i in range(0, population_size):
-            r = random.random()
-            if r>= 0.51:
-                Sex_List.append('Female')
-            else:
-                Sex_List.append('Male')
-        return Sex_List     
+    def UpdateWeights(a, G, old_level, new_level):
+        '''updating the weights of each edge when the agent changes its level'''
+        
+        neighbour = list(G.neighbors(a))
+        for n in neighbour: 
+            
+            #Smoking data only exists for spouse and friend
+            for key in list(G[a][n].keys()):
+                if key == 'agt_is_spouse':
+                    del G[a][n]['agt_is_spouse']['Spread_Level'] #Delete the spread corresponding to the old level
+                    G[a][n]['agt_is_spouse']['Spread_Level'] = S_spread_list[new_level] #Add new spread dictionary as the value to the key: 'Spread_Level'
+    
+                 
+                if key == 'Friend' :
+                    del G[a][n]['Friend']['Spread_Level'] #Same as above but for friends
+                    G[a][n]['Friend']['Spread_Level'] = F_spread_list[new_level]
+                
+        
+        #No return needed as graph updates all along the method            
+        return 
            
             
 class Agent:
@@ -532,79 +645,107 @@ class Agent:
 #---Data-----------------------------------------------------------
 population_size = 1000
 
-#-------------------------------------------------
-G = nx.Graph()
-for i in range(0,population_size):
-    G.add_node(i)
+#---Initialising network--------------------------------------------------------
+#Creation of network for households
 
-#-----------------------------------------------------------------------
+#We create the directed nodes such that the agent influences his connections
+#If we don't have the specific data of influence,we put to be the reference == 0.2 for family/housemate and 0.1 for friends
 
-#Creating random seedset with k length
-k_Level1 = int(0.122 * population_size)
-k_Level2 = int(0.262 * population_size)
-new_infected = []
+#Creation of spread dictionaries per level and per key (status of the agent towards its specific neighbour)
 
+#Weights for spouses & housemates
+S_spread_L0 = {'color' : 'r', 'weight_L0' : 0.2}
+S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.4}
+S_spread_L2 = {'color' : 'r', 'weight_L2' : 0.2}
 
-#Parameter of system
-p = 0.1 
-s = Simulation(G, [], p)
-initial_seedset_Level1 = random.sample(s.graph.nodes, k_Level1)
-initial_seedset_Level2 = random.sample(s.graph.nodes, k_Level2)
+#Weights for friends
+F_spread_L0 = {'color' : 'r', 'weight_L0' : 0.1}
+F_spread_L1 = {'color' : 'r', 'weight_L1' : 0.43}
+F_spread_L2 = {'color' : 'r', 'weight_L2' : 0.1}
 
+#Spread list for spouse and housemate:
+S_spread_list = [S_spread_L0, S_spread_L1, S_spread_L2]
 
-#-----------------------------------------------------------
+#Spread list for friends:
+F_spread_list = [F_spread_L0, F_spread_L1, F_spread_L2]
 
-for agt in G.nodes:
-    if agt.housesize != 0:
-            if agt.housesize == 1:
-                r = random.random()
-                if r>= 0.012:
-                    for neighbr in G.nodes:
-                        if agt.housefull == False and neighbr.housefull == False:
-                            if neighbr.housesize == 1:
-                                if agt.sex != neighbr.sex:
-                                    G.add_edge(agt,neighbr,color='b', weight=1.13)
-                                    agt.housefull = True
-                                    neighbr.housefull = True
-                else:
-                    for neighbr in G.nodes:
-                        if agt.housefull == False and neighbr.housefull == False:
-                            if neighbr.housesize == 1:
-                                if agt.sex == neighbr.sex:
-                                    G.add_edge(agt,neighbr,color='b', weight=1.13)
-                                    agt.housefull = True
-                                    neighbr.housefull = True
+def InitialiseNetwork(G):
+    '''Initialise network for given household size and friendship group'''
+    
+    #For households:
+    for agt in G.nodes:
+        if agt.housesize != 0:
             for neighbr in G.nodes:
-                if agt.id != neighbr.id:
-                    if agt.housefull == False and neighbr.housefull == False:
-                        if agt.housesize == neighbr.housesize:
-                          G.add_edge(agt,neighbr,color='b', weight=1.13)
-                          if G.degree(agt, weight=3) == agt.housesize:
-                              agt.housefull = True
-                          if G.degree(neighbr) == neighbr.housesize:
-                              neighbr.housefull = True
+                if agt.id != neighbr.id: #Should be distinct agents
+                    if agt.housesize == neighbr.housesize: #Should share the same housesize
+                        if G.has_edge(agt, neighbr) == False: #Should not be previously connnected
+                            if agt.housefull == False and neighbr.housefull == False: #Both agents should not have filled their household
+                                if agt.Level_exercise == 0:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_spouse', Spread_Level = S_spread_L0)
+                                    if G.degree(agt) == agt.housesize:
+                                      agt.housefull = True
+                                    if G.degree(neighbr) == neighbr.housesize:
+                                        neighbr.housefull = True
+                                if agt.Level_exercise == 1:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_spouse', Spread_Level = S_spread_L1)
+                                    if G.degree(agt) == agt.housesize:
+                                      agt.housefull = True
+                                    if G.degree(neighbr) == neighbr.housesize:
+                                        neighbr.housefull = True
+                                if agt.Level_exercise == 2:
+                                    G.add_edge(agt,neighbr, key = 'agt_is_spouse', Spread_Level = S_spread_L2)
+                                    if G.degree(agt) == agt.housesize:
+                                      agt.housefull = True
+                                    if G.degree(neighbr) == neighbr.housesize:
+                                        neighbr.housefull = True
 
-
-for agt in G.nodes:
-    if agt.friends == 0:
-        agt.friendshipfull = True
-    else:
+        
+    
+                              
+    #Creation of network for friendships:
+                                  
+    def FriendCount(Graph, agent):
+        '''calculates number of friends an agent has at a given time'''
+        Nb_Friends = G.degree[agent] - agent.housesize
+        return Nb_Friends
+    
+    
+    def OutEdge(a, n, G):
+        '''Checking if agent a has an outcoming edge to neighbour n '''
+        List_Out_Edges = G.out_edges(a)
+        for principal, neighbour in List_Out_Edges:
+            if neighbour == n:
+                return True
+        return False
+    
+    for agt in G.nodes:
         for neighbr in G.nodes:
-            if neighbr.friends != 0:
-                if agt.id != neighbr.id:
-                    if agt.friendshipfull == False and neighbr.friendshipfull == False:
-                        if G.has_edge(agt, neighbr) == False:
-                              G.add_edge(agt,neighbr,color='r', weight=1)
-                              if (G.degree(agt) - agt.housesize) == agt.friends:
+                if agt.id != neighbr.id: #Should be distinct agents
+                    if agt.friendshipfull == False and neighbr.friendshipfull == False: #Both should not have filled their friend groups
+                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_exercise == 0): #No edge should already exist between them 
+                              G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L0)
+                              if FriendCount(G, agt) == agt.friends:
                                   agt.friendshipfull = True
-                              if (G.degree(neighbr) - neighbr.housesize) == neighbr.friends:
+                              if FriendCount(G, neighbr) == neighbr.friends:
                                   neighbr.friendshipfull = True
-          
-                          
+                       
+                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_exercise == 1):
+                              G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L1)
+                              if FriendCount(G, agt) == agt.friends:
+                                  agt.friendshipfull = True
+                              if FriendCount(G, neighbr) == neighbr.friends:
+                                  neighbr.friendshipfull = True
+                                  
+                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_exercise == 2):
+                              G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L2)        
+                              if FriendCount(G, agt) == agt.friends:
+                                  agt.friendshipfull = True
+                              if FriendCount(G, neighbr) == neighbr.friends:
+                                  neighbr.friendshipfull = True
+                              
+    return 
 
-
-
-#--Plotting the network--------------------------------------------------------
+#--Plotting the network for  small population_size--------------------------------------------------------
                                   
 # edges = G.edges()
 # colors = [G[u][v]['color'] for u,v in edges]
@@ -613,49 +754,310 @@ for agt in G.nodes:
 # nx.draw(G,pos,  edges=edges, edge_color=colors, width=weights)                               
 # plt.legend(['Agents', 'Household'])
  
-#--Inital levels of exercise intensity-----------------------------------------
-                                  
-levelexercise_initial = []   
-for agt in G.nodes():
-    levelexercise_initial.append(agt.Level_exercise)
-#----------------------------------------------------------------- 
-# cache each agent's neighbor list - could looked up each time depending what you are doing
-for n in s.graph.nodes():
-    n.neighbors = [agt for agt in s.graph.neighbors(n)]
-    #print(n.neighbors)
+#--BEFORE SPREAD: Finding mean and standard deviation of each levels for each age groups-----
+    
+Level18to34_Level0 = []
+Level18to34_Level1 = []
+Level18to34_Level2 = []
+
+Level35to64_Level0 = []
+Level35to64_Level1 = []
+Level35to64_Level2 = []
+
+Level65plus_Level0 = []
+Level65plus_Level1 = []
+Level65plus_Level2 = []
+                              
+for r in range(0,100):
+
+    
+    Level18to34 = []  
+    Level35to64 = []
+    Level64plus = []
+    
+    #--Creation of graph-------------------------------------------------------
+    
+    G = nx.MultiDiGraph()
+    for i in range(0,population_size):
+        G.add_node(i)
+    
+    #-----------------------------------------------------------------------
+    #Ensure the list of th parameters (houshold, friends, sex and age) are the length of the population size
+    try: 
+        s = Simulation(G)
+    except IndexError:
+        break
+
+    #Create list of levels
+    for agt in G.nodes():
+        if agt.age > 18 and agt.age < 35:
+            Level18to34.append(agt.Level_exercise)
+        if agt.age > 34 and agt.age < 65:
+            Level35to64.append(agt.Level_exercise)
+        if agt.age > 64:
+            Level64plus.append(agt.Level_exercise)
+    
+    Count_18to34 = Counter(Level18to34)
+    Count_35to64 = Counter(Level35to64)
+    Count_65plus = Counter(Level64plus)
+    
+    #--Appending the count of the level as a function of the age group in the relevant list
+    
+    Level18to34_Level0.append(Count_18to34[0])
+    Level18to34_Level1.append(Count_18to34[1])
+    Level18to34_Level2.append(Count_18to34[2])
+    
+    Level35to64_Level0.append(Count_35to64[0])
+    Level35to64_Level1.append(Count_35to64[1])
+    Level35to64_Level2.append(Count_35to64[2])
+    
+    Level65plus_Level0.append(Count_65plus[0])
+    Level65plus_Level1.append(Count_65plus[1])
+    Level65plus_Level2.append(Count_65plus[2])
+
+#--BEFORE SPREAD: Calculating mean and standard deviation of each of the 6 lists (depending on age and variable)
+    
+#For 18 to 34 years old:
+Mean_18to34_L0_before = round(np.mean(Level18to34_Level0), 2)
+Mean_18to34_L1_before = round(np.mean(Level18to34_Level1), 2)
+Mean_18to34_L2_before = round(np.mean(Level18to34_Level2), 2)
+
+Std_18to34_L0_before = round(np.std(Level18to34_Level0), 2)
+Std_18to34_L1_before = round(np.std(Level18to34_Level1), 2)
+Std_18to34_L2_before = round(np.std(Level18to34_Level2), 2)
+
+#--For 35 to 64 years old:
+
+Mean_35to64_L0_before = round(np.mean(Level35to64_Level0), 2)
+Mean_35to64_L1_before = round(np.mean(Level35to64_Level1), 2)
+Mean_35to64_L2_before = round(np.mean(Level35to64_Level2), 2)
+
+Std_35to64_L0_before = round(np.std(Level35to64_Level0), 2)
+Std_35to64_L1_before = round(np.std(Level35to64_Level1), 2)
+Std_35to64_L2_before = round(np.std(Level35to64_Level2), 2)
+
+#--For 65+ years old:
+
+Mean_65plus_L0_before = round(np.mean(Level65plus_Level0), 2)
+Mean_65plus_L1_before = round(np.mean(Level65plus_Level1), 2)
+Mean_65plus_L2_before = round(np.mean(Level65plus_Level2), 2)
+
+Std_65plus_L0_before = round(np.std(Level65plus_Level0), 2)
+Std_65plus_L1_before = round(np.std(Level65plus_Level1), 2)
+Std_65plus_L2_before = round(np.std(Level65plus_Level2), 2)
+
+#--AFTER SPREAD: Finding mean and standard deviation of level for each age group-------------------------------
+
+Level18to34_Level0 = []
+Level18to34_Level1 = []
+Level18to34_Level2 = []
+
+Level35to64_Level0 = []
+Level35to64_Level1 = []
+Level35to64_Level2 = []
+
+Level65plus_Level0 = []
+Level65plus_Level1 = []
+Level65plus_Level2 = []
+
+for r in range(0,100):
+
+    
+    Level18to34 = []  
+    Level35to64 = []
+    Level64plus = []
+    
+    #-------------------------------------------------
+    G = nx.MultiDiGraph()
+    for i in range(0,population_size):
+        G.add_node(i)
+    
+    #-----------------------------------------------------------------------
+
+    try:
+        s = Simulation(G)
+    except IndexError:
+        break
+
+    InitialiseNetwork(G)
+    t = 5
+    for i in range(0,t):
+        s.Spread(G)
+        levelsmoking = []   
+        for agt in G.nodes():
+            levelsmoking.append(agt.Level_exercise)
+        
+    for agt in G.nodes():
+        if agt.age>18 and agt.age<35:
+            Level18to34.append(agt.Level_exercise)
+        if agt.age>34 and agt.age<65:
+            Level35to64.append(agt.Level_exercise)
+        if agt.age>64:
+            Level64plus.append(agt.Level_exercise)
+        
+    Count_18to34 = Counter(Level18to34)
+    Count_35to64 = Counter(Level35to64)
+    Count_65plus = Counter(Level64plus)
+    
     
 
-# run the simulation for appropriate number of iterations
-#t iterations
-t = 1000
-previous_infections_Level1 = initial_seedset_Level1
-previous_infections_Level2 = initial_seedset_Level2
-for i in range(0,t):
-    new_infections = s.tick(G, previous_infections_Level1, previous_infections_Level2,  p)
-    print("iteration ", i, " number of new infections: ", len(new_infections))
-    if not new_infections:
-        break
-    previous_infections_Level1 = new_infections
-    previous_infections_Level2 = new_infections
+    
+    #--Appending the count of the level as a function of the age group in the relevant list
+    
+    Level18to34_Level0.append(Count_18to34[0])
+    Level18to34_Level1.append(Count_18to34[1])
+    Level18to34_Level2.append(Count_18to34[2])
+    
+    Level35to64_Level0.append(Count_35to64[0])
+    Level35to64_Level1.append(Count_35to64[1])
+    Level35to64_Level2.append(Count_35to64[2])
+    
+    Level65plus_Level0.append(Count_65plus[0])
+    Level65plus_Level1.append(Count_65plus[1])
+    Level65plus_Level2.append(Count_65plus[2])
+    
+#--AFTER SPREAD: Calculating mean and standard deviation of each of the 6 lists (depending on age and variable)
+    
+#For 18 to 34 years old:
+Mean_18to34_L0_after = round(np.mean(Level18to34_Level0), 2)
+Mean_18to34_L1_after = round(np.mean(Level18to34_Level1), 2)
+Mean_18to34_L2_after = round(np.mean(Level18to34_Level2), 2)
+
+Std_18to34_L0_after = round(np.std(Level18to34_Level0), 2)
+Std_18to34_L1_after = round(np.std(Level18to34_Level1), 2)
+Std_18to34_L2_after = round(np.std(Level18to34_Level2), 2)
+
+
+#--For 35 to 64 years old:
+
+Mean_35to64_L0_after = round(np.mean(Level35to64_Level0), 2)
+Mean_35to64_L1_after = round(np.mean(Level35to64_Level1), 2)
+Mean_35to64_L2_after = round(np.mean(Level35to64_Level2), 2)
+
+Std_35to64_L0_after = round(np.std(Level35to64_Level0), 2)
+Std_35to64_L1_after = round(np.std(Level35to64_Level1), 2)
+Std_35to64_L2_after = round(np.std(Level35to64_Level2), 2)
+
+
+#--For 65+ years old:
+
+Mean_65plus_L0_after = round(np.mean(Level65plus_Level0), 2)
+Mean_65plus_L1_after = round(np.mean(Level65plus_Level1), 2)
+Mean_65plus_L2_after = round(np.mean(Level65plus_Level2), 2)
+
+Std_65plus_L0_after = round(np.std(Level65plus_Level0), 2)
+Std_65plus_L1_after = round(np.std(Level65plus_Level1), 2)
+Std_65plus_L2_after = round(np.std(Level65plus_Level2), 2)
     
     
-#---Plotting-------------------------------------------------------------------
+#--Plotting : Spread of smoking as a function of age with the linear threshold model-------
     
-levelexercise = []   
-for agt in G.nodes():
-    levelexercise.append(agt.Level_exercise)
-    
-data = np.array(levelexercise)
-d = np.diff(np.unique(data)).min()
-left_of_first_bin = data.min() - float(d)/2
-right_of_last_bin = data.max() + float(d)/2
-plt.hist([levelexercise_initial, data], np.arange(left_of_first_bin, right_of_last_bin + d, d), label = ['Before spread', 'After spread'])
-plt.xlabel('Levels of exercise');
-plt.ylabel('Count of agents');
-plt.title('Spread of exercise intensity with the linear threshold model');
-plt.legend()
-plt.show()       
+
         
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+#--the data---------------------------------------------------------------------------------
+N = 3
+
+Means_Before_18to34 = [Mean_18to34_L0_before,Mean_18to34_L1_before, Mean_18to34_L2_before ]
+Std_Before_18to34 = [Std_18to34_L0_before, Std_18to34_L1_before, Std_18to34_L2_before ]
+
+Means_After_18to34 = [Mean_18to34_L0_after,Mean_18to34_L1_after, Mean_18to34_L2_after ]
+Std_After_18to34 = [Std_18to34_L0_after, Std_18to34_L1_after, Std_18to34_L2_after ]
+
+Means_Before_35to64 = [Mean_35to64_L0_before,Mean_35to64_L1_before, Mean_35to64_L2_before ]
+Std_Before_35to64 = [Std_35to64_L0_before, Std_35to64_L1_before, Std_35to64_L2_before ]
+
+Means_After_35to64 = [Mean_35to64_L0_after,Mean_35to64_L1_after, Mean_35to64_L2_after ]
+Std_After_35to64 = [Std_35to64_L0_after, Std_35to64_L1_after, Std_35to64_L2_after ]
+
+Means_Before_65plus = [Mean_65plus_L0_before, Mean_65plus_L1_before, Mean_65plus_L2_before ]
+Std_Before_65plus = [Std_65plus_L0_before, Std_65plus_L1_before, Std_65plus_L2_before ]
+
+Means_After_65plus = [ Mean_65plus_L0_after, Mean_65plus_L1_after, Mean_65plus_L2_after ]
+Std_After_65plus = [Std_65plus_L0_after, Std_65plus_L1_after, Std_65plus_L2_after ]
+
+
+#--necessary variables----------------------------------------------------------
+ind = np.arange(N)                # the x locations for the groups
+width = 0.07                      # the width of the bars
+
+
+
+#--Before/After 18 to 34 years old-----------------------------------------------
+rects1 = ax.bar(ind, Means_Before_18to34, width,
+                color='deepskyblue',
+                yerr=Std_Before_18to34,
+                error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+rects2 = ax.bar(ind+width, Means_After_18to34, width,
+                    color='paleturquoise',
+                    yerr=Std_After_18to34,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+#--Before/After 35 to 64 years old-----------------------------------------------
+
+rects3 = ax.bar(ind+width*2+0.1, Means_Before_35to64, width,
+                    color='mediumpurple',
+                    yerr=Std_Before_35to64,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+rects4 = ax.bar(ind+width*3+0.1, Means_After_35to64, width,
+                    color='thistle',
+                    yerr=Std_After_35to64,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+#--Before/After 65 + years old---------------------------------------------------
+
+
+rects5 = ax.bar(ind+width*4+0.2, Means_Before_65plus, width,
+                    color='orange',
+                    yerr=Std_Before_65plus,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+rects6 = ax.bar(ind+width*5+0.2, Means_After_65plus, width,
+                    color='navajowhite',
+                    yerr=Std_After_65plus,
+                    error_kw=dict(elinewidth=2,ecolor='dimgray'))
+
+#--axes and labels----------------------------------------------------------------------------
+ax.set_xlim(-width,len(ind)+width)
+ax.set_ylabel('Count')
+ax.set_title('Spread of exercise with the threshold model')
+xTickMarks = ['Level '+str(i) for i in range(0,3)]
+ax.set_xticks(ind+width*3+0.05)
+xtickNames = ax.set_xticklabels(xTickMarks)
+plt.setp(xtickNames, fontsize=10)
+
+#--legend--------------------------------------------------------------------------------------
+label = ('Before: 18 to 34 years old', 'After: 18 to 34 years old', 'Before: 35 to 64 years old', 'After: 35 to 64 years old', 'Before: 65+ years old' , 'After: 65+ years old')
+plt.legend((rects1[0], rects2[0], rects3[0], rects4[0], rects5[0], rects6[0]), (label), loc='lower left', frameon=False, bbox_to_anchor=(0, -0.75))
+plt.show()       
+
+
+#--Printing expectated mean and standard deviation: -------------------------------------------
+
+print("Means_Before_18to34",  Means_Before_18to34)
+print("Std_Before_18to34",  Std_Before_18to34)
+
+print("Means_After_18to34",  Means_After_18to34)
+print("Std_After_18to34", Std_After_18to34)
+
+print("Means_Before_35to64",  Means_Before_35to64)
+print("Std_Before_35to64",  Std_Before_35to64)
+
+print("Means_After_35to64",  Means_After_35to64)
+print("Std_After_35to64",  Std_After_35to64)
+
+print("Means_Before_65plus",  Means_Before_65plus)
+print("Std_Before_65plus", Std_Before_65plus)
+
+print("Means_After_65plus",  Means_After_65plus)
+print("Std_After_65plus", Std_After_65plus)
+
+        
+
         
         
         
