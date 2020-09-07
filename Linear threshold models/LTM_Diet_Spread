@@ -720,14 +720,14 @@ population_size = 1000
 #Creation of spread dictionaries per level and per key (status of the agent towards its specific neighbour)
 
 #Weights for spouses & housemates
-S_spread_L0 = {'color' : 'r', 'weight_L0' : 0.2}
-S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.4}
-S_spread_L2 = {'color' : 'r', 'weight_L2' : 0.4}
+S_spread_L0 = {'color' : 'r', 'weight_L0' : 0.4}
+S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.2}
+S_spread_L2 = {'color' : 'r', 'weight_L2' : 0.2}
 
 #Weights for friends
 F_spread_L0 = {'color' : 'r', 'weight_L0' : 0.1}
-F_spread_L1 = {'color' : 'r', 'weight_L1' : 0.43}
-F_spread_L2 = {'color' : 'r', 'weight_L2' : 0.43}
+F_spread_L1 = {'color' : 'r', 'weight_L1' : 0.1}
+F_spread_L2 = {'color' : 'r', 'weight_L2' : 0.1}
 
 #Spread list for spouse and housemate:
 S_spread_list = [S_spread_L0, S_spread_L1, S_spread_L2]
