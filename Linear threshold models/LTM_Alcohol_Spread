@@ -338,33 +338,31 @@ class Simulation:
 
         neighbour = list(G.neighbors(a))
         for n in neighbour: 
-            neighbour = list(G.neighbors(a))
-            for n in neighbour: 
-                for key in list(G[a][n].keys()):
-                    
-                    if key == 'agt_is_wife':
-                        del G[a][n]['agt_is_wife']['Spread_Level']
-                        G[a][n]['agt_is_wife']['Spread_Level'] = W_spread_list[new_level]
-                             
-                    if key == 'agt_is_husband' :
-                        del G[a][n]['agt_is_husband']['Spread_Level']
-                        G[a][n]['agt_is_husband']['Spread_Level'] = H_spread_list[new_level]
-                         
-                    if key == 'agt_is_housemate' :
-                        del G[a][n]['agt_is_housemate']['Spread_Level']
-                        G[a][n]['agt_is_housemate']['Spread_Level'] = S_spread_list[new_level]
+            for key in list(G[a][n].keys()):
                 
-                    if key == 'agt_is_spouse':
-                        del G[a][n]['agt_is_spouse']['Spread_Level']
-                        G[a][n]['agt_is_spouse']['Spread_Level'] = S_spread_list[new_level]
-                            
-                    if key == 'Friend' :
-                        del G[a][n]['Friend']['Spread_Level']
-                        G[a][n]['Friend']['Spread_Level'] = F_spread_list[new_level]
-                    
-                    if key == 'Additional Friend' :
-                        del G[a][n]['Additional Friend']['Spread_Level']
-                        G[a][n]['Additional Friend']['Spread_Level'] = AF_spread_list[new_level]
+                if key == 'agt_is_wife':
+                    del G[a][n]['agt_is_wife']['Spread_Level']
+                    G[a][n]['agt_is_wife']['Spread_Level'] = W_spread_list[new_level]
+                         
+                if key == 'agt_is_husband' :
+                    del G[a][n]['agt_is_husband']['Spread_Level']
+                    G[a][n]['agt_is_husband']['Spread_Level'] = H_spread_list[new_level]
+                     
+                if key == 'agt_is_housemate' :
+                    del G[a][n]['agt_is_housemate']['Spread_Level']
+                    G[a][n]['agt_is_housemate']['Spread_Level'] = S_spread_list[new_level]
+            
+                if key == 'agt_is_spouse':
+                    del G[a][n]['agt_is_spouse']['Spread_Level']
+                    G[a][n]['agt_is_spouse']['Spread_Level'] = S_spread_list[new_level]
+                        
+                if key == 'Friend' :
+                    del G[a][n]['Friend']['Spread_Level']
+                    G[a][n]['Friend']['Spread_Level'] = F_spread_list[new_level]
+                
+                if key == 'Additional Friend' :
+                    del G[a][n]['Additional Friend']['Spread_Level']
+                    G[a][n]['Additional Friend']['Spread_Level'] = AF_spread_list[new_level]
                         
                     
 
