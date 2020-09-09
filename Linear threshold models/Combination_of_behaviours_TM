@@ -12,8 +12,7 @@ import pandas as pd
 class Simulation:
     
 
-    def __init__(self, graph, seedset, p):
-        self.seedset = seedset
+    def __init__(self, graph):
         self.graph = graph
         self.num_agents = graph.number_of_nodes()
         # Create a new agent for each node, by creating an 
