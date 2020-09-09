@@ -883,9 +883,6 @@ for r in range(0,100):
     t = 5
     for i in range(0,t):
         s.Spread(G)
-        levelsmoking = []   
-        for agt in G.nodes():
-            levelsmoking.append(agt.Level_exercise)
         
     for agt in G.nodes():
         if agt.age>18 and agt.age<35:
