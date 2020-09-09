@@ -956,9 +956,6 @@ for r in range(0,100):
     t = 10
     for i in range(0,t):
         s.Spread(G)
-        levelsmoking = []   
-        for agt in G.nodes():
-            levelsmoking.append(agt.Level_smoking)
         
     for agt in G.nodes():
         if agt.age>18 and agt.age<35:
@@ -1128,3 +1125,4 @@ print("Std_Before_65plus", Std_Before_65plus)
 
 print("Means_After_65plus",  Means_After_65plus)
 print("Std_After_65plus", Std_After_65plus)
+
