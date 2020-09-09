@@ -1065,9 +1065,6 @@ for r in range(0,100):
     t = 10
     for i in range(0,t):
         s.Spread(G)
-        levelalcohol = []   
-        for agt in G.nodes():
-            levelalcohol.append(agt.Level_alcohol)
         
     for agt in G.nodes():
         if agt.age>18 and agt.age<35:
