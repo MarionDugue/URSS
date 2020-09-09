@@ -949,9 +949,6 @@ for r in range(0,100):
     t = 5
     for i in range(0,t):
         s.Spread(G)
-        leveldiet = []   
-        for agt in G.nodes():
-            leveldiet.append(agt.Level_diet)
         
     for agt in G.nodes():
         if agt.age>18 and agt.age<35:
