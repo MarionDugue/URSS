@@ -1,0 +1,1145 @@
+
+
+import networkx as nx
+import random
+import scipy.stats as stats
+from collections import Counter
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+class Simulation:
+    
+
+    def __init__(self, graph, seedset, p):
+        self.seedset = seedset
+        self.graph = graph
+        self.num_agents = graph.number_of_nodes()
+        # Create a new agent for each node, by creating an 
+        #agent_map and then relabeling the nodes in the graph
+        agent_map = {}
+        age = Simulation.Age(len(graph))
+        house = Simulation.HouseholdList(len(graph))
+        friend = Simulation.Friendships(len(graph))
+        sex = Simulation.Sex(len(graph))
+        for i in range(0, self.num_agents):
+            agent_map[i] = Agent(age[i], house[i], friend[i], sex[i])
+        nx.relabel_nodes(self.graph,agent_map,copy=False)
+
+    def Sex(population_size):
+            '''outputs a list of sexes used to assign one to each agent'''
+            
+            Sex_List = []
+            for i in range(0, population_size):
+                r = random.random()
+                if r>= 0.51:            #In the UK about 51% are women and 49% men
+                    Sex_List.append('Female')
+                else:
+                    Sex_List.append('Male')
+                    
+            #Returns a list of sex: 'Male', 'Female',  with length the size of the population     
+            return Sex_List   
+    
+    def Friendships(population_size):
+        '''outputs a list of friend group sizes used when assigning that attribute to each agent'''
+        Friends_List = []
+        #From expert, each agent has 0 to 20 friends with an average at 4
+        #No upper bound for the poisson distribution as probablity will be very low to get over 20
+        Friends_List =  stats.poisson.rvs( 4, loc = 0, size=population_size)
+        if sum(Friends_List) % 2 != 0:
+            Friends_List[0] = Friends_List[0] + 1 
+        
+        #Returns a list of friend-group sizes with length the size of the population
+        return Friends_List
+    
+    def Age(population_size):
+        '''Outputs a list of ages depending on data to be used when assigning an age to each agent'''
+        
+        #Counting proportion of population being in one of the 3 age groups:
+        Count_Age18_34 = round(population_size *0.26)#From data, 26% of population if 18 to 34 years old
+        Count_Age35_64 = round(population_size *0.49)#From data, 49% of population if 35 to 64 years old
+        Count_Age65_plus = round(population_size * 0.25) #From data, 25% of population if 65+ years old
+        
+        AgeList = []
+        
+        #Assign random integer within the respective age group (min: 18 years old, max: 100 years old)
+        for i in range(0,Count_Age18_34):
+            n = random.randint(18,34)
+            AgeList.append(n)
+        for i in range(0,Count_Age35_64):
+            n = random.randint(35,64)
+            AgeList.append(n)
+        for i in range(0,Count_Age65_plus):
+            n = random.randint(65,100)
+            AgeList.append(n)
+        
+        #Because its based on probabilities, the initial length of the the age list might be different from the actual population size
+        #Truncate the age list to the population size. UK population is ging so we truncate in the 18 to 34 age group
+        Reversed_AgeList = AgeList[::-1]
+        Truncated_Reversed_AgeList = Reversed_AgeList[:population_size]
+        AgeList = Truncated_Reversed_AgeList[::-1]
+        
+        #Returns a list of ages with length the size of the population
+        return AgeList
+    
+    def HouseholdList(population_size):
+        '''Outputs a list of household sizes to be used when assigning household size to each agent'''
+        
+        Household_List = []
+        Household_List_18_to_34 = []
+        Household_List_34_to_64 = []
+        Household_List_65_plus = []
+        
+        #Creating list for household size for 18 to 34 years old 
+        Count_Age18_34 = round(population_size * 0.26)
+        House18_to_34 =  stats.poisson.rvs( 1.54, loc = 0, size=Count_Age18_34) #For 18 to 34 years old, average household in UK is 1.54
+        for i in range(0, Count_Age18_34):
+            Household_List_18_to_34.append(House18_to_34[i])
+        
+        #Creating list for household size for 35 to 64 years old 
+        Count_Age35_64 = round(population_size *0.49)
+        House35_to_64 =  stats.poisson.rvs( 1.69, loc = 0, size=Count_Age35_64) #For 35 to 64 years old, average household in UK is 1.69
+        for i in range(0,Count_Age35_64):
+            Household_List_34_to_64.append(House35_to_64[i])
+        
+        #Creating list for household size for 65+ years old 
+        Count_Age65_plus = round(population_size * 0.25)
+        House64_plus =  stats.poisson.rvs( 0.49, loc = 0, size=Count_Age65_plus) #For 65+ years old, average household in UK is 0.49
+        for i in range(0,Count_Age65_plus):
+            Household_List_65_plus.append(House64_plus[i])
+        
+        #Adjusting each household list such that it's sensible (see section)
+        Sensible_18_to_34 = Simulation.SensibleHouseholds(Household_List_18_to_34)
+        Sensible_34_to_64 = Simulation.SensibleHouseholds(Household_List_34_to_64)
+        Sensible_65_plus = Simulation.SensibleHouseholds(Household_List_65_plus)
+        
+        #Combining the 3 lists
+        Household_List = Sensible_18_to_34 + Sensible_34_to_64 + Sensible_65_plus
+        
+        #Because the values are decimals, we want exactly length of population_size:
+        #The UK population is ageing so we remove values from the 18-34 section if needed
+        Reversed_Household_List = Household_List[::-1]
+        Truncated_Reversed_Household_List = Reversed_Household_List[:population_size]
+        Household_List = Truncated_Reversed_Household_List[::-1]
+        
+        #Returns the lists of households in order of younger age group to older
+        return Household_List
+    
+    def SensibleHouseholds(Household_List_depending_on_age):
+        '''ensures the household list fits real life observations ie it's sensisble (see section)'''
+
+        #--Counts each value in Household_List and creates a dictionary-------
+        
+        Household_Dict = dict(Counter(Household_List_depending_on_age))
+        
+        
+        #--Creating the list of values that are not sensible-------------------
+        
+        #A value is sensible if the number of times it appears  [multiple of (value + 1)] times
+        #We add all the non-sensible values to the 'Not_sensible' list
+        Not_sensible = {}
+        for size in Household_Dict:
+            if size != 0:
+                if size == 1:
+                    #The count of size 1 needs to be pair, if not, we add it to the Not_sensible list
+                    if Household_Dict[size] % 2 != 0:
+                        Not_sensible[size] = Household_Dict[size]
+                        
+                else:
+                    #If the size is greater than 1
+                    if Household_Dict[size] == 1:
+                        #If the count is 1, because the size is not 0 (which would be the only size where count == 1 is ok), this can't be sensible
+                        Not_sensible[size] = Household_Dict[size]
+                        
+                    else:
+                        #If size is not 1 and the value is different from 1, then the count is sensible only is it's equal to [multiple of (value + 1)]
+                        if Household_Dict[size] % (size+1) != 0:
+                            Not_sensible[size] = Household_Dict[size]
+        
+        
+        #--Sorting values of Not_sensible & Household dictionary-------------------------------------            
+        
+        SNot_List = sorted(Not_sensible.items(), key=lambda x: x[0], reverse=True) #List of sorted Not_sensible values
+        Sorted_Household =  sorted(Household_Dict.items(), key=lambda x: x[0]) #List of all of the household values sorted ie the first pair will (0, count of 0) followed by (1, count of 1) etc. 
+        
+        
+        
+        #--If pair is not sensible, its count will be carried out to the next one until all pairs make sense-----------------
+        
+        credit = 0 #The leftovers of counts so that they make sense are added up in the 'credit'. By the end of the method, the credit will be totally use 
+        newpairs = [] #List of pairs that have been adjusted to make sense in a household context
+        
+        for pair in SNot_List: #For pairs where the count does not make sense
+            key = pair[0] #The key is the housheold size
+            
+            if credit != 0: #If the credit is different to 0 (possible after a pair, that initially didn't make sense, was adjusted), we add the leftover credit to the pair's count
+                value = pair[1] + credit 
+                credit = 0
+                
+            else:
+                #If the credit is 0 after going through a pair, the value is assigned to be the count
+                value = pair[1]
+                
+            if key == 1:
+                if value % 2 != 0:
+                    #Household size of 1 makes sense if its count is pair
+                    value = value - 1
+                    Value_0 = Sorted_Household[0][1] + 1 #We substract 1 from the pair with size 1 and add it to the one with size 0 (which has no conditions) (This assumes a large population where there will be households of 0)
+                    newpairs.append((Sorted_Household[0][0], Value_0))
+                    newpairs.append((Sorted_Household[1][0], value))
+                else:
+                    #If count of pair with size 1 is now pair (because of leftover credit), then we add it to the newpairs list
+                    newpairs.append((key, value))
+                    
+            else: #If key different to 1
+                if value == 1:
+                        value = 0
+                        credit += 1
+                        newpairs.append((key, value)) #Pair added to the new list is (key, 0)
+                        
+                if value == 0:
+                    newpairs.append((key, value))
+                    
+                else: #If value different to 0 and 1
+                    if value % (key+1) != 0:
+                        while value % (key+1) != 0: #While the count is not (multiple of (size + 1)), we take away the necessary credit 
+                            value = value - 1
+                            credit += 1
+                        newpairs.append((key, value))
+                        
+                        if SNot_List[-1] == pair: #If the pair we are looking at is the last one in the list of pairs that do not make sense, we add the leftover credit to the pair with size 1. 
+                            for pair in Sorted_Household:
+                                if pair[0] == 1:
+                                    value = pair[1] + credit
+                                    if value % 2 != 0: #If count is not pair, we disocunt 1 to the count and add it to the count of the pair with size 0 
+                                        value = value - 1
+                                        Value_0 = Sorted_Household[0][1] + 1
+                                        newpairs.append((Sorted_Household[1][0], value))
+                                        newpairs.append((Sorted_Household[0][0], Value_0))
+                                    else:
+                                        newpairs.append((Sorted_Household[1][0], value))
+                        
+                    else:
+                        newpairs.append((key, value))
+        
+        #At this point, all adjusted pairs have been added to the newpairs list
+        
+        #--Appending sensible pairs to the new list------------------------------------    
+        
+        i = 0
+        while i < len(Sorted_Household):
+            a = Sorted_Household[i][0]
+            j = 0
+            for x in newpairs:
+                m = x[0]
+                if a == m :
+                    j = 1
+            if j == 0:
+                newpairs.append(Sorted_Household[i])
+            i += 1
+        
+        #--Removing all pairs with a count of 0--------------------------------
+            
+        Cleaned_newpairs=[]
+        for n in range(0,len(newpairs)):
+            if newpairs[n][1] != 0:
+                Cleaned_newpairs.append(newpairs[n])
+           
+        
+            
+        
+        #--Transforming list of pairs into list of integers--------------------     
+        
+        New_Householdlist = []
+        for pair in Cleaned_newpairs:
+            i = 0
+            while i < pair[1]:
+                New_Householdlist.append(pair[0])
+                i += 1
+        
+        #At this stage, we have created a way to adjust an initial Poisson distribution into a distribution 
+        #that makes sense in a household context.
+        #For sanity check, look at section 
+        return New_Householdlist
+    
+    def Spread(self, graph):
+        '''the spread method representing a single iteration of the simulation  '''
+        
+        for a in graph.nodes():
+            old_level_SM = a.Level_smoking
+            old_level_AL = a.Level_alcohol
+            old_level_DI = a.Level_diet
+            old_level_EX = a.Level_exercise
+            #Lists for alcohol
+            List_sum_L0_AL = []
+            List_sum_L1_AL = []
+            List_sum_L2_AL = []
+            #For smoking
+            List_sum_L0_SM = []
+            List_sum_L1_SM = []
+            List_sum_L2_SM = []
+            #For diet
+            List_sum_L0_DI = []
+            List_sum_L1_DI = []
+            List_sum_L2_DI = []
+            #For exercise
+            List_sum_L0_EX = []
+            List_sum_L1_EX = []
+            List_sum_L2_EX = []
+            
+          
+            predecessors = list(graph.predecessors(a)) #List of nodes having an influence on the agent
+            
+            if len(predecessors) != 0:
+                for p in predecessors:
+                    Data_edge = graph[p][a] #Dictionary with keys: the key of the edge (e.j. agt_is_husband) ; values: the dictionary with key the 'Spread_level'
+                    for relationship, Dict_of_influences in Data_edge.items():
+                        #Dict_influences = Data_edge[relationship] #Dictionary with key: the 'Influence_X' ; values: dictionary with keys the attributes (color, weights)
+                        for behaviour, attributes in Dict_of_influences.items(): #behaviour can be 'Influence_alcohol', attributes is 'color' or weights
+                            #For alcohol spread
+                            if behaviour == 'Influence_Alcohol':
+                                    #For the relevant key, add its quantitiative weight to the relevant list (ej weight_L0 to list_L0)
+                                    for Weight, value in attributes.items():
+                                        if Weight == 'weight_L0':
+                                            List_sum_L0_AL.append(value)
+                                        if Weight == 'weight_L1':
+                                            List_sum_L1_AL.append(value)
+                                        if Weight == 'weight_L2':
+                                            List_sum_L2_AL.append(value)
+                            #For smoking spread
+                            if behaviour == 'Influence_Smoking':
+                                    #For the relevant key, add its quantitiative weight to the relevant list (ej weight_L0 to list_L0)
+                                    for Weight, value in attributes.items():
+                                        if Weight == 'weight_L0':
+                                            List_sum_L0_SM.append(value)
+                                        if Weight == 'weight_L1':
+                                            List_sum_L1_SM.append(value)
+                                        if Weight == 'weight_L2':
+                                            List_sum_L2_SM.append(value)
+                            #For diet spread
+                            if behaviour == 'Influence_Diet':
+                                    #For the relevant key, add its quantitiative weight to the relevant list (ej weight_L0 to list_L0)
+                                    for Weight, value in attributes.items():
+                                        if Weight == 'weight_L0':
+                                            List_sum_L0_DI.append(value)
+                                        if Weight == 'weight_L1':
+                                            List_sum_L1_DI.append(value)
+                                        if Weight == 'weight_L2':
+                                            List_sum_L2_DI.append(value)
+                            #For exercise spread
+                            if behaviour == 'Influence_Exercise':
+                                    #For the relevant key, add its quantitiative weight to the relevant list (ej weight_L0 to list_L0)
+                                    for Weight, value in attributes.items():
+                                        if Weight == 'weight_L0':
+                                            List_sum_L0_EX.append(value)
+                                        if Weight == 'weight_L1':
+                                            List_sum_L1_EX.append(value)
+                                        if Weight == 'weight_L2':
+                                            List_sum_L2_EX.append(value)
+                
+                #For alcohol: finding the new level as a function of the threshold-----------------------------------------------------
+                #Calculating sum of weights of neighbors influencing Level 0
+                sum_L0_AL = sum(List_sum_L0_AL)
+                #Calculating sum of weights of neighbors influencing Level 1
+                sum_L1_AL = sum(List_sum_L1_AL)
+                #Calculating sum of weights of neighbors influencing Level 2
+                sum_L2_AL = sum(List_sum_L2_AL)
+                
+                #Normalise the sums of the 3 levels to values between 0 and 1 + ensuring there's no divison by 0
+                Total_AL = sum_L0_AL + sum_L1_AL + sum_L2_AL
+                
+                if sum_L0_AL == 0:
+                    Proba_L0_AL = 0
+                else:
+                    Proba_L0_AL = sum_L0_AL/Total_AL
+                if sum_L1_AL == 0:
+                    Proba_L1_AL = 0
+                else:
+                    Proba_L1_AL = sum_L1_AL/Total_AL
+                
+                #Creation of checkpoints. The new level is corresponds to the bracket the threshold falls into
+                if a.th <= Proba_L0_AL:
+                    new_level_AL = 0
+                elif (a.th > Proba_L0_AL) and (a.th <= (Proba_L0_AL + Proba_L1_AL)):
+                    new_level_AL = 1
+                elif a.th > (Proba_L0_AL + Proba_L1_AL):
+                    new_level_AL = 2
+                
+                #For smoking: finding the new level as a function of the threshold-----------------------------------------------------
+                
+                sum_L0_SM = sum(List_sum_L0_SM)
+                sum_L1_SM = sum(List_sum_L1_SM)
+                sum_L2_SM = sum(List_sum_L2_SM)
+                
+                Total_SM = sum_L0_SM + sum_L1_SM + sum_L2_SM
+                
+                if sum_L0_SM == 0:
+                    Proba_L0_SM = 0
+                else:
+                    Proba_L0_SM = sum_L0_SM/Total_SM
+                if sum_L1_SM == 0:
+                    Proba_L1_SM = 0
+                else:
+                    Proba_L1_SM = sum_L1_SM/Total_SM
+                
+                if a.th <= Proba_L0_SM:
+                    new_level_SM = 0
+                elif (a.th > Proba_L0_SM) and (a.th <= (Proba_L0_SM + Proba_L1_SM)):
+                    new_level_SM = 1
+                elif a.th > (Proba_L0_SM + Proba_L1_SM):
+                    new_level_SM = 2
+                
+                #For diet: finding the new level as a function of the threshold-----------------------------------------------------
+               
+                sum_L0_DI = sum(List_sum_L0_DI)
+                sum_L1_DI = sum(List_sum_L1_DI)
+                sum_L2_DI = sum(List_sum_L2_DI)
+                
+                Total_DI = sum_L0_DI + sum_L1_DI + sum_L2_DI
+                
+                if sum_L0_DI == 0:
+                    Proba_L0_DI = 0
+                else:
+                    Proba_L0_DI = sum_L0_DI/Total_DI
+                if sum_L1_DI == 0:
+                    Proba_L1_DI = 0
+                else:
+                    Proba_L1_DI = sum_L1_DI/Total_DI
+                
+                if a.th <= Proba_L0_DI:
+                    new_level_DI = 0
+                elif (a.th > Proba_L0_DI) and (a.th <= (Proba_L0_DI + Proba_L1_DI)):
+                    new_level_DI = 1
+                elif a.th > (Proba_L0_DI + Proba_L1_DI):
+                    new_level_DI = 2
+                
+                #For exercise: finding the new level as a function of the threshold-----------------------------------------------------
+               
+                sum_L0_EX = sum(List_sum_L0_EX)
+                sum_L1_EX = sum(List_sum_L1_EX)
+                sum_L2_EX = sum(List_sum_L2_EX)
+                
+                Total_EX = sum_L0_EX + sum_L1_EX + sum_L2_EX
+                
+                if sum_L0_EX == 0:
+                    Proba_L0_EX = 0
+                else:
+                    Proba_L0_EX = sum_L0_EX/Total_EX
+                if sum_L1_EX == 0:
+                    Proba_L1_EX = 0
+                else:
+                    Proba_L1_EX = sum_L1_EX/Total_EX
+                
+                if a.th <= Proba_L0_EX:
+                    new_level_EX = 0
+                elif (a.th > Proba_L0_EX) and (a.th <= (Proba_L0_EX + Proba_L1_EX)):
+                    new_level_EX = 1
+                elif a.th > (Proba_L0_EX + Proba_L1_EX):
+                    new_level_EX = 2
+                
+                #Updating the outward influence of the agent if the levels change------------------------------------------------------
+                if new_level_AL != old_level_AL:
+                        a.Level_alcohol = new_level_AL
+                        Simulation.UpdateWeights(a, graph, old_level_AL, new_level_AL, 'Influence_Alcohol')
+                if new_level_SM != old_level_SM:
+                        a.Level_smoking = new_level_SM
+                        Simulation.UpdateWeights(a, graph, old_level_SM, new_level_SM, 'Influence_Smoking')
+                if new_level_DI != old_level_DI:
+                        a.Level_diet = new_level_DI
+                        Simulation.UpdateWeights(a, graph, old_level_DI, new_level_DI, 'Influence_Diet')
+                if new_level_EX != old_level_EX:
+                        a.Level_exercise = new_level_EX
+                        Simulation.UpdateWeights(a, graph, old_level_EX, new_level_EX, 'Influence_Exercise')
+                        
+        #Graph is being updated all along this method so no return needed
+        return 
+    
+    def UpdateWeights(a, G, old_level, new_level, behaviour):
+        
+        #Selecting relevant weights to update according to the behaviour 
+        if behaviour == 'Influence_Alcohol':
+            Weight_List = [AL_W_spread_list, AL_H_spread_list, AL_S_spread_list, AL_F_spread_list, AL_AF_spread_list]
+        if behaviour == 'Influence_Smoking':
+            Weight_List = [SM_S_spread_list, SM_S_spread_list, SM_S_spread_list, SM_F_spread_list, SM_F_spread_list]
+        if behaviour == 'Influence_Diet':
+            Weight_List = [DI_S_spread_list, DI_S_spread_list, DI_S_spread_list, DI_F_spread_list, DI_F_spread_list]
+        if behaviour == 'Influence_Exercise':
+            Weight_List = [EX_S_spread_list, EX_S_spread_list, EX_S_spread_list, EX_F_spread_list, EX_F_spread_list]
+        
+        neighbour = list(G.neighbors(a))
+        for n in neighbour: 
+            for key in list(G[a][n].keys()):
+                
+                try:
+                    if key == 'agt_is_wife':
+                        del G[a][n]['agt_is_wife'][behaviour]
+                        G[a][n]['agt_is_wife'][behaviour] = Weight_List[0][new_level]
+                except:
+                    break
+                try:
+                    if key == 'agt_is_husband' :
+                        del G[a][n]['agt_is_husband'][behaviour]
+                        G[a][n]['agt_is_husband'][behaviour] = Weight_List[1][new_level]
+                except:
+                    break
+                
+                try:
+                    if key == 'agt_is_housemate' :
+                        del G[a][n]['agt_is_housemate'][behaviour]
+                        G[a][n]['agt_is_housemate'][behaviour] = Weight_List[2][new_level]
+                
+                except:
+                    break
+                
+                if key == 'agt_is_spouse':
+                    del G[a][n]['agt_is_spouse'][behaviour]
+                    G[a][n]['agt_is_spouse'][behaviour] = Weight_List[3][new_level]
+                        
+                if key == 'Friend' :
+                    del G[a][n]['Friend'][behaviour]
+                    G[a][n]['Friend'][behaviour] = Weight_List[4][new_level]
+                
+                try:
+                    if key == 'Additional Friend' :
+                        del G[a][n]['Additional Friend'][behaviour]
+                        G[a][n]['Additional Friend'][behaviour] = Weight_List[5][new_level]
+                except:
+                    break
+                        
+                    
+
+                     
+        return 
+
+           
+class Agent:
+    idCounter = 0
+    threshold = random.uniform(0,1)
+    infected = False  
+    age = 0
+    housesize = 0
+    housefull = False
+    friends = 0
+    friendshipfull = False
+    sex = 0
+    BasicRisk = 0
+    Level_smoking = 0
+    Risk_smoking = 0
+    Level_alcohol = 0
+    Risk_alcohol = 0
+    Level_diet = 0
+    Risk_diet = 0
+    Level_exercise = 0
+    Risk_exercise = 0
+    Total_Risk = 0
+    
+
+ 
+
+    def __init__(self, start_age, start_household, start_friends, start_sex):
+        '''Assigning to each agent its ID, threshold, age, household size, 
+        friend group size, sex and level of each behaviour'''
+        
+        #--Setting unique ID---------------------------------------------------
+        self.id = self.idCounter
+        type(self).idCounter += 1
+        
+        #--Setting unique threshold--------------------------------------------
+        self.th = self.threshold
+        type(self).threshold = random.uniform(0,1)
+        
+        #--Setting age---------------------------------------------------------
+        self.age = start_age
+        
+        #--Setting household size----------------------------------------------
+        self.housesize = start_household
+        
+        #--Setting number of friends-------------------------------------------
+        self.friends = start_friends
+        
+        #--Setting sex---------------------------------------------------------
+        self.sex = start_sex
+        
+        #--Setting the basic risk depdning on sex and age----------------------
+        if self.age<= 34:
+           self.BasicRisk = 0.001
+        if self.age>34 and self.age<=64:
+            if self.sex == 'Female':
+                self.BasicRisk = 0.02
+            else:
+                self.BasicRisk = 0.044
+        if self.age>64:
+            if self.sex == 'Female':
+                self.BasicRisk = 0.184
+            else:
+                self.BasicRisk = 0.223
+        
+        #--ASSIGNING LEVELS AND ASSOCIATED RISKS FOR SMOKING-------------------
+        rand_smoker = random.random()
+        
+        #--For males-----------------------------------------------------------
+        if self.sex == 'Male':
+            
+            #--For agents from 18 years old to 34------------------------------
+            if self.age < 35:
+                if rand_smoker <= 0.64:
+                    self.Level_smoking = 0
+                    self.Risk_smoking = 1
+                if (rand_smoker > 0.64) and (rand_smoker <= 0.755):
+                    self.Level_smoking = 1
+                    self.Risk_smoking = 2.5
+                if rand_smoker >0.755:
+                    self.Level_smoking = 2
+                    self.Risk_smoking = 5
+            
+            #--For agents from 35 years old to 64------------------------------
+            if (self.age>=35) and (self.age<65):
+                if rand_smoker <= 0.527:
+                    self.Level_smoking = 0
+                    self.Risk_smoking = 1
+                if (rand_smoker > 0.527) and(rand_smoker <= 0.807):
+                    self.Level_smoking = 1
+                    self.Risk_smoking = 1.25
+                if rand_smoker >0.807:
+                    self.Level_smoking = 2
+                    self.Risk_smoking = 2.5
+            
+            #--For agents that are 65+ years old-------------------------------
+            if self.age>= 65:
+                if rand_smoker <= 0.435:
+                    self.Level_smoking = 0
+                    self.Risk_smoking = 1
+                if (rand_smoker > 0.435) and (rand_smoker <= 0.935):
+                    self.Level_smoking = 1
+                    self.Risk_smoking = 1.37
+                if rand_smoker > 0.935:
+                    self.Level_smoking = 2   
+                    self.Risk_smoking = 5
+        
+        #--For females---------------------------------------------------------
+        else:
+            
+            #--For agents from 18 years old to 34------------------------------
+            if self.age < 35:
+                if rand_smoker <= 0.695:
+                    self.Level_smoking = 0
+                    self.Risk_smoking = 1
+                if (rand_smoker > 0.695) and (rand_smoker <= 0.815):
+                    self.Level_smoking = 1
+                    self.Risk_smoking = 2.55
+                if rand_smoker >0.815:
+                    self.Level_smoking = 2
+                    self.Risk_smoking = 5.1
+                    
+            #--For agents from 35 years old to 64------------------------------
+            if (self.age>=35) and (self.age<65):
+                if rand_smoker <= 0.597:
+                    self.Level_smoking = 0
+                    self.Risk_smoking = 1
+                if (rand_smoker > 0.597) and(rand_smoker <= 0.837):
+                    self.Level_smoking = 1
+                    self.Risk_smoking = 1.35
+                if rand_smoker >0.837:
+                    self.Level_smoking = 2
+                    self.Risk_smoking = 2.6
+            
+            #--For agents that are 65+ years old-------------------------------
+            if self.age>= 65:
+                if rand_smoker <= 0.59:
+                    self.Level_smoking = 0
+                    self.Risk_smoking = 1
+                if (rand_smoker > 0.59) and (rand_smoker <= 0.92):
+                    self.Level_smoking = 1
+                    self.Risk_smoking = 1.38
+                if rand_smoker > 0.92:
+                    self.Level_smoking = 2
+                    self.Risk_smoking = 5.2
+        
+        #--ASSIGNING LEVEL AND ASSOCIATED RISKS FOR ALCOHOL CONSUMPTION--------
+        rand_alcohol = random.random()
+        
+        #--For males-----------------------------------------------------------
+        if self.sex == 'Male':
+            
+            #--For agents from 18 years old to 34------------------------------
+            if self.age < 35:
+                if rand_alcohol <= 0.776:
+                    self.Level_alcohol = 0
+                    self.Risk_alcohol = 0.98
+                if (rand_alcohol > 0.776) and (rand_alcohol <= 0.917):
+                    self.Level_alcohol = 1
+                    self.Risk_alcohol = 1.06
+                if rand_alcohol >0.917:
+                    self.Level_alcohol = 2
+                    self.Risk_alcohol = 1.14
+            
+            #--For agents from 35 years old to 64------------------------------
+            if (self.age>=35) and (self.age<65):
+                if rand_alcohol <= 0.691:
+                    self.Level_alcohol = 0
+                    self.Risk_alcohol = 0.98
+                if (rand_alcohol > 0.691) and(rand_alcohol <= 0.877):
+                    self.Level_alcohol = 1
+                    self.Risk_alcohol = 1.06
+                if rand_alcohol >0.877:
+                    self.Level_alcohol = 2
+                    self.Risk_alcohol = 1.14
+            
+            #--For agents that are 65+ years old-------------------------------
+            if self.age>= 65:
+                if rand_alcohol <= 0.738:
+                    self.Level_alcohol = 0
+                    self.Risk_alcohol = 0.98
+                if (rand_alcohol > 0.738) and (rand_alcohol <= 0.936):
+                    self.Level_alcohol = 1
+                    self.Risk_alcohol = 1.06
+                if rand_alcohol > 0.936:
+                    self.Level_alcohol = 2  
+                    self.Risk_alcohol = 1.14
+        
+        #--For females---------------------------------------------------------
+        else:
+            
+            #--For agents from 18 years old to 34------------------------------
+            if self.age < 35:
+                if rand_alcohol <= 0.901:
+                    self.Level_alcohol = 0
+                    self.Risk_alcohol = 0.98
+                if (rand_alcohol > 0.901) and (rand_alcohol <= 0.969):
+                    self.Level_alcohol = 1
+                    self.Risk_alcohol = 1.06
+                if rand_alcohol >0.969:
+                    self.Level_alcohol = 2
+                    self.Risk_alcohol = 1.14
+                    
+            #--For agents from 35 years old to 64------------------------------       
+            if (self.age>=35) and (self.age<65):
+                if rand_alcohol <= 0.85:
+                    self.Level_alcohol = 0
+                    self.Risk_alcohol = 0.98
+                if (rand_alcohol > 0.85) and(rand_alcohol <= 0.952):
+                    self.Level_alcohol = 1
+                    self.Risk_alcohol = 1.06
+                if rand_alcohol >0.952:
+                    self.Level_alcohol = 2
+                    self.Risk_alcohol = 1.14
+            
+            #--For agents that are 65+ years old-------------------------------
+            if self.age>= 65:
+                if rand_alcohol <= 0.894:
+                    self.Level_alcohol = 0
+                    self.Risk_alcohol = 0.98
+                if (rand_alcohol > 0.894) and (rand_alcohol <= 0.98):
+                    self.Level_alcohol = 1
+                    self.Risk_alcohol = 1.06
+                if rand_alcohol > 0.98:
+                    self.Level_alcohol = 2
+                    self.Risk_alcohol = 1.14
+        
+        #--ASSIGNING LEVELS AND RISKS FOR DIET---------------------------------
+        rand_diet = random.random()
+        
+        #--For males-----------------------------------------------------------
+        if self.sex == 'Male':
+            
+            #--For agents from 18 years old to 34------------------------------
+            if self.age < 35:
+                if rand_diet <= 0.435:
+                    self.Level_diet = 0
+                    self.Risk_diet = 0.73
+                if (rand_diet > 0.435) and (rand_diet <= 0.725):
+                    self.Level_diet = 1
+                    self.Risk_diet = 0.84
+                if rand_diet >0.725:
+                    self.Level_diet = 2
+                    self.Risk_diet = 0.9
+                    
+            #--For agents from 35 years old to 64------------------------------
+            if (self.age>=35) and (self.age<65):
+                if rand_diet <= 0.526:
+                    self.Level_diet = 0
+                    self.Risk_diet = 0.73
+                if (rand_diet > 0.526) and(rand_diet <= 0.823):
+                    self.Level_diet = 1
+                    self.Risk_diet = 0.84
+                if rand_diet >0.823:
+                    self.Level_diet = 2
+                    self.Risk_diet = 0.9
+            
+            #--For agents that are 65+ years old-------------------------------
+            if self.age>= 65:
+                if rand_diet <= 0.52:
+                    self.Level_diet = 0
+                    self.Risk_diet = 0.73
+                if (rand_diet > 0.52) and (rand_diet <= 0.85):
+                    self.Level_diet = 1
+                    self.Risk_diet = 0.84
+                if rand_diet > 0.85:
+                    self.Level_diet = 2 
+                    self.Risk_diet = 0.9
+        
+        #--For females---------------------------------------------------------
+        else:
+            
+            #--For agents from 18 years old to 34------------------------------
+            if self.age < 35:
+                if rand_diet <= 0.529:
+                    self.Level_diet = 0
+                    self.Risk_diet = 0.73
+                if (rand_diet > 0.529) and (rand_diet <= 0.808):
+                    self.Level_diet = 1
+                    self.Risk_diet = 0.84
+                if rand_diet >0.808:
+                    self.Level_diet = 2
+                    self.Risk_diet = 0.9
+            
+            #--For agents from 35 years old to 64------------------------------
+            if (self.age>=35) and (self.age<65):
+                if rand_diet <= 0.596:
+                    self.Level_diet = 0
+                    self.Risk_diet = 0.73
+                if (rand_diet > 0.596) and(rand_diet <= 0.865):
+                    self.Level_diet = 1
+                    self.Risk_diet = 0.84
+                if rand_diet >0.865:
+                    self.Level_diet = 2
+                    self.Risk_diet = 0.9
+            
+            #--For agents that are 65+ years old-------------------------------
+            if self.age>= 65:
+                if rand_diet <= 0.534:
+                    self.Level_diet = 0
+                    self.Risk_diet = 0.73
+                if (rand_diet > 0.534) and (rand_diet <= 0.864):
+                    self.Level_diet = 1
+                    self.Risk_diet = 0.84
+                if rand_diet > 0.864:
+                    self.Level_diet = 2
+                    self.Risk_diet = 0.9
+                    
+        #--ASSIGNING LEVELS AND RISKS FOR PHYSICAL ACTIVITY--------------------
+        rand_exercise = random.random()
+        
+        #--Data is the same for males and females
+        #--For agents from 18 years old to 34----------------------------------
+        if self.age < 35:
+            if rand_exercise <= 0.702:
+                self.Level_exercise = 0
+                self.Risk_exercise = 0.8
+            if (rand_exercise > 0.702) and (rand_exercise <= 0.81):
+                self.Level_exercise = 1
+                self.Risk_exercise = 0.9
+            if rand_exercise >0.81:
+                self.Level_exercise = 2
+                self.Risk_exercise = 1
+        
+        #--For agents from 35 years old to 64----------------------------------
+        if (self.age>=35) and (self.age<65):
+            if rand_exercise <= 0.644:
+                self.Level_exercise = 0
+                self.Risk_exercise = 0.8
+            if (rand_exercise > 0.644) and(rand_exercise <= 0.771):
+                self.Level_exercise = 1
+                self.Risk_exercise = 0.9
+            if rand_exercise >0.771:
+                self.Level_exercise = 2
+                self.Risk_exercise = 1
+        
+        #--For agents that are 65+ years old-----------------------------------
+        if self.age>= 65:
+            if rand_exercise <= 0.503:
+                self.Level_exercise = 0
+                self.Risk_exercise = 0.8
+            if (rand_exercise > 0.503) and (rand_exercise <= 0.633):
+                self.Level_exercise = 1
+                self.Risk_exercise = 0.9
+            if rand_exercise > 0.633:
+                self.Level_exercise = 2
+                self.Risk_exercise = 1
+                
+        #--Setting overall risk of the agent to develop CVD--------------------
+        self.Total_Risk = self.BasicRisk * self.Risk_alcohol * self.Risk_diet * self.Risk_exercise * self.Risk_smoking
+    
+    def __str__(self):
+        return "agent_" + str(self.id)
+
+    def __repr__(self):
+        return "agent_" + str(self.id)
+
+
+
+#---Data-----------------------------------------------------------
+population_size = 100
+
+
+#---Initialising network--------------------------------------------------------
+#Creation of network for households
+#We create the directed nodes such that the agent influences his connections
+
+
+#Creating the influence of a node on another thanks to the weights of their directed edge
+#--DATA FOR ALCOHOL--------------------------
+#Weights for 'agent is' wife & husband
+AL_W_spread_L0 = {'color' : 'r', 'weight_L0' : 0.74}
+AL_W_spread_L1 = {'color' : 'r', 'weight_L1' : 0.2}
+AL_W_spread_L2 = {'color' : 'r', 'weight_L2' : 1.96}
+
+#Spread list for wives :
+AL_W_spread_list = [AL_W_spread_L0, AL_W_spread_L1, AL_W_spread_L2]
+
+AL_H_spread_L0 = {'color' : 'r', 'weight_L0' : 0.56}
+AL_H_spread_L1 = {'color' : 'r', 'weight_L1' : 0.2}
+AL_H_spread_L2 = {'color' : 'r', 'weight_L2' : 1.26}
+
+#Spread list for husbands:
+AL_H_spread_list = [AL_H_spread_L0, AL_H_spread_L1, AL_H_spread_L2]
+
+#Weights for spouses & housemates
+AL_S_spread_L0 = {'color' : 'r', 'weight_L0' : 0.65}
+AL_S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.2}
+AL_S_spread_L2 = {'color' : 'r', 'weight_L2' : 1.61}
+
+#Spread list for spouse and housemate:
+AL_S_spread_list = [AL_S_spread_L0, AL_S_spread_L1, AL_S_spread_L2]
+
+#Weights for 1st friend
+AL_F_spread_L0 = {'color' : 'b', 'weight_L0' : 0.43}
+AL_F_spread_L1 = {'color' : 'b', 'weight_L1' : 0.1}
+AL_F_spread_L2 = {'color' : 'b', 'weight_L2' : 0.1}
+
+#Spread list for friends:
+AL_F_spread_list = [AL_F_spread_L0, AL_F_spread_L1, AL_F_spread_L2]
+
+#Weights for additional friend
+AL_AF_spread_L0 = {'color' : 'b', 'weight_L0' : 0.22, 'weight_L1' : -0.11, 'weight_L2' : -0.10}
+AL_AF_spread_L1 = {'color' : 'b', 'weight_L0' : -0.05, 'weight_L1' : 0.06}
+AL_AF_spread_L2 = {'color' : 'b', 'weight_L0' : -0.07,  'weight_L2' : 0.18}
+
+#Spread list for additional friends:
+AL_AF_spread_list = [AL_AF_spread_L0, AL_AF_spread_L1, AL_AF_spread_L2]
+
+#--DATA FOR SMOKING-----------------
+#Weights for spouses & housemates
+SM_S_spread_L0 = {'color' : 'r', 'weight_L0' : 0.2}
+SM_S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.2, 'weight_L2' : -0.67}
+SM_S_spread_L2 = {'color' : 'r', 'weight_L2' : 0.2}
+
+#Weights for friends
+SM_F_spread_L0 = {'color' : 'r', 'weight_L0' : 0.1}
+SM_F_spread_L1 = {'color' : 'r', 'weight_L1' : 0.1, 'weight_L2' : -0.36}
+SM_F_spread_L2 = {'color' : 'r', 'weight_L2' : 0.1}
+
+#Spread list for spouse and housemate:
+SM_S_spread_list = [SM_S_spread_L0, SM_S_spread_L1, SM_S_spread_L2]
+
+#Spread list for friends:
+SM_F_spread_list = [SM_F_spread_L0, SM_F_spread_L1, SM_F_spread_L2]
+
+
+#DATA FOR DIET---------------------------------
+#Weights for spouses & housemates
+DI_S_spread_L0 = {'color' : 'r', 'weight_L0' : 0.4}
+DI_S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.2}
+DI_S_spread_L2 = {'color' : 'r', 'weight_L2' : 0.2}
+
+#Weights for friends
+DI_F_spread_L0 = {'color' : 'r', 'weight_L0' : 0.1}
+DI_F_spread_L1 = {'color' : 'r', 'weight_L1' : 0.1}
+DI_F_spread_L2 = {'color' : 'r', 'weight_L2' : 0.1}
+
+#Spread list for spouse and housemate:
+DI_S_spread_list = [DI_S_spread_L0, DI_S_spread_L1, DI_S_spread_L2]
+
+#Spread list for friends:
+DI_F_spread_list = [DI_F_spread_L0, DI_F_spread_L1, DI_F_spread_L2]
+
+#DATA FOR EXERCISE------------------------------
+#Weights for spouses & housemates
+EX_S_spread_L0 = {'color' : 'r', 'weight_L0' : 0.2}
+EX_S_spread_L1 = {'color' : 'r', 'weight_L1' : 0.4}
+EX_S_spread_L2 = {'color' : 'r', 'weight_L2' : 0.2}
+
+#Weights for friends
+EX_F_spread_L0 = {'color' : 'r', 'weight_L0' : 0.1}
+EX_F_spread_L1 = {'color' : 'r', 'weight_L1' : 0.43}
+EX_F_spread_L2 = {'color' : 'r', 'weight_L2' : 0.1}
+
+#Spread list for spouse and housemate:
+EX_S_spread_list = [EX_S_spread_L0, EX_S_spread_L1, EX_S_spread_L2]
+
+#Spread list for friends:
+EX_F_spread_list = [EX_F_spread_L0, EX_F_spread_L1, EX_F_spread_L2]
+
+
+def InitialiseNetwork(G):
+    #Creation of networks with alcohol influence (as most specific)
+    for agt in G.nodes:
+        if agt.housesize != 0:
+                if agt.housesize == 1:
+                    #For couples
+                    r = random.random()
+                    
+                    if r>= 0.012:
+                        #For different sex couples 
+                        for neighbr in G.nodes:
+                            if agt.housefull == False and neighbr.housefull == False:
+                                if neighbr.housesize == 1:
+                                    if agt.sex != neighbr.sex:
+                                        #If the agent is the wife and spouse is the husband
+                                        if (neighbr.sex == 'Male') and (agt.Level_alcohol == 0):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife', Influence_Alcohol = AL_F_spread_L0)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        if (neighbr.sex == 'Male') and (agt.Level_alcohol == 1):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife',  Influence_Alcohol = AL_F_spread_L1)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                       
+                                        if (neighbr.sex == 'Male') and (agt.Level_alcohol == 2):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_wife',  Influence_Alcohol = AL_F_spread_L2)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        #If agent is the husband and spouse is the wife
+                                        if (neighbr.sex == 'Female') and (agt.Level_alcohol == 0):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', Influence_Alcohol = AL_H_spread_L0)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        if (neighbr.sex == 'Female') and (agt.Level_alcohol == 1):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', Influence_Alcohol = AL_H_spread_L1)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        #No data for influence of spouse Level_1 so assumed to be the reference == 1.1
+                                        if (neighbr.sex == 'Female') and (agt.Level_alcohol == 2):
+                                            G.add_edge(agt,neighbr, key = 'agt_is_husband', Influence_Alcohol = AL_H_spread_L2)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                    else:
+                        #For same-sex couples, average of data from hetero-couples
+                        for neighbr in G.nodes:
+                            if agt.housefull == False and neighbr.housefull == False:
+                                if neighbr.housesize == 1:
+                                    if agt.sex == neighbr.sex:
+                                        if agt.Level_alcohol == 0:
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', Influence_Alcohol = AL_S_spread_L0)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        if agt.Level_alcohol == 2:
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', Influence_Alcohol = AL_S_spread_L1)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                        if agt.Level_alcohol == 1:
+                                            G.add_edge(agt,neighbr, key = 'agt_is_spouse', Influence_Alcohol = AL_S_spread_L2)
+                                            agt.housefull = True
+                                            neighbr.housefull = True
+                                            
+                for neighbr in G.nodes:
+                    #For households greater than 1, assumed same influence (average) as couples
+                    #Status for same sex couples and mltiple housemates are different but they share the same quantitative values (as no data available on it)
+                    if agt.id != neighbr.id:
+                        if agt.housefull == False and neighbr.housefull == False:
+                            if agt.housesize == neighbr.housesize:
+                              if agt.Level_alcohol == 0:
+                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', Influence_Alcohol = AL_S_spread_L0)
+                                agt.housefull = True
+                                neighbr.housefull = True
+                            if agt.Level_alcohol == 1:
+                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', Influence_Alcohol = AL_S_spread_L1)
+                                agt.housefull = True
+                                neighbr.housefull = True
+                            if agt.Level_alcohol == 2:
+                                G.add_edge(agt,neighbr, key = 'agt_is_housemate', Influence_Alcohol = AL_S_spread_L2)
+                                agt.housefull = True
+                                neighbr.housefull = True
+   
+    
+                              
+    #Creation of network for friendships:
+                                  
+    def FriendCount(Graph, agent):
+        '''calculates number of friends of an agent at a given time'''
+        All_neighbrs = list(nx.all_neighbors(Graph, agent))
+        Levels_neighbrs = []
+        for neighbr in All_neighbrs:
+            Levels_neighbrs.append(neighbr.Level_alcohol)
+        Dict_levels = Counter(Levels_neighbrs)
+        List_Connected_Agents = list(Dict_levels.values())
+        Nb_Friends = sum(List_Connected_Agents) - agent.housesize
+        return Nb_Friends
+    
+    #Checking if agent a has an outcoming edge to neighbour n 
+    def OutEdge(a,n, G):
+        List_Out_Edges = G.out_edges(a)
+        for principal, neighbour in List_Out_Edges:
+            if neighbour == n:
+                return True
+        return False
+    
+    for agt in G.nodes:
+        
+        for neighbr in G.nodes:
+                if agt.id != neighbr.id:
+                    if FriendCount(G, agt) == 0:
+                        #If first friend 
+                        if agt.friendshipfull == False and neighbr.friendshipfull == False:
+                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0):
+                                  G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L0)
+                                  if FriendCount(G, agt) == agt.friends:
+                                      agt.friendshipfull = True
+                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                      neighbr.friendshipfull = True
+    
+                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 1):
+                                  G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L1)
+                                  if FriendCount(G, agt) == agt.friends:
+                                      agt.friendshipfull = True
+                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                      neighbr.friendshipfull = True
+                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 2):
+                                  G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L2)        
+                                  if FriendCount(G, agt) == agt.friends:
+                                      agt.friendshipfull = True
+                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                      neighbr.friendshipfull = True
+                    else:
+                        #If additional friend
+                        if agt.friendshipfull == False and neighbr.friendshipfull == False:
+                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0):
+                                  G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L0)
+                                  if FriendCount(G, agt) == agt.friends:
+                                      agt.friendshipfull = True
+                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                      neighbr.friendshipfull = True
+    
+                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 1):
+                                  G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L1)
+                                  if FriendCount(G, agt) == agt.friends:
+                                      agt.friendshipfull = True
+                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                      neighbr.friendshipfull = True
+                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 2):
+                                  G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L2)        
+                                  if FriendCount(G, agt) == agt.friends:
+                                      agt.friendshipfull = True
+                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                      neighbr.friendshipfull = True
+                              
+    #Adding influence for smoking, diet, and exercise
+    for agt in G.nodes:
+        for n in G.neighbors(agt):
+            #Getting the key of the edge:
+            key_list = list(G[agt][n].keys())
+            key = key_list[0]
+            #For spouse and housemate:
+            if (key == 'agt_is_husband') or (key == 'agt_is_wife') or (key == 'agt_is_spouse') or (key == 'agt_is_housemate'):
+                G[agt][n][key]['Influence_Smoking'] = SM_S_spread_list[agt.Level_smoking]
+                G[agt][n][key]['Influence_Diet'] = DI_S_spread_list[agt.Level_diet]
+                G[agt][n][key]['Influence_Exercise'] = EX_S_spread_list[agt.Level_exercise]
+            #For friends
+            if (key == 'Friend') or (key == 'Additional Friend'):
+                G[agt][n][key]['Influence_Smoking'] = SM_F_spread_list[agt.Level_smoking]
+                G[agt][n][key]['Influence_Diet'] = DI_F_spread_list[agt.Level_diet]
+                G[agt][n][key]['Influence_Exercise'] = EX_F_spread_list[agt.Level_exercise]
+            
+    return G
+
