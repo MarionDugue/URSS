@@ -1142,3 +1142,277 @@ def InitialiseNetwork(G):
             
     return G
 
+#BEFORE SIMULATION------------------------------------
+
+OV_Mean_18to34_Before = []
+OV_Mean_18to34_F_Before = []
+OV_Mean_18to34_M_Before = []
+
+OV_Mean_35to64_Before = []
+OV_Mean_35to64_F_Before = []
+OV_Mean_35to64_M_Before = []
+
+OV_Mean_65plus_Before = []
+OV_Mean_65plus_F_Before = []
+OV_Mean_65plus_M_Before = []
+
+for r in range(0,100):
+    G = nx.MultiDiGraph()
+    for i in range(0,population_size):
+        G.add_node(i)
+    #Ensure the list of th parameters (houshold, friends, sex and age) are the length of the population size
+    try: 
+        Simulation(G)
+    except IndexError:
+        break
+
+
+    Risk_18to34 = []
+    Risk_18to34_F = []
+    Risk_18to34_M = []
+    
+    Risk_35to64 = []
+    Risk_35to64_F = []
+    Risk_35to64_M = []
+    
+    Risk_65plus = []
+    Risk_65plus_F = []
+    Risk_65plus_M = []
+    
+    for a in G.nodes():
+        if a.age < 35:
+            Risk_18to34.append(a.Total_Risk)
+            if a.sex == 'Female':
+                Risk_18to34_F.append(a.Total_Risk)
+            if a.sex == 'Male':
+                Risk_18to34_M.append(a.Total_Risk)
+        if a.age> 34 and a.age < 65:
+            Risk_35to64.append(a.Total_Risk)
+            if a.sex == 'Female':
+                Risk_35to64_F.append(a.Total_Risk)
+            if a.sex == 'Male':
+                Risk_35to64_M.append(a.Total_Risk)
+        if a.age > 64:
+            Risk_65plus.append(a.Total_Risk)
+            if a.sex == 'Female':
+                Risk_65plus_F.append(a.Total_Risk)
+            if a.sex == 'Male':
+                Risk_65plus_M.append(a.Total_Risk)
+            
+    Mean_18to34_Before = np.mean(Risk_18to34)
+    Mean_18to34_F_Before = np.mean(Risk_18to34_F)
+    Mean_18to34_M_Before = np.mean(Risk_18to34_M)
+    
+    Mean_35to64_Before = np.mean(Risk_35to64)
+    Mean_35to64_F_Before = np.mean(Risk_35to64_F)
+    Mean_35to64_M_Before = np.mean(Risk_35to64_M)
+    
+    Mean_65plus_Before = np.mean(Risk_65plus)
+    Mean_65plus_F_Before = np.mean(Risk_65plus_F)
+    Mean_65plus_M_Before = np.mean(Risk_65plus_M)
+    
+    #List of means from all the iterations (to find overall mean + standard deviation)
+    OV_Mean_18to34_Before.append(Mean_18to34_Before)
+    OV_Mean_18to34_F_Before.append(Mean_18to34_F_Before)
+    OV_Mean_18to34_M_Before.append(Mean_18to34_M_Before)
+    
+    OV_Mean_35to64_Before.append(Mean_35to64_Before)
+    OV_Mean_35to64_F_Before.append(Mean_35to64_F_Before)
+    OV_Mean_35to64_M_Before.append(Mean_35to64_M_Before)
+    
+    OV_Mean_65plus_Before.append(Mean_65plus_Before)
+    OV_Mean_65plus_F_Before.append(Mean_65plus_F_Before)
+    OV_Mean_65plus_M_Before.append(Mean_65plus_M_Before)
+
+General_Mean_18to34_Before = np.mean(OV_Mean_18to34_Before)
+std_18to34_Before = np.std(OV_Mean_18to34_Before)
+General_Mean_18to34_F_Before = np.mean(OV_Mean_18to34_F_Before)
+std_18to34_F_Before = np.std(OV_Mean_18to34_F_Before)
+General_Mean_18to34_M_Before = np.mean(OV_Mean_18to34_M_Before)
+std_18to34_M_Before = np.std(OV_Mean_18to34_M_Before)
+
+General_Mean_35to64_Before = np.mean(OV_Mean_35to64_Before)
+std_35to64_Before = np.std(OV_Mean_35to64_Before)
+General_Mean_35to64_F_Before = np.mean(OV_Mean_35to64_F_Before)
+std_35to64_F_Before = np.std(OV_Mean_35to64_F_Before)
+General_Mean_35to64_M_Before = np.mean(OV_Mean_35to64_M_Before)
+std_35to64_M_Before = np.std(OV_Mean_35to64_M_Before)
+
+General_Mean_65plus_Before = np.mean(OV_Mean_65plus_Before)
+std_65plus_Before = np.std(OV_Mean_65plus_Before)
+General_Mean_65plus_F_Before = np.mean(OV_Mean_65plus_F_Before)
+std_65plus_F_Before = np.std(OV_Mean_65plus_F_Before)
+General_Mean_65plus_M_Before = np.mean(OV_Mean_65plus_M_Before)
+std_65plus_M_Before = np.std(OV_Mean_65plus_M_Before)
+#AFTER spread-----------------------------
+
+OV_Mean_18to34_After = []
+OV_Mean_18to34_F_After = []
+OV_Mean_18to34_M_After = []
+
+OV_Mean_35to64_After = []
+OV_Mean_35to64_F_After = []
+OV_Mean_35to64_M_After = []
+
+OV_Mean_65plus_After = []
+OV_Mean_65plus_F_After = []
+OV_Mean_65plus_M_After = []
+
+for r in range(0,100):
+
+    G = nx.MultiDiGraph()
+    for i in range(0,population_size):
+        G.add_node(i)
+
+    try:
+        s = Simulation(G)
+    except IndexError:
+        break
+    
+    InitialiseNetwork(G)
+    t = 5
+    for i in range(0,t):
+        s.Spread(G)
+
+    Risk_18to34 = []
+    Risk_18to34_F = []
+    Risk_18to34_M = []
+    
+    Risk_35to64 = []
+    Risk_35to64_F = []
+    Risk_35to64_M = []
+    
+    Risk_65plus = []
+    Risk_65plus_F = []
+    Risk_65plus_M = []
+    
+    for a in G.nodes():
+        if a.age < 35:
+            Risk_18to34.append(a.Total_Risk)
+            if a.sex == 'Female':
+                Risk_18to34_F.append(a.Total_Risk)
+            if a.sex == 'Male':
+                Risk_18to34_M.append(a.Total_Risk)
+        if a.age> 34 and a.age < 65:
+            Risk_35to64.append(a.Total_Risk)
+            if a.sex == 'Female':
+                Risk_35to64_F.append(a.Total_Risk)
+            if a.sex == 'Male':
+                Risk_35to64_M.append(a.Total_Risk)
+        if a.age > 64:
+            Risk_65plus.append(a.Total_Risk)
+            if a.sex == 'Female':
+                Risk_65plus_F.append(a.Total_Risk)
+            if a.sex == 'Male':
+                Risk_65plus_M.append(a.Total_Risk)
+    
+
+    Mean_18to34_After = np.mean(Risk_18to34)
+    Mean_18to34_F_After = np.mean(Risk_18to34_F)
+    Mean_18to34_M_After = np.mean(Risk_18to34_M)
+    
+    Mean_35to64_After = np.mean(Risk_35to64)
+    Mean_35to64_F_After = np.mean(Risk_35to64_F)
+    Mean_35to64_M_After = np.mean(Risk_35to64_M)
+    
+    Mean_65plus_After = np.mean(Risk_65plus)
+    Mean_65plus_F_After = np.mean(Risk_65plus_F)
+    Mean_65plus_M_After = np.mean(Risk_65plus_M)
+    
+    #List of means from all the iterations (to find overall mean + standard deviation)
+    OV_Mean_18to34_After.append(Mean_18to34_After)
+    OV_Mean_18to34_F_After.append(Mean_18to34_F_After)
+    OV_Mean_18to34_M_After.append(Mean_18to34_M_After)
+    
+    OV_Mean_35to64_After.append(Mean_35to64_After)
+    OV_Mean_35to64_F_After.append(Mean_35to64_F_After)
+    OV_Mean_35to64_M_After.append(Mean_35to64_M_After)
+    
+    OV_Mean_65plus_After.append(Mean_65plus_After)
+    OV_Mean_65plus_F_After.append(Mean_65plus_F_After)
+    OV_Mean_65plus_M_After.append(Mean_65plus_M_After)
+    
+General_Mean_18to34_After = np.mean(OV_Mean_18to34_After)
+std_18to34_After = np.std(OV_Mean_18to34_After)
+General_Mean_18to34_F_After = np.mean(OV_Mean_18to34_F_After)
+std_18to34_F = np.std(OV_Mean_18to34_F_After)
+General_Mean_18to34_M_After = np.mean(OV_Mean_18to34_M_After)
+std_18to34_M_After = np.std(OV_Mean_18to34_M_After)
+
+General_Mean_35to64_After = np.mean(OV_Mean_35to64_After)
+std_35to64_After = np.std(OV_Mean_35to64_After)
+General_Mean_35to64_F_After = np.mean(OV_Mean_35to64_F_After)
+std_35to64_F_After = np.std(OV_Mean_35to64_F_After)
+General_Mean_35to64_M_After = np.mean(OV_Mean_35to64_M_After)
+std_35to64_M_After = np.std(OV_Mean_35to64_M_After)
+
+General_Mean_65plus_After = np.mean(OV_Mean_65plus_After)
+std_65plus_After = np.std(OV_Mean_65plus_After)
+General_Mean_65plus_F_After = np.mean(OV_Mean_65plus_F_After)
+std_65plus_F_After = np.std(OV_Mean_65plus_F_After)
+General_Mean_65plus_M_After = np.mean(OV_Mean_65plus_M_After)
+std_65plus_M_After = np.std(OV_Mean_65plus_M_After)
+
+#RESULTS-------------------------
+
+#Evolution of CVD risk per age group:
+#print('Evolution of CVD risk per age group:')
+#print('(ie percentage increase of CVD risk of AFTER compared to BEFORE)')
+#print('<100% shows a decrease in risk, > 100% shows an increase')
+
+# 18 to 34 years old
+perc_18to34 = round((General_Mean_18to34_After/General_Mean_18to34_Before)*100, 2)
+#print('18 to 34 years old: ', perc_18to34, '%')
+
+# 35 to 64 years old
+perc_35to64 = round((General_Mean_35to64_After/General_Mean_35to64_Before)*100, 2)
+#print('35 to 64 years old:', perc_35to64, '%')
+
+# 65 + years old
+perc_65plus = round((General_Mean_65plus_After/General_Mean_65plus_Before)*100, 2)
+#print('65 + years old:', perc_65plus, '%')
+
+
+
+#Evolution of CVD risk for women:
+#print('Evolution of CVD risk for women per age group:')
+
+
+# 18 to 34 years old
+perc_18to34_W = round((General_Mean_18to34_F_After/General_Mean_18to34_F_Before)*100, 2)
+#print('18 to 34 years old: ', perc_18to34_W, '%')
+
+# 35 to 64 years old
+perc_35to64_W = round((General_Mean_35to64_F_After/General_Mean_35to64_F_Before)*100, 2)
+#print('35 to 64 years old:', perc_35to64_W, '%')
+
+# 65 + years old
+perc_65plus_W = round((General_Mean_65plus_F_After/General_Mean_65plus_F_Before)*100, 2)
+#print('65 + years old:', perc_65plus_W, '%')
+
+
+
+#Evolution of CVD risk for men:
+#print('Evolution of CVD risk for men per age group:')
+
+
+# 18 to 34 years old
+perc_18to34_M = round((General_Mean_18to34_M_After/General_Mean_18to34_M_Before)*100, 2)
+#print('18 to 34 years old: ', perc_18to34_M, '%')
+
+# 35 to 64 years old
+perc_35to64_M = round((General_Mean_35to64_M_After/General_Mean_35to64_M_Before)*100, 2)
+#print('35 to 64 years old:', perc_35to64_M, '%')
+
+# 65 + years old
+perc_65plus_M = round((General_Mean_65plus_M_After/General_Mean_65plus_M_Before)*100, 2)
+#print('65 + years old:', perc_65plus_M, '%')
+
+#-- For Data analysis---------------------------------------------------------------
+variables = {'Evolution of CVD': ['General_18_to_34', 'General_35_to_64', 'General_65_plus', 'Women_18 to_34', 'Women_35_to_64', 'Women_65_plus', 'Men_18_to_34', 'Men_35_to_64', 'Men_65_plus'],
+        'Mean': [perc_18to34, perc_35to64, perc_65plus, perc_18to34_W, perc_35to64_W, perc_65plus_W, perc_18to34_M, perc_35to64_M, perc_65plus_M],
+        }
+
+df = pd.DataFrame(variables, columns = ['Evolution of CVD ', 'Mean'])
+
+df.to_excel (r'C:\Users\mario\OneDrive\Bureau\AI\URSS\Results_Spread_CVD.xlsx', index = False, header=True)
