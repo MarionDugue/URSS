@@ -1415,4 +1415,5 @@ variables = {'Evolution of CVD': ['General_18_to_34', 'General_35_to_64', 'Gener
 
 df = pd.DataFrame(variables, columns = ['Evolution of CVD ', 'Mean'])
 
-df.to_excel (r'C:\Users\mario\OneDrive\Bureau\AI\URSS\Results_Spread_CVD.xlsx', index = False, header=True)
+#df.to_excel (r'C:\Users\mario\OneDrive\Bureau\AI\URSS\Results_Spread_CVD.xlsx', index = False, header=True) 
+df.to_excel (r'Results_Spread_CVD.xlsx', index = False, header=True) 
