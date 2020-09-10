@@ -1409,11 +1409,11 @@ perc_65plus_M = round((General_Mean_65plus_M_After/General_Mean_65plus_M_Before)
 #print('65 + years old:', perc_65plus_M, '%')
 
 #-- For Data analysis---------------------------------------------------------------
-variables = {'Evolution of CVD': ['General_18_to_34', 'General_35_to_64', 'General_65_plus', 'Women_18 to_34', 'Women_35_to_64', 'Women_65_plus', 'Men_18_to_34', 'Men_35_to_64', 'Men_65_plus'],
+variables = {'Evolution_of_CVD': ['General_18_to_34', 'General_35_to_64', 'General_65_plus', 'Women_18 to_34', 'Women_35_to_64', 'Women_65_plus', 'Men_18_to_34', 'Men_35_to_64', 'Men_65_plus'],
         'Mean': [perc_18to34, perc_35to64, perc_65plus, perc_18to34_W, perc_35to64_W, perc_65plus_W, perc_18to34_M, perc_35to64_M, perc_65plus_M],
         }
 
-df = pd.DataFrame(variables, columns = ['Evolution of CVD ', 'Mean'])
+df = pd.DataFrame(variables, columns = ['Evolution_of_CVD ', 'Mean'])
 
 #df.to_excel (r'C:\Users\mario\OneDrive\Bureau\AI\URSS\Results_Spread_CVD.xlsx', index = False, header=True) 
 df.to_excel (r'Results_Spread_CVD.xlsx', index = False, header=True) 
