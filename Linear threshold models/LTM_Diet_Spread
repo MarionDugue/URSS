@@ -1087,7 +1087,7 @@ rects6 = ax.bar(ind+width*5+0.2, Means_After_65plus, width,
 #--axes and labels----------------------------------------------------------------------------
 ax.set_xlim(-width,len(ind)+width)
 ax.set_ylabel('Count')
-ax.set_title('Spread of exercise with the threshold model')
+ax.set_title('Spread of diet with the threshold model')
 xTickMarks = ['Level '+str(i) for i in range(0,3)]
 ax.set_xticks(ind+width*3+0.05)
 xtickNames = ax.set_xticklabels(xTickMarks)
