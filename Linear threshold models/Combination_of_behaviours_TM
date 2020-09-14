@@ -1165,7 +1165,7 @@ for r in range(0,100):
         Simulation(G)
         print('Simulation', r)
     except IndexError:
-        break
+        continue
 
 
     Risk_18to34 = []
