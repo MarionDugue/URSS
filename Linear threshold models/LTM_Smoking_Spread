@@ -956,6 +956,8 @@ for r in range(0,100):
     t = 10
     for i in range(0,t):
         s.Spread(G)
+        for a in G.nodes():
+            a.age += 1
         
     for agt in G.nodes():
         if agt.age>18 and agt.age<35:
