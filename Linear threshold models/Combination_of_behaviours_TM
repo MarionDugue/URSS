@@ -1274,6 +1274,9 @@ for r in range(0,100):
     t = 10
     for i in range(0,t):
         s.Spread(G)
+        #Agents age a year per iteration
+        for a in G.nodes():
+            a.age += 1
         print('i', i)
 
     Risk_18to34 = []
