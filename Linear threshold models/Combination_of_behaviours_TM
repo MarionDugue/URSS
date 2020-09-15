@@ -1081,8 +1081,8 @@ def InitialiseNetwork(G):
     for agt in G.nodes:
         
         for neighbr in G.nodes:
-            if (OutEdge(agt, neighbr, G) == False):
-                if agt.id != neighbr.id:
+            if agt.id != neighbr.id:
+                if (OutEdge(agt, neighbr, G) == False):
                     if (G.out_degree[agt] - agt.housesize) == 0:
                         #If first friend 
                         if agt.friendshipfull == False and neighbr.friendshipfull == False:
