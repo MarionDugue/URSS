@@ -1,4 +1,4 @@
-
+Show_prints = True
 
 import networkx as nx
 import random
@@ -336,7 +336,8 @@ class Simulation:
                                             List_sum_L1_EX.append(value)
                                         if Weight == 'weight_L2':
                                             List_sum_L2_EX.append(value)
-                
+                # if Show_prints == True:
+                #     print('Weights added to relevant lists')
                 #For alcohol: finding the new level as a function of the threshold-----------------------------------------------------
                 #Calculating sum of weights of neighbors influencing Level 0
                 sum_L0_AL = sum(List_sum_L0_AL)
@@ -437,20 +438,32 @@ class Simulation:
                 elif a.th > (Proba_L0_EX + Proba_L1_EX):
                     new_level_EX = 2
                 
+                # if Show_prints == True:
+                #     print('probabilities calculated and new levels assigned')
                 #Updating the outward influence of the agent if the levels change------------------------------------------------------
                 if new_level_AL != old_level_AL:
                         a.Level_alcohol = new_level_AL
                         Simulation.UpdateWeights(a, graph, old_level_AL, new_level_AL, 'Influence_Alcohol')
+                        # if Show_prints == True:
+                        #     print('weights alcohol updated')
                 if new_level_SM != old_level_SM:
                         a.Level_smoking = new_level_SM
                         Simulation.UpdateWeights(a, graph, old_level_SM, new_level_SM, 'Influence_Smoking')
+                        # if Show_prints == True:
+                        #     print('weights smoking updated')
                 if new_level_DI != old_level_DI:
                         a.Level_diet = new_level_DI
                         Simulation.UpdateWeights(a, graph, old_level_DI, new_level_DI, 'Influence_Diet')
+                        # if Show_prints == True:
+                        #     print('weights diet updated')
                 if new_level_EX != old_level_EX:
                         a.Level_exercise = new_level_EX
                         Simulation.UpdateWeights(a, graph, old_level_EX, new_level_EX, 'Influence_Exercise')
-                        
+                        # if Show_prints == True:
+                        #     print('weights exercise updated')
+                            
+        # if Show_prints == True:
+        #     print(' all weights updated')
         #Graph is being updated all along this method so no return needed
         return 
     
@@ -978,7 +991,6 @@ def InitialiseNetwork(G):
                 if agt.housesize == 1:
                     #For couples
                     r = random.random()
-                    
                     if r>= 0.012:
                         #For different sex couples 
                         for neighbr in G.nodes:
@@ -1052,19 +1064,12 @@ def InitialiseNetwork(G):
                                 neighbr.housefull = True
    
     
-                              
+    if Show_prints == True:
+        print('Household set')
     #Creation of network for friendships:
-                                  
-    def FriendCount(Graph, agent):
-        '''calculates number of friends of an agent at a given time'''
-        All_neighbrs = list(nx.all_neighbors(Graph, agent))
-        Levels_neighbrs = []
-        for neighbr in All_neighbrs:
-            Levels_neighbrs.append(neighbr.Level_alcohol)
-        Dict_levels = Counter(Levels_neighbrs)
-        List_Connected_Agents = list(Dict_levels.values())
-        Nb_Friends = sum(List_Connected_Agents) - agent.housesize
-        return Nb_Friends
+                                 
+    
+    
     
     #Checking if agent a has an outcoming edge to neighbour n 
     def OutEdge(a,n, G):
@@ -1072,57 +1077,61 @@ def InitialiseNetwork(G):
         for principal, neighbour in List_Out_Edges:
             if neighbour == n:
                 return True
+        if Show_prints == True:
+            print('Out edge checked')
         return False
     
     for agt in G.nodes:
         
         for neighbr in G.nodes:
                 if agt.id != neighbr.id:
-                    if FriendCount(G, agt) == 0:
+                    if (G.out_degree[agt] - agt.housesize) == 0:
                         #If first friend 
                         if agt.friendshipfull == False and neighbr.friendshipfull == False:
                             if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0):
                                   G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L0)
-                                  if FriendCount(G, agt) == agt.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
-                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
     
                             if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 1):
                                   G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L1)
-                                  if FriendCount(G, agt) == agt.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
-                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
                             if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 2):
                                   G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L2)        
-                                  if FriendCount(G, agt) == agt.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
-                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
                     else:
                         #If additional friend
                         if agt.friendshipfull == False and neighbr.friendshipfull == False:
                             if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0):
                                   G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L0)
-                                  if FriendCount(G, agt) == agt.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
-                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
     
                             if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 1):
                                   G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L1)
-                                  if FriendCount(G, agt) == agt.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
-                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
                             if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 2):
                                   G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L2)        
-                                  if FriendCount(G, agt) == agt.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
-                                  if FriendCount(G, neighbr) == neighbr.friends:
+                                  if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
-                              
+    if Show_prints == True:
+            print('Friendships set')
+                     
     #Adding influence for smoking, diet, and exercise
     for agt in G.nodes:
         for n in G.neighbors(agt):
@@ -1139,7 +1148,8 @@ def InitialiseNetwork(G):
                 G[agt][n][key]['Influence_Smoking'] = SM_F_spread_list[agt.Level_smoking]
                 G[agt][n][key]['Influence_Diet'] = DI_F_spread_list[agt.Level_diet]
                 G[agt][n][key]['Influence_Exercise'] = EX_F_spread_list[agt.Level_exercise]
-            
+    if Show_prints == True:
+            print('All behaviours added')        
     return G
 
 #BEFORE SIMULATION------------------------------------
@@ -1157,13 +1167,14 @@ OV_Mean_65plus_F_Before = []
 OV_Mean_65plus_M_Before = []
 
 for r in range(0,100):
+    if Show_prints == True:
+        print('r before spread (out of 100)', r)
     G = nx.MultiDiGraph()
     for i in range(0,population_size):
         G.add_node(i)
     #Ensure the list of th parameters (houshold, friends, sex and age) are the length of the population size
     try: 
         Simulation(G)
-        print('Simulation', r)
     except IndexError:
         continue
 
@@ -1260,24 +1271,30 @@ OV_Mean_65plus_F_After = []
 OV_Mean_65plus_M_After = []
 
 for r in range(0,100):
-
+    if Show_prints == True:
+        print('r after spread (out of 100)', r)
     G = nx.MultiDiGraph()
     for i in range(0,population_size):
         G.add_node(i)
-
+    if Show_prints == True:
+        print('Before simulation')
     try:
         s = Simulation(G)
     except IndexError:
-        break
-    
+        continue
+    if Show_prints == True:
+        print('After simulation')
     InitialiseNetwork(G)
+    if Show_prints == True:
+        print('network initialised')
     t = 10
     for i in range(0,t):
         s.Spread(G)
         #Agents age a year per iteration
         for a in G.nodes():
             a.age += 1
-        print('i', i)
+        if Show_prints == True:
+            print('i', i)
 
     Risk_18to34 = []
     Risk_18to34_F = []
@@ -1361,57 +1378,69 @@ std_65plus_M_After = np.std(OV_Mean_65plus_M_After)
 #RESULTS-------------------------
 
 #Evolution of CVD risk per age group:
-#print('Evolution of CVD risk per age group:')
-#print('(ie percentage increase of CVD risk of AFTER compared to BEFORE)')
-#print('<100% shows a decrease in risk, > 100% shows an increase')
+if Show_prints == True:
+    print('Evolution of CVD risk per age group:')
+    print('(ie percentage increase of CVD risk of AFTER compared to BEFORE)')
+    print('<100% shows a decrease in risk, > 100% shows an increase')
 
 # 18 to 34 years old
 perc_18to34 = round((General_Mean_18to34_After/General_Mean_18to34_Before)*100, 2)
-#print('18 to 34 years old: ', perc_18to34, '%')
+if Show_prints == True:
+    print('18 to 34 years old: ', perc_18to34, '%')
 
 # 35 to 64 years old
 perc_35to64 = round((General_Mean_35to64_After/General_Mean_35to64_Before)*100, 2)
-#print('35 to 64 years old:', perc_35to64, '%')
+if Show_prints == True:
+    print('35 to 64 years old:', perc_35to64, '%')
 
 # 65 + years old
 perc_65plus = round((General_Mean_65plus_After/General_Mean_65plus_Before)*100, 2)
-#print('65 + years old:', perc_65plus, '%')
+if Show_prints == True:
+    print('65 + years old:', perc_65plus, '%')
 
 
 
 #Evolution of CVD risk for women:
-#print('Evolution of CVD risk for women per age group:')
+if Show_prints == True:
+    print('Evolution of CVD risk for women per age group:')
 
 
 # 18 to 34 years old
 perc_18to34_W = round((General_Mean_18to34_F_After/General_Mean_18to34_F_Before)*100, 2)
-#print('18 to 34 years old: ', perc_18to34_W, '%')
+if Show_prints == True:
+    print('18 to 34 years old: ', perc_18to34_W, '%')
 
 # 35 to 64 years old
 perc_35to64_W = round((General_Mean_35to64_F_After/General_Mean_35to64_F_Before)*100, 2)
-#print('35 to 64 years old:', perc_35to64_W, '%')
+if Show_prints == True:
+    print('35 to 64 years old:', perc_35to64_W, '%')
 
 # 65 + years old
 perc_65plus_W = round((General_Mean_65plus_F_After/General_Mean_65plus_F_Before)*100, 2)
-#print('65 + years old:', perc_65plus_W, '%')
+if Show_prints == True:
+    print('65 + years old:', perc_65plus_W, '%')
 
 
 
 #Evolution of CVD risk for men:
-#print('Evolution of CVD risk for men per age group:')
+if Show_prints == True:
+    print('Evolution of CVD risk for men per age group:')
 
 
 # 18 to 34 years old
 perc_18to34_M = round((General_Mean_18to34_M_After/General_Mean_18to34_M_Before)*100, 2)
-#print('18 to 34 years old: ', perc_18to34_M, '%')
+if Show_prints == True:
+    print('18 to 34 years old: ', perc_18to34_M, '%')
 
 # 35 to 64 years old
 perc_35to64_M = round((General_Mean_35to64_M_After/General_Mean_35to64_M_Before)*100, 2)
-#print('35 to 64 years old:', perc_35to64_M, '%')
+if Show_prints == True:
+    print('35 to 64 years old:', perc_35to64_M, '%')
 
 # 65 + years old
 perc_65plus_M = round((General_Mean_65plus_M_After/General_Mean_65plus_M_Before)*100, 2)
-#print('65 + years old:', perc_65plus_M, '%')
+if Show_prints == True:
+    print('65 + years old:', perc_65plus_M, '%')
 
 #-- For Data analysis---------------------------------------------------------------
 variables = {'Evolution_of_CVD': ['General_18_to_34', 'General_35_to_64', 'General_65_plus', 'Women_18 to_34', 'Women_35_to_64', 'Women_65_plus', 'Men_18_to_34', 'Men_35_to_64', 'Men_65_plus'],
