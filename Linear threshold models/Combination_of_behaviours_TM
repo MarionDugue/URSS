@@ -1068,9 +1068,6 @@ def InitialiseNetwork(G):
         print('Household set')
     #Creation of network for friendships:
                                  
-    
-    
-    
     #Checking if agent a has an outcoming edge to neighbour n 
     def OutEdge(a,n, G):
         List_Out_Edges = G.out_edges(a)
@@ -1084,24 +1081,25 @@ def InitialiseNetwork(G):
     for agt in G.nodes:
         
         for neighbr in G.nodes:
+            if (OutEdge(agt, neighbr, G) == False):
                 if agt.id != neighbr.id:
                     if (G.out_degree[agt] - agt.housesize) == 0:
                         #If first friend 
                         if agt.friendshipfull == False and neighbr.friendshipfull == False:
-                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0):
-                                  G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L0)
-                                  if (G.out_degree[agt] - agt.housesize) == agt.friends:
-                                      agt.friendshipfull = True
-                                  if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
-                                      neighbr.friendshipfull = True
+                            if (agt.Level_alcohol == 0):
+                                G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L0)
+                                if (G.out_degree[agt] - agt.housesize) == agt.friends:
+                                    agt.friendshipfull = True
+                                if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
+                                    neighbr.friendshipfull = True
     
-                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 1):
+                            if  (agt.Level_alcohol == 1):
                                   G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L1)
                                   if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
                                   if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
-                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 2):
+                            if  (agt.Level_alcohol == 2):
                                   G.add_edge(agt,neighbr, key = 'Friend', Influence_Alcohol = AL_F_spread_L2)        
                                   if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
@@ -1110,20 +1108,20 @@ def InitialiseNetwork(G):
                     else:
                         #If additional friend
                         if agt.friendshipfull == False and neighbr.friendshipfull == False:
-                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 0):
+                            if (agt.Level_alcohol == 0):
                                   G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L0)
                                   if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
                                   if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
     
-                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 1):
+                            if  (agt.Level_alcohol == 1):
                                   G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L1)
                                   if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
                                   if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                       neighbr.friendshipfull = True
-                            if (OutEdge(agt, neighbr, G) == False) and (agt.Level_alcohol == 2):
+                            if  (agt.Level_alcohol == 2):
                                   G.add_edge(agt,neighbr, key = 'Additional Friend', Influence_Alcohol = AL_AF_spread_L2)        
                                   if (G.out_degree[agt] - agt.housesize) == agt.friends:
                                       agt.friendshipfull = True
