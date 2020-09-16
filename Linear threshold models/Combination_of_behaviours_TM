@@ -1445,17 +1445,17 @@ if Show_prints == True:
 
 
 print('Number of people with CVD after 10 years:')
-print('18 to 34 years old:', (perc_18to34/100)*population_size)
-print('35 to 64:', (perc_35to64/100)*population_size)
-print('65 plus:', (perc_65plus/100)*population_size)
+print('18 to 34 years old:', (General_Mean_18to34_After/100)*population_size)
+print('35 to 64:', (General_Mean_35to64_After/100)*population_size)
+print('65 plus:', (General_Mean_65plus_After/100)*population_size)
 
-print('Women 18 to 34 years old:', (perc_18to34_W/100)*population_size)
-print('Women 35 to 64:', (perc_35to64_W/100)*population_size)
-print('Women 65 plus:', (perc_65plus_W/100)*population_size)
+print('Women 18 to 34 years old:', (General_Mean_18to34_F_After/100)*population_size)
+print('Women 35 to 64:', (General_Mean_35to64_F_After/100)*population_size)
+print('Women 65 plus:', (General_Mean_65plus_F_After/100)*population_size)
 
-print('Men 18 to 34 years old:', (perc_18to34_M/100)*population_size)
-print('Men 35 to 64:', (perc_35to64_M/100)*population_size)
-print('Men 65 plus:', (perc_65plus_M/100)*population_size)
+print('Men 18 to 34 years old:', (General_Mean_18to34_M_After/100)*population_size)
+print('Men 35 to 64:', (General_Mean_35to64_M_After/100)*population_size)
+print('Men 65 plus:', (General_Mean_65plus_M_After/100)*population_size)
 
 #-- For Data analysis---------------------------------------------------------------
 variables = {'Evolution_of_CVD': ['General_18_to_34', 'General_35_to_64', 'General_65_plus', 'Women_18 to_34', 'Women_35_to_64', 'Women_65_plus', 'Men_18_to_34', 'Men_35_to_64', 'Men_65_plus'],
