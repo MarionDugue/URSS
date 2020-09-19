@@ -1234,5 +1234,5 @@ variables = {'Entity': ['Means_Before_18to34','Std_Before_18to34','Means_After_1
 
 df = pd.DataFrame(variables, columns = ['Entity', 'Level 0', 'Level 1','Level 2' ])
 
-#df.to_excel (r'C:\Users\mario\OneDrive\Bureau\AI\URSS\Sensitivity\Percentages\Data_Original.xlsx', index = False, header=True)
+df.to_excel (r'Results_Spread_CVD.xlsx', index = False, header=True)
         
