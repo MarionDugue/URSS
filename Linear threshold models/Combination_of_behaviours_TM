@@ -883,7 +883,7 @@ class Agent:
 
 
 #---Data-----------------------------------------------------------
-population_size = 100000
+population_size = 10000
 
 
 #---Initialising network--------------------------------------------------------
@@ -1376,7 +1376,7 @@ General_Mean_65plus_M_After = np.mean(OV_Mean_65plus_M_After)
 std_65plus_M_After = np.std(OV_Mean_65plus_M_After)
 
 #RESULTS-------------------------
-
+print('Population size is', population_size)
 #Evolution of CVD risk per age group:
 if Show_prints == True:
     print('Evolution of CVD risk per age group:')
