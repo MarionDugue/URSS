@@ -874,7 +874,7 @@ for r in range(0,100):
     try:
         s = Simulation(G)
     except IndexError:
-        break
+        continue
 
     InitialiseNetwork(G)
     t = 10
