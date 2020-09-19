@@ -956,8 +956,8 @@ for r in range(0,100):
         s.Spread(G)
         for a in G.nodes():
             a.age += 1
-            if Show_prints == True:
-                print('iteration (out of 10)', i)
+        if Show_prints == True:
+            print('iteration (out of 10)', i)
     for agt in G.nodes():
         if agt.age>18 and agt.age<35:
             Level18to34.append(agt.Level_smoking)
