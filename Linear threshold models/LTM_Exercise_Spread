@@ -1,3 +1,5 @@
+Show_prints = True
+
 import networkx as nx
 import random
 import scipy.stats as stats
@@ -761,7 +763,8 @@ Level65plus_Level1 = []
 Level65plus_Level2 = []
                               
 for r in range(0,100):
-
+    if Show_prints == True:
+        print('r before spread', r)
     
     Level18to34 = []  
     Level35to64 = []
@@ -854,7 +857,9 @@ Level65plus_Level2 = []
 
 for r in range(0,100):
 
-    
+    if Show_prints == True:
+        print('r after spread', r)
+        
     Level18to34 = []  
     Level35to64 = []
     Level64plus = []
@@ -877,6 +882,8 @@ for r in range(0,100):
         s.Spread(G)
         for a in G.nodes():
             a.age += 1
+        if Show_prints == True:
+            print('i iteration', i)
         
     for agt in G.nodes():
         if agt.age>18 and agt.age<35:
