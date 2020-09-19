@@ -779,7 +779,9 @@ def InitialiseNetwork(G):
 
         
     
-                              
+    if Show_prints == True:
+        print('household settled')
+        
     #Creation of network for friendships:
     
     for agt in G.nodes:
@@ -809,7 +811,8 @@ def InitialiseNetwork(G):
                                 agt.friendshipfull = True
                             if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
                                 neighbr.friendshipfull = True
-                              
+    if Show_prints == True:
+        print('friendships settled')                          
     return 
 
 #--Plotting the network for  small population_size--------------------------------------------------------
