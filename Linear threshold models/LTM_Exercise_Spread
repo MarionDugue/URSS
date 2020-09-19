@@ -4,6 +4,8 @@ import scipy.stats as stats
 from collections import Counter
 import matplotlib.pyplot as plt
 import numpy as np
+from random import sample
+
 
 class Simulation:
     '''Simulates the spread of the behaviour'''
@@ -643,7 +645,7 @@ class Agent:
 
 
 #---Data-----------------------------------------------------------
-population_size = 1000
+population_size = 10000
 
 #---Initialising network--------------------------------------------------------
 #Creation of network for households
@@ -703,45 +705,34 @@ def InitialiseNetwork(G):
     
                               
     #Creation of network for friendships:
-                                  
-    def FriendCount(Graph, agent):
-        '''calculates number of friends an agent has at a given time'''
-        Nb_Friends = G.degree[agent] - agent.housesize
-        return Nb_Friends
-    
-    
-    def OutEdge(a, n, G):
-        '''Checking if agent a has an outcoming edge to neighbour n '''
-        List_Out_Edges = G.out_edges(a)
-        for principal, neighbour in List_Out_Edges:
-            if neighbour == n:
-                return True
-        return False
-    
+
     for agt in G.nodes:
-        for neighbr in G.nodes:
-                if agt.id != neighbr.id: #Should be distinct agents
-                    if agt.friendshipfull == False and neighbr.friendshipfull == False: #Both should not have filled their friend groups
-                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_exercise == 0): #No edge should already exist between them 
-                              G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L0)
-                              if FriendCount(G, agt) == agt.friends:
-                                  agt.friendshipfull = True
-                              if FriendCount(G, neighbr) == neighbr.friends:
-                                  neighbr.friendshipfull = True
+        HouseholdNeighbours = list(G.neighbors(agt))
+        while agt.friendshipfull == True:
+            n = sample(list(G.nodes()), 1)
+            if n not in HouseholdNeighbours:
+                for neighbr in G.nodes():
+                    if neighbr.id == n and neighbr.friendshipfull == False: #Both should not have filled their friend groups
+                        if (agt.Level_exercise == 0): #No edge should already exist between them 
+                            G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L0)
+                            if (G.out_degree[agt] - agt.housesize) == agt.friends:
+                                agt.friendshipfull = True
+                            if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
+                                neighbr.friendshipfull = True
                        
-                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_exercise == 1):
-                              G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L1)
-                              if FriendCount(G, agt) == agt.friends:
-                                  agt.friendshipfull = True
-                              if FriendCount(G, neighbr) == neighbr.friends:
-                                  neighbr.friendshipfull = True
+                        if (agt.Level_exercise == 1):
+                            G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L1)
+                            if (G.out_degree[agt] - agt.housesize) == agt.friends:
+                                agt.friendshipfull = True
+                            if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
+                                neighbr.friendshipfull = True
                                   
-                        if (OutEdge(agt, neighbr, G) == False) and (agt.Level_exercise == 2):
-                              G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L2)        
-                              if FriendCount(G, agt) == agt.friends:
-                                  agt.friendshipfull = True
-                              if FriendCount(G, neighbr) == neighbr.friends:
-                                  neighbr.friendshipfull = True
+                        if (agt.Level_exercise == 2):
+                            G.add_edge(agt,neighbr, key = 'Friend', Spread_Level = F_spread_L2)        
+                            if (G.out_degree[agt] - agt.housesize) == agt.friends:
+                                agt.friendshipfull = True
+                            if (G.out_degree[agt] - agt.housesize) == neighbr.friends:
+                                neighbr.friendshipfull = True
                               
     return 
 
@@ -1056,7 +1047,16 @@ print("Means_After_65plus",  Means_After_65plus)
 print("Std_After_65plus", Std_After_65plus)
 
         
+#-- For Data analysis---------------------------------------------------------------
+variables = {'Entity': ['Means_Before_18to34','Std_Before_18to34','Means_After_18to34','Std_After_18to34', 'Means_Before_35to64', 'Std_Before_35to64', 'Means_After_35to64', 'Std_After_35to64', 'Means_Before_65plus', 'Std_Before_65plus', 'Means_After_65plus', 'Std_After_65plus'],
+        'Level 0': [Means_Before_18to34[0], Std_Before_18to34[0], Means_After_18to34[0], Std_After_18to34[0], Means_Before_35to64[0], Std_Before_35to64[0], Means_After_35to64[0], Std_After_35to64[0], Means_Before_65plus[0], Std_Before_65plus[0], Means_After_65plus[0], Std_After_65plus[0]],
+        'Level 1': [Means_Before_18to34[1], Std_Before_18to34[1], Means_After_18to34[1], Std_After_18to34[1], Means_Before_35to64[1], Std_Before_35to64[1], Means_After_35to64[1], Std_After_35to64[1], Means_Before_65plus[1], Std_Before_65plus[1], Means_After_65plus[1], Std_After_65plus[1]],
+        'Level 2': [Means_Before_18to34[2], Std_Before_18to34[2], Means_After_18to34[2], Std_After_18to34[2], Means_Before_35to64[2], Std_Before_35to64[2], Means_After_35to64[2], Std_After_35to64[2], Means_Before_65plus[2], Std_Before_65plus[2], Means_After_65plus[2], Std_After_65plus[2]]
+        }
 
+df = pd.DataFrame(variables, columns = ['Entity', 'Level 0', 'Level 1','Level 2' ])
+
+df.to_excel (r'Results_Spread_CVD.xlsx', index = False, header=True)
         
         
         
