@@ -1119,3 +1119,13 @@ print("Std_Before_65plus", Std_Before_65plus)
 print("Means_After_65plus",  Means_After_65plus)
 print("Std_After_65plus", Std_After_65plus)
 
+#-- For Data analysis---------------------------------------------------------------
+variables = {'Entity': ['Means_Before_18to34','Std_Before_18to34','Means_After_18to34','Std_After_18to34', 'Means_Before_35to64', 'Std_Before_35to64', 'Means_After_35to64', 'Std_After_35to64', 'Means_Before_65plus', 'Std_Before_65plus', 'Means_After_65plus', 'Std_After_65plus'],
+        'Level 0': [Means_Before_18to34[0], Std_Before_18to34[0], Means_After_18to34[0], Std_After_18to34[0], Means_Before_35to64[0], Std_Before_35to64[0], Means_After_35to64[0], Std_After_35to64[0], Means_Before_65plus[0], Std_Before_65plus[0], Means_After_65plus[0], Std_After_65plus[0]],
+        'Level 1': [Means_Before_18to34[1], Std_Before_18to34[1], Means_After_18to34[1], Std_After_18to34[1], Means_Before_35to64[1], Std_Before_35to64[1], Means_After_35to64[1], Std_After_35to64[1], Means_Before_65plus[1], Std_Before_65plus[1], Means_After_65plus[1], Std_After_65plus[1]],
+        'Level 2': [Means_Before_18to34[2], Std_Before_18to34[2], Means_After_18to34[2], Std_After_18to34[2], Means_Before_35to64[2], Std_Before_35to64[2], Means_After_35to64[2], Std_After_35to64[2], Means_Before_65plus[2], Std_Before_65plus[2], Means_After_65plus[2], Std_After_65plus[2]]
+        }
+
+df = pd.DataFrame(variables, columns = ['Entity', 'Level 0', 'Level 1','Level 2' ])
+
+df.to_excel (r'Results_Spread_CVD.xlsx', index = False, header=True)
