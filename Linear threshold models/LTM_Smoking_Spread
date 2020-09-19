@@ -1,3 +1,5 @@
+Show_prints = False
+
 import networkx as nx
 import random
 import scipy.stats as stats
@@ -835,7 +837,8 @@ Level65plus_Level2 = []
                               
 for r in range(0,100):
 
-    
+    if Show_prints == True:
+        print('r before spread (out of 100)', r)
     Level18to34 = []  
     Level35to64 = []
     Level64plus = []
@@ -927,7 +930,8 @@ Level65plus_Level2 = []
 
 for r in range(0,100):
 
-    
+    if Show_prints == True:
+        print('r after spread (out of 100)', r)
     Level18to34 = []  
     Level35to64 = []
     Level64plus = []
@@ -945,12 +949,15 @@ for r in range(0,100):
         break
 
     InitialiseNetwork(G)
+    if Show_prints == True:
+        print('Network initialised')
     t = 10
     for i in range(0,t):
         s.Spread(G)
         for a in G.nodes():
             a.age += 1
-        
+            if Show_prints == True:
+                print('iteration (out of 10)', i)
     for agt in G.nodes():
         if agt.age>18 and agt.age<35:
             Level18to34.append(agt.Level_smoking)
