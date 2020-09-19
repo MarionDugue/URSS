@@ -1,4 +1,4 @@
-Show_prints = False
+Show_prints = True
 
 import networkx as nx
 import random
