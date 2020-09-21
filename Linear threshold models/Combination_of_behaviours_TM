@@ -448,6 +448,13 @@ class Simulation:
                         # if Show_prints == True:
                         #     print('weights alcohol updated')
                 if new_level_SM != old_level_SM:
+                        if new_level_SM == 0:
+                                #Level_0 for smoking corresponds to 'never smoked' so if an agent has smoked, can only go to level 1
+                                a.Level_smoking = 1
+                                Simulation.UpdateWeights(a, graph, old_level_SM, new_level_SM)
+                            else:
+                                a.Level_smoking = new_level_SM
+                                Simulation.UpdateWeights(a, graph, old_level_SM, new_level_SM)
                         a.Level_smoking = new_level_SM
                         Simulation.UpdateWeights(a, graph, old_level_SM, new_level_SM, 'Influence_Smoking')
                         # if Show_prints == True:
