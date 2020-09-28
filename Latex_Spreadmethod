@@ -1,0 +1,101 @@
+\documentclass{article}
+\usepackage{xcolor}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\title{Algorithms URSS}
+
+
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
+
+\SetKwInput{KwInput}{Input}                % Set the Input
+\SetKwInput{KwOutput}{Output}              % set the Output
+
+
+\begin{document}
+\maketitle
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+  
+  \KwInput{graph}
+  \KwOutput{None}
+  
+  \For{ each agent}
+   {Initialize lists per age and per level\;
+   \For{each of the agent's predecessors}
+    {
+    \tcc{a predecessor is a neighbouring node having an  edge directed to the main agent}
+        \For{each of the behaviours}
+            {
+            Add weight to the list of relevant age and behaviour
+            }
+        }
+    
+  \For{each of the behaviours}
+    	{
+    	\For{each of the levels}
+    			{Sum the weights of the relevant list
+    			}
+    	Total $\leftarrow$ Sum of lists of that behaviour\;
+        \For{each sum }   
+        	{ Proba. of level $\leftarrow$ Sum / Total
+        	\tcp*{Normalizing the values}
+        	}
+    	
+        		\tcc{For behaviours having 3 levels each}
+    			\If{agent's threshold $\leq$ Proba. of level 0} 
+        			{
+       				New level $\leftarrow$ level 0\
+        			}\EndIf
+        	\If{(agent's threshold $ >$Proba. of level 0) and (agent's threshold $\leq$ Proba. of level 1)}
+        			{
+        			New level $\leftarrow$ level 1\
+        			} \EndIf
+       		\If{agent's threshold $ >$ Proba. of level 1}
+          			{
+          			New level $\leftarrow$ level 2\
+         		 	} 
+              \EndIf
+              \If{agent level $\ne$  new level}
+          			{
+          			agent level  $\leftarrow$ new level\;
+                    Update agent's influence
+         		 	} }}   
+  \EndFor
+              
+    		Return}
+        
+     
+    
+    }}
+    
+
+\caption{Spread method }
+\end{algorithm}
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+  
+  \KwInput{agent,  agent's new level, behaviour}
+  \KwOutput{None}
+  
+ 
+  \For{each of the agent's successor}
+  			{
+            \For{each of the relationships}
+            		{
+                    Delete the dictionary of the behaviour \;
+                    Add the dictionary of the behaviour with the 						new weights\;
+                    }
+            }
+ Return
+  }
+    
+
+\caption{Updating the influence of agents }
+\end{algorithm}
+\end{document}
+
+%\tcc{a successor is a neighbouring node where the main %agent has a directed edge to it}
