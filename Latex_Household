@@ -1,0 +1,180 @@
+\documentclass{article}
+\usepackage{xcolor}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\title{Appendix 1}
+
+
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+\SetCommentSty{mycommfont}
+
+\SetKwInput{KwInput}{Input}                % Set the Input
+\SetKwInput{KwOutput}{Output}              % set the Output
+
+
+\begin{document}
+\maketitle
+
+\begin{algorithm}[H]
+
+\DontPrintSemicolon
+  
+  \KwInput{population size}
+  \KwOutput{List of household sizes the length of the population size}
+  
+  Initialise the lists relevant to the age groups\;
+  \For{ each age group}
+   		{Count $\leftarrow$ proportion of agents in that age group\;
+  		 HouseholdAgeGroup $\leftarrow$ 				scipy.stats.poisson.rvs(AvHouseholdAgeGroup, loc=0, 		size=Count)\;
+   		\tcc{Adjusting the list such that it's sensible}
+   		SensibleAgeGroup = SensibleHousehold(HouseholdAgeGroup)\;
+  		 }
+         
+         HouseholdList $\leftarrow$ sum of SensibleAgeGroup lists\;
+         \tcc{Ensuring the HouseholdList is the size of the population}
+         Truncate HouseholdList to the size of the population\;
+Return HouseholdList}
+        
+     
+    
+
+    
+
+\caption{Creation of the household list }
+\end{algorithm}
+
+
+\begin{algorithm}[H]
+\begin{algorithmic}[Part 1]
+\DontPrintSemicolon
+  
+  \KwInput{HouseholdAgeGroupList}
+  \KwOutput{SensibleHouseholdAgeGroupList}
+  
+ Dict $\leftarrow$ dict(HouseholdAgeGroup)\;
+ 
+ \tcc{Creating the list of values that are not sensible}
+  Initialise NotSensibleDict\;
+  \For{size, count in Dict}
+  {
+  \If{size != 0}
+  		{
+  		\If{size == 1}
+       			{
+        		\tcc{the count of the size has to be pair to be sensible}
+                \If{rest of (count/2) != 0}
+                	{
+                    Append (size: count) pair to NotSensibleDict
+                    }
+        		}
+  		\Else{\If{count == 1}
+            		{
+                	Append (size: count) pair to NotSensibleDict
+                	}
+                    \Else{
+                    \If{rest of (count / (size + 1)) != 0}
+                    	{
+                    	Append (size: count) pair to NotSensibleDict
+                   		}
+                    }
+                }
+ 		 }
+  }
+ \tcc{Sorting the values}
+ NotSensibleDict  $\leftarrow$ InverslySort(NotSensibleDict)\;
+ Dict $\leftarrow$ Sort(Dict)\;
+ \tcc{Adjusting NotSensibleDict using a system of credits}
+ credit = 0\;
+ Initialise NewPairsList\;
+ \SetKwBlock{Begin}{}{end}
+\SetKwProg{Loop}{LOOP}{}{}
+ \For{pair in NotSensibleDict}
+ 		{
+        key $\leftarrow$ pair[0] \tcp{key is the household size}\;
+        \If{credit != 0}
+        		{
+                value $\leftarrow$ pair[1] + credit\;
+                credit = 0
+                }
+        \Else{value $\leftarrow$ pair[1]}{}
+        \If{key == 1}
+        		{
+                \If{rest of (value/2) != 0}
+                		{
+                        value $\leftarrow$ value - 1\;
+                        valueForSizeIs0 $\leftarrow$ Dict[0][1] + 1\;
+                        append pair of (size, count) for size 1 to 									NewPairsList\;
+                        append pair of (size, count) for size 0 to 									NewPairsList\;
+                        
+                        }
+                \Else{append pair of (size, count) for size 1 to 									NewPairsList}{}
+                }
+        \Else{
+        \If{value == 1}
+        		{
+                value = 0\;
+                credit += 1\;
+                append pair (size, 0) to NewPairsList
+                }
+           \If{value == 0}
+           			{
+                    append pair (size, 0) to NewPairsList
+                    }
+                 
+      
+    \algstore{}
+    \end{algorithmic}
+    \caption{SensibleHousehold: Adjusting the list of household to fit reality}
+    \end{algorithm}
+    \begin{algorithm}  
+    \setcounter{AlgoLine}{41}
+    \begin{algorithmic} [Part 2]
+    \algrestore{}
+      \SetAlgoVlined
+    \SetKwProg{Loop}{LOOP}{}{}
+\SetKwBlock{Begin}{loop3}{end}
+    \SetKwBlock{Begin}{}{end}
+\Begin{
+\Begin{
+             \Else{
+             			\If{rest of (value/(key+1)) != 0}
+                        		{
+                                \While{rest of (value/(key+1)) != 0}
+                                		{
+                                        value $\leftarrow$ value - 1\;
+                                        credit += 1
+                                        }
+                                append new pair to NewPairsList
+                                }
+                        \If{NotSensibleDict[-1] == pair}
+                        		{
+                                \For{pair in Dict}
+                                		{
+                                        \If{pair[0] == 1}
+                                        		{
+                                                value = pair[1] + credit
+                                                
+                                                
+                                                }
+                                        
+                                        }
+                                
+                                
+                                
+                                }
+				{}
+                        
+                        
+                        }
+                        
+                        
+     }}
+
+ 
+ Return
+  }}
+    
+\end{algorithmic}
+\end{algorithm}
+\end{document}
+
