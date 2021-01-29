@@ -451,10 +451,8 @@ class Simulation:
                         if new_level_SM == 0:
                                 #Level_0 for smoking corresponds to 'never smoked' so if an agent has smoked, can only go to level 1
                                 a.Level_smoking = 1
-                                Simulation.UpdateWeights(a, graph, old_level_SM, new_level_SM)
-                            else:
+                        else:
                                 a.Level_smoking = new_level_SM
-                                Simulation.UpdateWeights(a, graph, old_level_SM, new_level_SM)
                         a.Level_smoking = new_level_SM
                         Simulation.UpdateWeights(a, graph, old_level_SM, new_level_SM, 'Influence_Smoking')
                         # if Show_prints == True:
@@ -767,37 +765,37 @@ class Agent:
             if self.age < 35:
                 if rand_diet <= 0.435:
                     self.Level_diet = 0
-                    self.Risk_diet = 0.73
+                    self.Risk_diet = 0.81
                 if (rand_diet > 0.435) and (rand_diet <= 0.725):
                     self.Level_diet = 1
-                    self.Risk_diet = 0.84
+                    self.Risk_diet = 0.93
                 if rand_diet >0.725:
                     self.Level_diet = 2
-                    self.Risk_diet = 0.9
+                    self.Risk_diet = 1
                     
             #--For agents from 35 years old to 64------------------------------
             if (self.age>=35) and (self.age<65):
                 if rand_diet <= 0.526:
                     self.Level_diet = 0
-                    self.Risk_diet = 0.73
+                    self.Risk_diet = 0.81
                 if (rand_diet > 0.526) and(rand_diet <= 0.823):
                     self.Level_diet = 1
-                    self.Risk_diet = 0.84
+                    self.Risk_diet = 0.93
                 if rand_diet >0.823:
                     self.Level_diet = 2
-                    self.Risk_diet = 0.9
+                    self.Risk_diet = 1
             
             #--For agents that are 65+ years old-------------------------------
             if self.age>= 65:
                 if rand_diet <= 0.52:
                     self.Level_diet = 0
-                    self.Risk_diet = 0.73
+                    self.Risk_diet = 0.81
                 if (rand_diet > 0.52) and (rand_diet <= 0.85):
                     self.Level_diet = 1
-                    self.Risk_diet = 0.84
+                    self.Risk_diet = 0.93
                 if rand_diet > 0.85:
                     self.Level_diet = 2 
-                    self.Risk_diet = 0.9
+                    self.Risk_diet = 1
         
         #--For females---------------------------------------------------------
         else:
@@ -806,37 +804,37 @@ class Agent:
             if self.age < 35:
                 if rand_diet <= 0.529:
                     self.Level_diet = 0
-                    self.Risk_diet = 0.73
+                    self.Risk_diet = 0.81
                 if (rand_diet > 0.529) and (rand_diet <= 0.808):
                     self.Level_diet = 1
-                    self.Risk_diet = 0.84
+                    self.Risk_diet = 0.93
                 if rand_diet >0.808:
                     self.Level_diet = 2
-                    self.Risk_diet = 0.9
+                    self.Risk_diet = 1
             
             #--For agents from 35 years old to 64------------------------------
             if (self.age>=35) and (self.age<65):
                 if rand_diet <= 0.596:
                     self.Level_diet = 0
-                    self.Risk_diet = 0.73
+                    self.Risk_diet = 0.81
                 if (rand_diet > 0.596) and(rand_diet <= 0.865):
                     self.Level_diet = 1
-                    self.Risk_diet = 0.84
+                    self.Risk_diet = 0.93
                 if rand_diet >0.865:
                     self.Level_diet = 2
-                    self.Risk_diet = 0.9
+                    self.Risk_diet = 1
             
             #--For agents that are 65+ years old-------------------------------
             if self.age>= 65:
                 if rand_diet <= 0.534:
                     self.Level_diet = 0
-                    self.Risk_diet = 0.73
+                    self.Risk_diet = 0.81
                 if (rand_diet > 0.534) and (rand_diet <= 0.864):
                     self.Level_diet = 1
-                    self.Risk_diet = 0.84
+                    self.Risk_diet = 0.93
                 if rand_diet > 0.864:
                     self.Level_diet = 2
-                    self.Risk_diet = 0.9
+                    self.Risk_diet = 1
                     
         #--ASSIGNING LEVELS AND RISKS FOR PHYSICAL ACTIVITY--------------------
         rand_exercise = random.random()
